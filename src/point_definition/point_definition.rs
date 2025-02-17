@@ -240,26 +240,3 @@ pub trait PointDefinition {
         (self.interpolate_points(points, l, r, eased_time), false)
     }
 }
-
-pub struct PointDefinitionManager {
-    point_data: HashMap<String, Value>,
-}
-
-impl PointDefinitionManager {
-    pub fn new() -> Self {
-        Self {
-            point_data: HashMap::new(),
-        }
-    }
-
-    pub fn add_point(&mut self, point_data_name: String, point_data: Value) {
-        if self.point_data.contains_key(&point_data_name) {
-            eprintln!(
-                "Duplicate point definition name, {} could not be registered!",
-                point_data_name
-            );
-        } else {
-            self.point_data.insert(point_data_name, point_data);
-        }
-    }
-}
