@@ -1,5 +1,8 @@
+pub mod float_modifier;
+pub mod operation;
+
 use crate::modifiers::operation::Operation;
-use crate::values::values::BaseValues;
+use crate::values::BaseValues;
 
 pub trait ModifierBase {
     type Value;

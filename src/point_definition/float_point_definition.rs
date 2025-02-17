@@ -1,13 +1,14 @@
+use glam::FloatExt;
 use serde_json::Value;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{float_modifier::FloatModifier, modifiers::ModifierBase, operation::Operation},
-    point_data::{float_point_data::FloatPointData, point_data::BasePointData},
-    values::values::{BaseValues, StaticValues, Values},
+    modifiers::{ModifierBase, float_modifier::FloatModifier, operation::Operation},
+    point_data::{float_point_data::FloatPointData, BasePointData},
+    values::{BaseValues, StaticValues, Values},
 };
 
-use super::point_definition::PointDefinition;
+use super::PointDefinition;
 
 pub struct FloatPointDefinition {
     points: Vec<Box<dyn BasePointData<f32>>>,
@@ -122,10 +123,11 @@ impl PointDefinition for FloatPointDefinition {
     ) -> f32 {
         let point_l = points[l].get_point();
         let point_r = points[r].get_point();
-        point_l + (point_r - point_l) * time
+
+        f32::lerp(point_l, point_r, time)
     }
 
-    fn get_points(&self) -> &[Box<dyn BasePointData<f32>>] {
+    fn get_points(&self) -> &Vec<Box<dyn BasePointData<f32>>> {
         &self.points
     }
 }

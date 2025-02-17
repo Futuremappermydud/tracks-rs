@@ -1,3 +1,5 @@
+#![feature(let_chains)]
+
 use std::{
     borrow::{Borrow, BorrowMut},
     error::Error,
@@ -13,7 +15,7 @@ use plotters::{
     style::{BLACK, Color, GREEN, IntoFont, TRANSPARENT},
 };
 use point_definition::{
-    float_point_definition::FloatPointDefinition, point_definition::PointDefinition,
+    float_point_definition::FloatPointDefinition, PointDefinition,
 };
 use serde_json::json;
 mod easings;
@@ -74,7 +76,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         chart
             .configure_mesh()
             .label_style(("sans-serif", 15).into_font().color(&GREEN))
-            .axis_style(&GREEN)
+            .axis_style(GREEN)
             .draw()?;
 
         let cs = chart.into_chart_state();
@@ -104,8 +106,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                     chart
                         .configure_mesh()
-                        .bold_line_style(&GREEN.mix(0.2))
-                        .light_line_style(&TRANSPARENT)
+                        .bold_line_style(GREEN.mix(0.2))
+                        .light_line_style(TRANSPARENT)
                         .draw()?;
 
                     let testing = json!([[0.0, 0.0], [5.0, 1.0, "easeInOutSine"],]);

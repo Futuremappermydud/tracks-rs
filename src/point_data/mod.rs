@@ -1,3 +1,4 @@
+pub mod float_point_data;
 use std::any::Any;
 
 use crate::easings::functions::Functions;
