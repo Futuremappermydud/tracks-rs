@@ -1,9 +1,9 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 use super::implementations::*;
 
 #[derive(Clone, Debug)]
-#[allow(dead_code)]
+#[allow(dead_code, clippy::enum_variant_names)]
 pub enum Functions {
     EaseLinear,
     EaseStep,
@@ -76,9 +76,13 @@ impl Functions {
             Functions::EaseInOutBounce => ease_in_out_bounce(t),
         }
     }
+}
 
-    pub fn from_str(s: &str) -> Self {
-        match s {
+impl FromStr for Functions {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let f = match s {
             "easeLinear" => Self::EaseLinear,
             "easeStep" => Self::EaseStep,
             "easeInQuad" => Self::EaseInQuad,
@@ -111,8 +115,10 @@ impl Functions {
             "easeInBounce" => Self::EaseInBounce,
             "easeOutBounce" => Self::EaseOutBounce,
             "easeInOutBounce" => Self::EaseInOutBounce,
-            _ => Self::EaseLinear,
-        }
+            _ => return Err(()),
+        };
+
+        Ok(f)
     }
 }
 

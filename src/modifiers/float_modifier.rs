@@ -1,8 +1,8 @@
-use crate::values::values::BaseValues;
+use crate::values::BaseValues;
 
 use super::{
-    modifiers::{Modifier, ModifierBase},
     operation::Operation,
+    {Modifier, ModifierBase},
 };
 
 pub struct FloatModifier {

@@ -2,11 +2,11 @@ use std::any::Any;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{float_modifier::FloatModifier, modifiers::ModifierBase, operation::Operation},
-    values::values::BaseValues,
+    modifiers::{ModifierBase, float_modifier::FloatModifier, operation::Operation},
+    values::BaseValues,
 };
 
-use super::point_data::BasePointData;
+use super::BasePointData;
 
 pub struct FloatPointData {
     base_modifier: FloatModifier,
