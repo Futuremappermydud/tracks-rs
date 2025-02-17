@@ -1,9 +1,6 @@
 use std::any::Any;
 
-use crate::values::values::BaseValues;
-use crate::{
-    easings::functions::Functions, modifiers::modifiers::*, modifiers::operation::Operation,
-};
+use crate::easings::functions::Functions;
 
 // Generic trait for point data
 pub trait BasePointData<T> {

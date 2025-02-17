@@ -209,7 +209,7 @@ fn lerp(start: f32, end: f32, t: f32) -> f32 {
 // Values deserialization
 pub fn deserialize_values(value: &[&Value]) -> Vec<Box<dyn BaseValues>> {
     let mut result = Vec::new();
-    let mut start = 0;
+    let start = 0;
 
     close(&mut result, value.to_vec(), start, value.len());
     result
