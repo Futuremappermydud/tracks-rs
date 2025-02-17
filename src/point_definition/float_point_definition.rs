@@ -1,5 +1,4 @@
 use glam::FloatExt;
-use serde_json::Value;
 
 use crate::{
     easings::functions::Functions,
@@ -134,7 +133,8 @@ impl PointDefinition for FloatPointDefinition {
 
 impl FloatPointDefinition {
     /// Constructor equivalent – parses the provided JSON immediately.
-    pub fn new(value: &Value) -> Self {
+    #[cfg(feature = "json")]
+    pub fn new(value: &serde_json::Value) -> Self {
         let mut instance = Self { points: Vec::new() };
         instance.parse(value);
         instance

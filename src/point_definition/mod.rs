@@ -1,7 +1,9 @@
 pub mod float_point_definition;
 
-use serde_json::Value;
+
 use std::{collections::HashMap, str::FromStr};
+
+use serde_json::Value as JsonValue;
 
 use crate::{
     easings::functions::Functions,
@@ -48,7 +50,8 @@ pub trait PointDefinition {
     fn get_points_mut(&mut self) -> &mut Vec<Box<dyn BasePointData<Self::Value>>>;
     fn get_points(&self) -> &Vec<Box<dyn BasePointData<Self::Value>>>;
 
-    fn deserialize_modifier(&self, list: &Value) -> Box<dyn ModifierBase<Value = Self::Value>> {
+    #[cfg(feature = "json")]
+    fn deserialize_modifier(&self, list: &JsonValue) -> Box<dyn ModifierBase<Value = Self::Value>> {
         let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<Box<dyn BaseValues>>> = None;
@@ -87,7 +90,8 @@ pub trait PointDefinition {
     }
 
     // Shared parse implementation
-    fn parse(&mut self, value: &Value) {
+    #[cfg(feature = "json")]
+    fn parse(&mut self, value: &JsonValue) {
         // Expect an array of raw points
         if let Some(array) = value.as_array() {
             for raw_point in array {
@@ -176,10 +180,11 @@ pub trait PointDefinition {
 
     // Helper method to group values from a JSON value.
     // In a more complete implementation, you'd examine the JSON structure.
-    fn group_values(value: &Value) -> Vec<(GroupType, Vec<&Value>)> {
+    #[cfg(feature = "json")]
+    fn group_values(value: &JsonValue) -> Vec<(GroupType, Vec<&JsonValue>)> {
         let mut result = Vec::new();
         if let Some(array) = value.as_array() {
-            let values: Vec<&Value> = array.iter().collect();
+            let values: Vec<&JsonValue> = array.iter().collect();
             let mut value_group = Vec::new();
             let mut flag_group = Vec::new();
             let mut modifier_group = Vec::new();
@@ -241,7 +246,8 @@ pub trait PointDefinition {
 }
 
 pub struct PointDefinitionManager {
-    point_data: HashMap<String, Value>,
+    // TODO: Use a more appropriate data structure for point_data Value
+    point_data: HashMap<String, JsonValue>,
 }
 
 impl PointDefinitionManager {
@@ -251,7 +257,7 @@ impl PointDefinitionManager {
         }
     }
 
-    pub fn add_point(&mut self, point_data_name: String, point_data: Value) {
+    pub fn add_point(&mut self, point_data_name: String, point_data: JsonValue) {
         match self.point_data.entry(point_data_name) {
             std::collections::hash_map::Entry::Occupied(occupied_entry) => {
                 eprintln!(
