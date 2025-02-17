@@ -1,0 +1,16 @@
+{
+  "_QPVersion": "1.1.0",
+  "name": "Tracks (Rust)",
+  "id": "tracks-rs",
+  "modloader": "Scotland2",
+  "author": "Futuremappermydud",
+  "version": "${version}",
+  "description": "Partial rust implementation of Tracks",
+  "dependencies": [],
+  "modFiles": [],
+  "lateModFiles": [],
+  "libraryFiles": ["libtracks-rs.so"],
+  "fileCopies": [],
+  "copyExtensions": [],
+  "isLibrary": true
+}

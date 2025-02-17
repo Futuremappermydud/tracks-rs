@@ -5,8 +5,9 @@ use std::{
     error::Error,
     time::SystemTime,
 };
-
+#[cfg(target_os = "windows")]
 use minifb::{Key, Window, WindowOptions};
+#[cfg(target_os = "windows")]
 use plotters::{
     backend::BGRXPixel,
     chart::ChartBuilder,
@@ -23,6 +24,7 @@ mod modifiers;
 mod point_data;
 mod point_definition;
 mod values;
+mod ffi;
 
 const W: usize = 800;
 const H: usize = 600;
@@ -55,7 +57,19 @@ impl BorrowMut<[u32]> for BufferWrapper {
     }
 }
 
+#[cfg(target_os = "windows")]
 fn main() -> Result<(), Box<dyn Error>> {
+    use std::ffi::CString;
+
+    use crate::ffi::*;
+
+    println!("FFI TESTING");
+    let container = unsafe { tracks_make_point_manager_container() };
+    let float_point_definition = unsafe { tracks_make_float_point_definition(CString::new("[[0.0, 0.0], [5.0, 1.0, \"easeInBounce\"]]").unwrap().as_ptr(), container) };
+
+    let float_value = unsafe { tracks_interpolate_float(float_point_definition, 0.5) };
+    println!("Float value: {}", float_value);
+
     let mut window = Window::new("Tracks", W, H, WindowOptions::default())?;
 
     let mut buf = BufferWrapper(vec![0u32; W * H]);
@@ -130,4 +144,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     Ok(())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn main() {
+    println!("Plot feature is not enabled");
 }

@@ -1,7 +1,6 @@
 pub mod float_point_definition;
 
-
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
 
 use serde_json::Value as JsonValue;
 

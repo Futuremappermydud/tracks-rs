@@ -1,0 +1,27 @@
+{
+  "version": "0.4.0",
+  "sharedDir": "shared",
+  "dependenciesDir": "extern",
+  "info": {
+    "name": "tracks-rs",
+    "id": "tracks-rs",
+    "version": "0.1.0",
+    "url": "https://github.com/Futuremappermydud/tracks-rs",
+    "additionalData": {
+      "overrideSoName": "libpaper2_scotland2.so",
+      "cmake": false,
+      "compileOptions": {}
+    }
+  },
+  "workspace": {
+    "scripts": {
+      "build": ["cargo ndk --bindgen -t arm64-v8a -o build build"],
+      "copy": ["pwsh ./scripts/copy.ps1"],
+      "qmod": ["pwsh ./scripts/createqmod.ps1 $0"]
+    },
+    "qmodIncludeDirs": ["./build/arm64-v8a"],
+    "qmodIncludeFiles": [],
+    "qmodOutput": "tracks_rs.qmod"
+  },
+  "dependencies": []
+}
