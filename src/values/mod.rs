@@ -1,5 +1,5 @@
 use glam::Quat;
-use serde_json::Value;
+use serde_json::Value as JsonValue;
 use std::{any::Any, sync::Arc};
 
 pub trait Values {
@@ -207,7 +207,8 @@ fn lerp(start: f32, end: f32, t: f32) -> f32 {
 }
 
 // Values deserialization
-pub fn deserialize_values(value: &[&Value]) -> Vec<Box<dyn BaseValues>> {
+#[cfg(feature = "json")]
+pub fn deserialize_values(value: &[&JsonValue]) -> Vec<Box<dyn BaseValues>> {
     let mut result = Vec::new();
     let start = 0;
 
@@ -215,7 +216,8 @@ pub fn deserialize_values(value: &[&Value]) -> Vec<Box<dyn BaseValues>> {
     result
 }
 
-fn close(result: &mut Vec<Box<dyn BaseValues>>, raw_values: Vec<&Value>, open: usize, end: usize) {
+#[cfg(feature = "json")]
+fn close(result: &mut Vec<Box<dyn BaseValues>>, raw_values: Vec<&JsonValue>, open: usize, end: usize) {
     if end <= open {
         return;
     }

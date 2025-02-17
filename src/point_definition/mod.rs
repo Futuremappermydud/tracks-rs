@@ -1,12 +1,16 @@
-use serde_json::Value;
-use std::collections::HashMap;
+pub mod float_point_definition;
+
+
+use std::{collections::HashMap, str::FromStr};
+
+use serde_json::Value as JsonValue;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::modifiers::ModifierBase,
+    modifiers::ModifierBase,
     modifiers::operation::Operation,
-    point_data::point_data::BasePointData,
-    values::values::{BaseValues, deserialize_values},
+    point_data::BasePointData,
+    values::{BaseValues, deserialize_values},
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -18,7 +22,7 @@ pub enum GroupType {
 
 // The combined PointDefinition trait (acting as both BasePointDefinition and the templated PointDefinition<T>)
 pub trait PointDefinition {
-    type Value;
+    type Value: Default + Clone;
 
     // Required methods common to all definitions
     fn get_count(&self) -> usize;
@@ -44,9 +48,10 @@ pub trait PointDefinition {
         easing: Functions,
     ) -> Box<dyn BasePointData<Self::Value>>;
     fn get_points_mut(&mut self) -> &mut Vec<Box<dyn BasePointData<Self::Value>>>;
-    fn get_points(&self) -> &[Box<dyn BasePointData<Self::Value>>];
+    fn get_points(&self) -> &Vec<Box<dyn BasePointData<Self::Value>>>;
 
-    fn deserialize_modifier(&self, list: &Value) -> Box<dyn ModifierBase<Value = Self::Value>> {
+    #[cfg(feature = "json")]
+    fn deserialize_modifier(&self, list: &JsonValue) -> Box<dyn ModifierBase<Value = Self::Value>> {
         let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<Box<dyn BaseValues>>> = None;
@@ -67,7 +72,7 @@ pub trait PointDefinition {
                     );
                 }
                 GroupType::Flag => {
-                    operation = Some(Operation::from_str(group.1[0].as_str().unwrap()));
+                    operation = Some(Operation::from_str(group.1[0].as_str().unwrap()).unwrap());
                 }
             }
         }
@@ -85,7 +90,8 @@ pub trait PointDefinition {
     }
 
     // Shared parse implementation
-    fn parse(&mut self, value: &Value) {
+    #[cfg(feature = "json")]
+    fn parse(&mut self, value: &JsonValue) {
         // Expect an array of raw points
         if let Some(array) = value.as_array() {
             for raw_point in array {
@@ -125,12 +131,12 @@ pub trait PointDefinition {
                             flags = Some(flags_vec);
 
                             // Find the first flag starting with "ease" just like in the C# code.
-                            if let Some(ref flags_inner) = flags {
-                                if let Some(easing_string) =
+                            if let Some(ref flags_inner) = flags
+                                && let Some(easing_string) =
                                     flags_inner.iter().find(|flag| flag.starts_with("ease"))
-                                {
-                                    easing = Functions::from_str(easing_string);
-                                }
+                            {
+                                easing = Functions::from_str(easing_string)
+                                    .unwrap_or(Functions::EaseLinear);
                             }
                         }
                     }
@@ -174,10 +180,11 @@ pub trait PointDefinition {
 
     // Helper method to group values from a JSON value.
     // In a more complete implementation, you'd examine the JSON structure.
-    fn group_values(value: &Value) -> Vec<(GroupType, Vec<&Value>)> {
+    #[cfg(feature = "json")]
+    fn group_values(value: &JsonValue) -> Vec<(GroupType, Vec<&JsonValue>)> {
         let mut result = Vec::new();
         if let Some(array) = value.as_array() {
-            let values: Vec<&Value> = array.iter().collect();
+            let values: Vec<&JsonValue> = array.iter().collect();
             let mut value_group = Vec::new();
             let mut flag_group = Vec::new();
             let mut modifier_group = Vec::new();
@@ -206,10 +213,7 @@ pub trait PointDefinition {
     }
 
     // The main interpolation method. Returns a tuple (interpolated value, is_last_point)
-    fn interpolate(&self, time: f32) -> (Self::Value, bool)
-    where
-        Self::Value: Default,
-    {
+    fn interpolate(&self, time: f32) -> (Self::Value, bool) {
         let points = self.get_points();
 
         if points.is_empty() {

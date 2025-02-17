@@ -7,14 +7,16 @@ pub enum Operation {
     Div,
 }
 
-impl Operation {
-    pub fn from_str(s: &str) -> Self {
+impl std::str::FromStr for Operation {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "opAdd" => Self::Add,
-            "opSub" => Self::Sub,
-            "opMul" => Self::Mul,
-            "opDiv" => Self::Div,
-            _ => Self::None,
+            "opAdd" => Ok(Self::Add),
+            "opSub" => Ok(Self::Sub),
+            "opMul" => Ok(Self::Mul),
+            "opDiv" => Ok(Self::Div),
+            _ => Ok(Self::None),
         }
     }
 }
