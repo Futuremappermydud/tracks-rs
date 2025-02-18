@@ -1,5 +1,6 @@
 pub mod float_point_data;
 pub mod vector3_point_data;
+pub mod vector4_point_data;
 use crate::easings::functions::Functions;
 use crate::values::base_provider_context::BaseProviderContext;
 use std::any::Any;

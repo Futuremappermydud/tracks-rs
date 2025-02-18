@@ -7,15 +7,13 @@ fn main() {
 
     println!("crate_dir: {}", crate_dir);
 
-    cbindgen::Builder::new()
+    /*cbindgen::Builder::new()
         .with_crate(crate_dir)
         .with_language(cbindgen::Language::C)
         .with_namespaces(&["Tracks"])
         .with_cpp_compat(true)
         .with_pragma_once(true)
-        .with_parse_deps(true)
-        .with_parse_include(&["glam"])
         .generate()
     .expect("Unable to generate bindings")
-    .write_to_file("./shared/bindings.h");
+    .write_to_file("./shared/bindings.h");*/
 }

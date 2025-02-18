@@ -1,7 +1,7 @@
 pub mod float_modifier;
 pub mod operation;
 pub mod vector3_modifier;
-
+pub mod vector4_modifier;
 use crate::modifiers::operation::Operation;
 use crate::values::BaseValues;
 use crate::values::base_provider_context::BaseProviderContext;

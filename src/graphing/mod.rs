@@ -3,6 +3,7 @@ use std::{
     time::SystemTime,
 };
 
+use color_graphing::ColorContext;
 use float_graphing::FloatContext;
 use minifb::{Key, Window, WindowOptions};
 use plotters::{
@@ -14,6 +15,7 @@ use plotters::{
 };
 use vec3_graphing::Vec3Context;
 
+pub mod color_graphing;
 pub mod float_graphing;
 pub mod vec3_graphing;
 
@@ -57,6 +59,10 @@ enum GraphContext<'a> {
         &'a ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
         &'a Vec3Context,
     ),
+    Color(
+        &'a ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>,
+        &'a ColorContext,
+    ),
 }
 
 pub fn graph(context: &str) {
@@ -67,9 +73,10 @@ pub fn graph(context: &str) {
     let mut binding_3d: Option<
         ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
     > = None;
+    let mut binding_color: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
     let mut float_context: Option<FloatContext> = None;
     let mut vec3_context: Option<Vec3Context> = None;
-
+    let mut color_context: Option<ColorContext> = None;
     let cs: GraphContext = {
         let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
             buf.borrow_mut(),
@@ -95,6 +102,12 @@ pub fn graph(context: &str) {
                 binding_3d = Some(new_binding);
                 vec3_context = Some(new_context);
                 GraphContext::Vector3D(binding_3d.as_ref().unwrap(), vec3_context.as_ref().unwrap())
+            }
+            "color" => {
+                let (new_binding, new_context) = color_graphing::graph_color(root);
+                binding_color = Some(new_binding);
+                color_context = Some(new_context);
+                GraphContext::Color(binding_color.as_ref().unwrap(), color_context.as_ref().unwrap())
             }
             _ => panic!("Invalid context"),
         }
@@ -123,6 +136,9 @@ pub fn graph(context: &str) {
                     }
                     GraphContext::Vector3D(state, context) => {
                         vec3_graphing::draw_vec3(&root, state, context, epoch, &window)
+                    }
+                    GraphContext::Color(state, context) => {
+                        color_graphing::draw_color(&root, state, context, epoch, &window)
                     }
                 }
                 root.present().unwrap();
