@@ -10,6 +10,7 @@ mod values;
 
 #[cfg(target_os = "windows")]
 fn main() {
+    //graphing::graph("2d");
     graphing::graph("3d");
 }
 
