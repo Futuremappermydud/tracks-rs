@@ -3,8 +3,6 @@ use std::{
     time::SystemTime,
 };
 
-use color_graphing::ColorContext;
-use float_graphing::FloatContext;
 use minifb::{Key, Window, WindowOptions};
 use plotters::{
     backend::BGRXPixel,
@@ -13,10 +11,14 @@ use plotters::{
     prelude::{BitMapBackend, Cartesian2d, IntoDrawingArea},
     style::BLACK,
 };
-use vec3_graphing::Vec3Context;
 
+use color_graphing::ColorContext;
+use float_graphing::FloatContext;
+use quat_graphing::QuatContext;
+use vec3_graphing::Vec3Context;
 pub mod color_graphing;
 pub mod float_graphing;
+pub mod quat_graphing;
 pub mod vec3_graphing;
 
 const W: usize = 800;
@@ -63,6 +65,10 @@ enum GraphContext<'a> {
         &'a ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>,
         &'a ColorContext,
     ),
+    Quaternion(
+        &'a ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
+        &'a QuatContext,
+    ),
 }
 
 pub fn graph(context: &str) {
@@ -74,9 +80,14 @@ pub fn graph(context: &str) {
         ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
     > = None;
     let mut binding_color: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
+    let mut binding_quaternion: Option<
+        ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
+    > = None;
     let mut float_context: Option<FloatContext> = None;
     let mut vec3_context: Option<Vec3Context> = None;
     let mut color_context: Option<ColorContext> = None;
+    let mut quaternion_context: Option<QuatContext> = None;
+
     let cs: GraphContext = {
         let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
             buf.borrow_mut(),
@@ -107,7 +118,19 @@ pub fn graph(context: &str) {
                 let (new_binding, new_context) = color_graphing::graph_color(root);
                 binding_color = Some(new_binding);
                 color_context = Some(new_context);
-                GraphContext::Color(binding_color.as_ref().unwrap(), color_context.as_ref().unwrap())
+                GraphContext::Color(
+                    binding_color.as_ref().unwrap(),
+                    color_context.as_ref().unwrap(),
+                )
+            }
+            "quat" => {
+                let (new_binding, new_context) = quat_graphing::graph_quat(root);
+                binding_quaternion = Some(new_binding);
+                quaternion_context = Some(new_context);
+                GraphContext::Quaternion(
+                    binding_quaternion.as_ref().unwrap(),
+                    quaternion_context.as_ref().unwrap(),
+                )
             }
             _ => panic!("Invalid context"),
         }
@@ -139,6 +162,9 @@ pub fn graph(context: &str) {
                     }
                     GraphContext::Color(state, context) => {
                         color_graphing::draw_color(&root, state, context, epoch, &window)
+                    }
+                    GraphContext::Quaternion(state, context) => {
+                        quat_graphing::draw_quat(&root, state, context, epoch, &window)
                     }
                 }
                 root.present().unwrap();

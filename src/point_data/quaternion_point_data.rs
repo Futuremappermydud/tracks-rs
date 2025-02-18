@@ -2,50 +2,57 @@ use std::any::Any;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, operation::Operation, vector4_modifier::Vector4Modifier},
+    modifiers::{
+        ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
+        vector3_modifier::Vector3Modifier,
+    },
     values::{BaseValues, base_provider_context::BaseProviderContext},
 };
-use glam::Vec4;
+use glam::{Quat, Vec3};
 
 use super::BasePointData;
 
-pub struct Vector4PointData {
-    base_modifier: Vector4Modifier,
+pub struct QuaternionPointData {
+    base_modifier: QuaternionModifier,
     easing: Functions,
-    pub hsv_lerp: bool,
     time: f32,
 }
 
-impl Vector4PointData {
+impl QuaternionPointData {
     pub fn new(
-        point: Option<Vec4>,
+        point: Option<Quat>,
+        vector_point: Option<Vec3>,
         values: Option<Vec<Box<dyn BaseValues>>>,
-        hsv_lerp: bool,
         time: f32,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
         easing: Functions,
     ) -> Self {
         Self {
-            base_modifier: Vector4Modifier::new(point, values, modifiers, Operation::None),
+            base_modifier: QuaternionModifier::new(
+                point,
+                vector_point,
+                values,
+                modifiers,
+                Operation::None,
+            ),
             easing,
-            hsv_lerp,
             time,
         }
     }
 }
 
-impl ModifierBase for Vector4PointData {
-    type Value = Vec4;
+impl ModifierBase for QuaternionPointData {
+    type Value = Quat;
 
-    fn get_point(&self, context: &BaseProviderContext) -> Vec4 {
+    fn get_point(&self, context: &BaseProviderContext) -> Quat {
         self.base_modifier.get_point(context)
     }
 
-    fn get_raw_point(&self) -> Vec4 {
+    fn get_raw_point(&self) -> Quat {
         self.base_modifier.get_raw_point()
     }
 
-    fn translate(&self, values: &[f32]) -> Vec4 {
+    fn translate(&self, values: &[f32]) -> Quat {
         self.base_modifier.translate(values)
     }
 
@@ -58,7 +65,7 @@ impl ModifierBase for Vector4PointData {
     }
 }
 
-impl BasePointData<Vec4> for Vector4PointData {
+impl BasePointData<Quat> for QuaternionPointData {
     fn get_easing(&self) -> Functions {
         self.easing.clone()
     }
@@ -71,7 +78,7 @@ impl BasePointData<Vec4> for Vector4PointData {
         false
     }
 
-    fn get_point(&self, context: &BaseProviderContext) -> Vec4 {
+    fn get_point(&self, context: &BaseProviderContext) -> Quat {
         <Self as ModifierBase>::get_point(self, context)
     }
 

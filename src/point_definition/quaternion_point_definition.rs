@@ -1,46 +1,26 @@
-use glam::{FloatExt, Vec4};
-use palette::{Hsv, IntoColor, LinSrgb, RgbHue, rgb::Rgb};
+use glam::{EulerRot, Quat, Vec3};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, operation::Operation, vector4_modifier::Vector4Modifier},
-    point_data::{BasePointData, vector4_point_data::Vector4PointData},
-    values::base_provider_context::BaseProviderContext,
-    values::{BaseValues, StaticValues, Values},
+    modifiers::{
+        ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
+        vector3_modifier::Vector3Modifier,
+    },
+    point_data::{
+        BasePointData, quaternion_point_data::QuaternionPointData,
+        vector3_point_data::Vector3PointData,
+    },
+    values::{BaseValues, StaticValues, Values, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;
 
-pub struct Vector4PointDefinition {
-    points: Vec<Box<dyn BasePointData<Vec4>>>,
+pub struct QuaternionPointDefinition {
+    points: Vec<Box<dyn BasePointData<Quat>>>,
 }
 
-pub fn lerp_hsv_vec4(color1: Vec4, color2: Vec4, time: f32) -> Vec4 {
-    // Convert RGBA to HSV
-    let hsv1: Hsv<f32> = Rgb::new(color1.x, color1.y, color1.z).into_color();
-    let hsv2: Hsv<f32> = Rgb::new(color2.x, color2.y, color2.z).into_color();
-
-    // Lerp HSV components
-    let h = RgbHue::from_radians(
-        hsv1.hue
-            .into_raw_radians()
-            .lerp(hsv2.hue.into_raw_radians(), time),
-    );
-    let s = hsv1.saturation.lerp(hsv2.saturation, time);
-    let v = hsv1.value.lerp(hsv2.value, time);
-
-    // Convert back to RGB
-    let rgb: LinSrgb<f32> = Hsv::new(h, s, v).into_color();
-
-    // Lerp alpha
-    let alpha = color1.w * (1.0 - time) + color2.w * time;
-
-    // Return the new Vec4
-    Vec4::new(rgb.red, rgb.green, rgb.blue, alpha)
-}
-
-impl PointDefinition for Vector4PointDefinition {
-    type Value = Vec4;
+impl PointDefinition for QuaternionPointDefinition {
+    type Value = Quat;
 
     fn get_count(&self) -> usize {
         self.points.len()
@@ -57,38 +37,47 @@ impl PointDefinition for Vector4PointDefinition {
     fn create_modifier(
         &self,
         values: Vec<Box<dyn BaseValues>>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<dyn ModifierBase<Value = Vec4>> {
-        let mut raw_point: Option<Vec4> = None;
+    ) -> Box<dyn ModifierBase<Value = Quat>> {
+        let mut raw_vector_point: Option<Vec3> = None;
         let base_values = if values.len() == 1 {
             if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
-                if static_val.values(context).len() == 4 {
-                    raw_point = Some(Vec4::new(
+                if static_val.values(context).len() == 3 {
+                    raw_vector_point = Some(Vec3::new(
                         static_val.values(context)[0],
                         static_val.values(context)[1],
                         static_val.values(context)[2],
-                        static_val.values(context)[3],
                     ));
                     None
                 } else {
                     let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                    assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
+                    assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
                     Some(values)
                 }
             } else {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
+                assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
                 Some(values)
             }
         } else {
             let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
+            assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
             Some(values)
         };
-        Box::new(Vector4Modifier::new(
-            raw_point,
+        Box::new(QuaternionModifier::new(
+            if raw_vector_point.is_none() {
+                None
+            } else {
+                Some(Quat::from_euler(
+                    EulerRot::ZXY,
+                    raw_vector_point.unwrap().x,
+                    raw_vector_point.unwrap().y,
+                    raw_vector_point.unwrap().z,
+                ))
+            },
+            raw_vector_point,
             base_values,
             modifiers,
             operation,
@@ -99,22 +88,21 @@ impl PointDefinition for Vector4PointDefinition {
         &self,
         values: Vec<Box<dyn BaseValues>>,
         flags: Vec<String>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<dyn BasePointData<Vec4>> {
-        let mut raw_point: Option<Vec4> = None;
+    ) -> Box<dyn BasePointData<Quat>> {
+        let mut raw_vector_point: Option<Vec3> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
             if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
-                if static_val.values(context).len() == 5 {
-                    raw_point = Some(Vec4::new(
+                if static_val.values(context).len() == 4 {
+                    raw_vector_point = Some(Vec3::new(
                         static_val.values(context)[0],
                         static_val.values(context)[1],
                         static_val.values(context)[2],
-                        static_val.values(context)[3],
                     ));
-                    time = static_val.values(context)[4];
+                    time = static_val.values(context)[3];
                     None
                 } else {
                     time = 0.0;
@@ -127,7 +115,7 @@ impl PointDefinition for Vector4PointDefinition {
         } else {
             let count: usize = values.iter().map(|v| v.values(context).len()).sum();
             if count != 4 {
-                eprintln!("Vector4 point must have 4 numbers");
+                eprintln!("Vector3 point must have 4 numbers");
             }
             time = values
                 .last()
@@ -135,10 +123,19 @@ impl PointDefinition for Vector4PointDefinition {
                 .unwrap_or(0.0);
             Some(values)
         };
-        Box::new(Vector4PointData::new(
-            raw_point,
+        Box::new(QuaternionPointData::new(
+            if raw_vector_point.is_none() {
+                None
+            } else {
+                Some(Quat::from_euler(
+                    EulerRot::ZXY,
+                    raw_vector_point.unwrap().x,
+                    raw_vector_point.unwrap().y,
+                    raw_vector_point.unwrap().z,
+                ))
+            },
+            raw_vector_point,
             base_values,
-            flags.iter().any(|f| f == "lerpHSV"),
             time,
             modifiers,
             easing,
@@ -147,33 +144,23 @@ impl PointDefinition for Vector4PointDefinition {
 
     fn interpolate_points(
         &self,
-        points: &[Box<dyn BasePointData<Vec4>>],
+        points: &[Box<dyn BasePointData<Quat>>],
         l: usize,
         r: usize,
         time: f32,
         context: &BaseProviderContext,
-    ) -> Vec4 {
-        let point_data_r = points[r]
-            .as_any()
-            .downcast_ref::<Vector4PointData>()
-            .unwrap();
-
+    ) -> Quat {
         let point_l = points[l].get_point(context);
         let point_r = points[r].get_point(context);
-
-        if !point_data_r.hsv_lerp {
-            point_l.lerp(point_r, time)
-        } else {
-            lerp_hsv_vec4(point_l, point_r, time)
-        }
+        point_l.slerp(point_r, time)
     }
 
-    fn get_points(&self) -> &Vec<Box<dyn BasePointData<Vec4>>> {
+    fn get_points(&self) -> &Vec<Box<dyn BasePointData<Quat>>> {
         &self.points
     }
 }
 
-impl Vector4PointDefinition {
+impl QuaternionPointDefinition {
     #[cfg(feature = "json")]
     pub fn new(value: &serde_json::Value, context: &BaseProviderContext) -> Self {
         let mut instance = Self { points: Vec::new() };

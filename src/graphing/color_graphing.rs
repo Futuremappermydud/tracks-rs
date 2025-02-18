@@ -5,17 +5,15 @@ use palette::IntoColor;
 use plotters::{
     backend::BGRXPixel,
     chart::{ChartBuilder, ChartState},
-    coord::{types::RangedCoordf64, Shift},
-    prelude::{
-        BitMapBackend, Cartesian2d, DiscreteRanged, DrawingArea, IntoLinspace, Rectangle
-    },
+    coord::{Shift, types::RangedCoordf64},
+    prelude::{BitMapBackend, Cartesian2d, DiscreteRanged, DrawingArea, IntoLinspace, Rectangle},
     series::LineSeries,
-    style::{Color, RGBAColor, RGBColor, BLACK, RED, WHITE},
+    style::{BLACK, Color, RED, RGBAColor, RGBColor, WHITE},
 };
 use serde_json::json;
 
 use crate::{
-    point_definition::{vector4_point_definition::Vector4PointDefinition, PointDefinition},
+    point_definition::{PointDefinition, vector4_point_definition::Vector4PointDefinition},
     values::base_provider_context::BaseProviderContext,
 };
 
@@ -28,10 +26,7 @@ impl ColorContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = Vector4PointDefinition::new(
-            &json!([
-                [0.0, 0.0, 1.0, 1.0, 0.0],
-                [0.0, 1.0, 0.0, 1.0, 1.0]
-            ]),
+            &json!([[0.0, 0.0, 1.0, 1.0, 0.0], [0.0, 1.0, 0.0, 1.0, 1.0]]),
             &context,
         );
         Self {
@@ -82,23 +77,26 @@ pub fn draw_color(
         let flag = if epoch % 2.0 < 1.0 { "lerpHSV" } else { "" };
 
         let definition = Vector4PointDefinition::new(
-            &json!([
-                [0.0, 0.0, 1.0, 1.0, 0.0],
-                [0.0, 1.0, 0.0, 1.0, 1.0, flag]
-            ]),
+            &json!([[0.0, 0.0, 1.0, 1.0, 0.0], [0.0, 1.0, 0.0, 1.0, 1.0, flag]]),
             &context.context.borrow(),
         );
 
         chart
-            .draw_series(
-              (0.0..1.0).step(0.01).values().map(|x| {
-                let color = definition.interpolate(x as f32, &context.context.borrow()).0;
+            .draw_series((0.0..1.0).step(0.01).values().map(|x| {
+                let color = definition
+                    .interpolate(x as f32, &context.context.borrow())
+                    .0;
                 Rectangle::new(
                     [(x, 0.0), (x + 0.01, 1.0)],
-                    RGBAColor { 0: (color.x * 255.0) as u8, 1: (color.y * 255.0) as u8, 2: (color.z * 255.0) as u8, 3: color.w as f64 }.filled(),
+                    RGBAColor {
+                        0: (color.x * 255.0) as u8,
+                        1: (color.y * 255.0) as u8,
+                        2: (color.z * 255.0) as u8,
+                        3: color.w as f64,
+                    }
+                    .filled(),
                 )
-              })
-            )
+            }))
             .unwrap();
 
         chart

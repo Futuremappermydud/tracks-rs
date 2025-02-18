@@ -1,5 +1,5 @@
-use crate::point_definition::{vector3_point_definition::Vector3PointDefinition, PointDefinition};
 use crate::point_definition::float_point_definition::FloatPointDefinition;
+use crate::point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition};
 use crate::values::base_provider_context::BaseProviderContext;
 use glam::Vec3;
 use serde_json::Value;
@@ -41,7 +41,7 @@ pub unsafe extern "C" fn tracks_interpolate_float(
 pub unsafe extern "C" fn tracks_make_vector3_point_definition(
     json: *const c_char,
     context: *mut BaseProviderContext,
-) -> *const Vector3PointDefinition {  
+) -> *const Vector3PointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
     let value: Value = serde_json::from_str(json_str).unwrap();
     let point_definition = Box::new(Vector3PointDefinition::new(&value, unsafe { &*context }));

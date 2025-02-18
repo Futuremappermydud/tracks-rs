@@ -13,7 +13,6 @@ path = "src/main.rs"
 
 
 [dependencies]
-easy_color = "0.1.13"
 glam = { version = "0.29", features = [
     "core-simd",
 ] } #SIMD supported vector types\

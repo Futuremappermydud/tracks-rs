@@ -12,7 +12,8 @@ mod values;
 fn main() {
     //graphing::graph("2d");
     //graphing::graph("3d");
-    graphing::graph("color");
+    //graphing::graph("color");
+    graphing::graph("quat");
 }
 
 #[cfg(not(target_os = "windows"))]

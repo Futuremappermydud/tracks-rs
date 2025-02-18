@@ -48,6 +48,10 @@ impl ModifierBase for FloatPointData {
     fn get_operation(&self) -> Operation {
         self.base_modifier.get_operation()
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl BasePointData<f32> for FloatPointData {

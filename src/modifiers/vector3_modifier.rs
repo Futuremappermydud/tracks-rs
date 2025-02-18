@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use super::{
     operation::Operation,
     {Modifier, ModifierBase},
@@ -57,6 +59,10 @@ impl ModifierBase for Vector3Modifier {
 
     fn get_operation(&self) -> Operation {
         self.operation
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
