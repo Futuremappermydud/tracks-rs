@@ -20,7 +20,7 @@ pub mod vec3_graphing;
 const W: usize = 800;
 const H: usize = 600;
 
-const FRAME_RATE: f64 = 120.0;
+const FRAME_RATE: f64 = 60.0;
 
 struct BufferWrapper(Vec<u32>);
 impl Borrow<[u8]> for BufferWrapper {

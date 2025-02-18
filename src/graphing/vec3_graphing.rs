@@ -29,7 +29,7 @@ impl Vec3Context {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = Vector3PointDefinition::new(
-            &json!([[0.0, 0.0, 0.0, 0.0], [1.0, 2.0, 3.0, 1.0]]),
+            &json!([[3.0, 0.0, 0.0, ["baseCombo", 0, 0, "opMul"], 0.0], [1.0, 2.0, 3.0, 1.0, "easeInBounce"]]),
             &context,
         );
         Self {
@@ -74,6 +74,8 @@ pub fn draw_vec3(
     window: &Window,
 ) {
     {
+
+        context.context.borrow_mut().set_values("baseCombo", vec![(epoch.sin() as f32 + 1.0) * 0.5]);    
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
 
@@ -122,7 +124,7 @@ pub fn draw_vec3(
         };
 
         draw_T(0.0);
-        draw_T(0.5);
+        draw_T(((epoch.sin() + 1.0) * 0.5) as f32);
         draw_T(1.0);
 
         chart
