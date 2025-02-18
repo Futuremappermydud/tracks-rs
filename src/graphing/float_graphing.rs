@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use plotters::{
     backend::BGRXPixel,
     chart::{ChartBuilder, ChartState},
@@ -6,10 +8,26 @@ use plotters::{
     series::LineSeries,
     style::{Color, IntoFont, BLACK, BLUE, GREEN, TRANSPARENT},
 };
+use serde_json::json;
+
+use crate::{point_definition::{float_point_definition::FloatPointDefinition, PointDefinition}, values::base_provider_context::BaseProviderContext};
+
+pub struct FloatContext {
+  pub definition: FloatPointDefinition,
+  pub context: RefCell<BaseProviderContext>,
+}
+
+impl FloatContext {
+  pub fn new() -> Self {
+    let context = BaseProviderContext::new();
+    let definition = FloatPointDefinition::new(&json!([[0.0, 0.0], [1.0, 1.0]]), &context);
+    Self { definition, context: RefCell::new(context) }
+  }
+}
 
 pub fn graph_2d(
     root: DrawingArea<BitMapBackend<'_, BGRXPixel>, Shift>,
-) -> ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>> {
+) -> (ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>, FloatContext) {
     let mut chart = ChartBuilder::on(&root)
         .margin(10)
         .set_all_label_area_size(30)
@@ -23,12 +41,14 @@ pub fn graph_2d(
         .draw()
         .unwrap();
 
-    chart.into_chart_state()
+    (chart.into_chart_state(), FloatContext::new())
 }
 
 pub fn draw_2d(
     root: &DrawingArea<BitMapBackend<'_, BGRXPixel>, Shift>,
     chart: &ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>,
+    context: &FloatContext,
+    epoch: f64,
 ) {
     {
         let mut chart = chart.clone().restore(&root);
@@ -43,7 +63,7 @@ pub fn draw_2d(
 
         chart
             .draw_series(LineSeries::new(
-                (0f64..1f64).step(0.0001).values().map(|x| (x, x.sin())),
+                (0f64..1f64).step(0.0001).values().map(|x| (x, context.definition.interpolate(x as f32, &context.context.borrow()).0 as f64)),
                 &BLUE,
             ))
             .unwrap();

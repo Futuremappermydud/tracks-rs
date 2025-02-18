@@ -3,6 +3,7 @@ use std::{
     time::SystemTime,
 };
 
+use float_graphing::FloatContext;
 use minifb::{Key, Window, WindowOptions};
 use plotters::{
     backend::BGRXPixel,
@@ -46,14 +47,17 @@ impl BorrowMut<[u32]> for BufferWrapper {
 }
 
 enum GraphContext<'a> {
-    Float2D(&'a ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>),
+    Float2D(&'a ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>, &'a FloatContext),
     //Vector3D(ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>),
 }
+
 pub fn graph(context: &str) {
     let mut window = Window::new("Tracks", W, H, WindowOptions::default()).unwrap();
     let mut buf = BufferWrapper(vec![0u32; W * H]);
 
     let mut binding: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
+    let mut graphing_context: Option<FloatContext> = None;
+
     let cs: GraphContext = {
       let root =
         BitMapBackend::<BGRXPixel>::with_buffer_and_format(buf.borrow_mut(), (W as u32, H as u32))
@@ -64,8 +68,10 @@ pub fn graph(context: &str) {
 
         match context {
             "2d" => {
-              binding = Some(float_graphing::graph_2d(root));
-              GraphContext::Float2D(binding.as_ref().unwrap())
+                let (new_binding, new_context) = float_graphing::graph_2d(root);
+                binding = Some(new_binding);
+                graphing_context = Some(new_context);
+                GraphContext::Float2D(binding.as_ref().unwrap(), graphing_context.as_ref().unwrap())
             },
             _ => panic!("Invalid context"),
         }
@@ -89,7 +95,7 @@ pub fn graph(context: &str) {
                 .unwrap()
                 .into_drawing_area();
                 match cs {
-                    GraphContext::Float2D(state) => float_graphing::draw_2d(&root, state),
+                    GraphContext::Float2D(state, context) => float_graphing::draw_2d(&root, state, context, epoch),
                     //GraphContext::Vector3D(cs) => vector3_graphing::draw_3d(root, cs),
                 }
                 root.present().unwrap();
