@@ -1,4 +1,5 @@
 pub mod float_point_definition;
+pub mod vector3_point_definition;
 
 use std::str::FromStr;
 

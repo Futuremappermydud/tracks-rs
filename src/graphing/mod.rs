@@ -12,8 +12,10 @@ use plotters::{
     prelude::{BitMapBackend, Cartesian2d, IntoDrawingArea},
     style::BLACK,
 };
+use vec3_graphing::Vec3Context;
 
 pub mod float_graphing;
+pub mod vec3_graphing;
 
 const W: usize = 800;
 const H: usize = 600;
@@ -47,32 +49,53 @@ impl BorrowMut<[u32]> for BufferWrapper {
 }
 
 enum GraphContext<'a> {
-    Float2D(&'a ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>, &'a FloatContext),
-    //Vector3D(ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>),
+    Float2D(
+        &'a ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>,
+        &'a FloatContext,
+    ),
+    Vector3D(
+        &'a ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
+        &'a Vec3Context,
+    ),
 }
 
 pub fn graph(context: &str) {
     let mut window = Window::new("Tracks", W, H, WindowOptions::default()).unwrap();
     let mut buf = BufferWrapper(vec![0u32; W * H]);
 
-    let mut binding: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
-    let mut graphing_context: Option<FloatContext> = None;
+    let mut binding_2d: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
+    let mut binding_3d: Option<
+        ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
+    > = None;
+    let mut float_context: Option<FloatContext> = None;
+    let mut vec3_context: Option<Vec3Context> = None;
 
     let cs: GraphContext = {
-      let root =
-        BitMapBackend::<BGRXPixel>::with_buffer_and_format(buf.borrow_mut(), (W as u32, H as u32))
-            .unwrap()
-            .into_drawing_area();
+        let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
+            buf.borrow_mut(),
+            (W as u32, H as u32),
+        )
+        .unwrap()
+        .into_drawing_area();
 
-            root.fill(&BLACK).unwrap();
+        root.fill(&BLACK).unwrap();
 
         match context {
             "2d" => {
                 let (new_binding, new_context) = float_graphing::graph_2d(root);
-                binding = Some(new_binding);
-                graphing_context = Some(new_context);
-                GraphContext::Float2D(binding.as_ref().unwrap(), graphing_context.as_ref().unwrap())
-            },
+                binding_2d = Some(new_binding);
+                float_context = Some(new_context);
+                GraphContext::Float2D(
+                    binding_2d.as_ref().unwrap(),
+                    float_context.as_ref().unwrap(),
+                )
+            }
+            "3d" => {
+                let (new_binding, new_context) = vec3_graphing::graph_vec3(root);
+                binding_3d = Some(new_binding);
+                vec3_context = Some(new_context);
+                GraphContext::Vector3D(binding_3d.as_ref().unwrap(), vec3_context.as_ref().unwrap())
+            }
             _ => panic!("Invalid context"),
         }
     };
@@ -95,8 +118,12 @@ pub fn graph(context: &str) {
                 .unwrap()
                 .into_drawing_area();
                 match cs {
-                    GraphContext::Float2D(state, context) => float_graphing::draw_2d(&root, state, context, epoch),
-                    //GraphContext::Vector3D(cs) => vector3_graphing::draw_3d(root, cs),
+                    GraphContext::Float2D(state, context) => {
+                        float_graphing::draw_2d(&root, state, context, epoch)
+                    }
+                    GraphContext::Vector3D(state, context) => {
+                        vec3_graphing::draw_vec3(&root, state, context, epoch, &window)
+                    }
                 }
                 root.present().unwrap();
             }
