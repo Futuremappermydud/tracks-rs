@@ -18,6 +18,7 @@ use plotters::{
 use point_definition::{
     float_point_definition::FloatPointDefinition, PointDefinition,
 };
+use values::base_provider_context::BaseProviderContext;
 use serde_json::json;
 mod easings;
 mod modifiers;
@@ -59,15 +60,9 @@ impl BorrowMut<[u32]> for BufferWrapper {
 
 #[cfg(target_os = "windows")]
 fn main() -> Result<(), Box<dyn Error>> {
-    use std::cell::RefCell;
-
-    use values::base_provider_context::BaseProviderContext;
-
     let testing = json!([["baseCombo", 0.0], [5.0, 1.0, "easeInOutSine"],]);
 
-    let mut context = BaseProviderContext {
-        base_combo: RefCell::new(vec![0f32]),
-    };
+    let mut context = BaseProviderContext::new();
 
     let float_point_definition = FloatPointDefinition::new(&testing, &mut context);
 
@@ -107,7 +102,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             .unwrap()
             .as_secs_f64();
 
-        context.base_combo.borrow_mut()[0] = epoch as f32 / 2.0;
+        context.set_values("baseCombo", vec![epoch as f32 / 2.0]);
 
         if epoch - last_flushed > 1.0 / FRAME_RATE {
             {

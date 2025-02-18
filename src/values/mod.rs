@@ -53,7 +53,7 @@ impl BaseProviderValues {
 
 impl Values for BaseProviderValues {
     fn values(&self, context: &BaseProviderContext) -> Vec<f32> {
-        let value = context.base_combo.borrow();
+        let value = context.get_values(&self.base);
         value.to_vec()
     }
 }
