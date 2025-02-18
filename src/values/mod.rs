@@ -1,6 +1,6 @@
 use glam::Quat;
 use serde_json::Value as JsonValue;
-use std::{any::Any, sync::Arc, cell::RefCell};
+use std::{any::Any, sync::Arc};
 use crate::values::base_provider_context::BaseProviderContext;
 
 pub mod base_provider_context;
@@ -111,14 +111,14 @@ impl UpdateableValues for QuaternionProviderValues {
     }
 }
 
-pub struct PartialProviderValues<'a> {
-    source: &'a [f32],
+pub struct PartialProviderValues {
+    source: Vec<f32>,
     parts: Vec<usize>,
     values: Vec<f32>,
 }
 
-impl<'a> PartialProviderValues<'a> {
-    pub fn new(source: &'a [f32], parts: Vec<usize>) -> Self {
+impl PartialProviderValues {
+    pub fn new(source: Vec<f32>, parts: Vec<usize>) -> Self {
         Self {
             source,
             values: vec![0.0; parts.len()],
@@ -127,13 +127,13 @@ impl<'a> PartialProviderValues<'a> {
     }
 }
 
-impl<'a> Values for PartialProviderValues<'a> {
+impl Values for PartialProviderValues {
     fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
         self.values.clone()
     }
 }
 
-impl<'a> UpdateableValues for PartialProviderValues<'a> {
+impl UpdateableValues for PartialProviderValues {
     fn update(&mut self) {
         for (i, &part) in self.parts.iter().enumerate() {
             self.values[i] = self.source[part];

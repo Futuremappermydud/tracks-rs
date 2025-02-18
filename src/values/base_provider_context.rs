@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 
-#[derive(Clone)]
 pub struct BaseProviderContext {
     base_combo: RefCell<Vec<f32>>,
 }

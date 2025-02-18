@@ -62,9 +62,9 @@ impl BorrowMut<[u32]> for BufferWrapper {
 fn main() -> Result<(), Box<dyn Error>> {
     let testing = json!([["baseCombo", 0.0], [5.0, 1.0, "easeInOutSine"],]);
 
-    let mut context = BaseProviderContext::new();
+    let context = BaseProviderContext::new();
 
-    let float_point_definition = FloatPointDefinition::new(&testing, &mut context);
+    let float_point_definition = FloatPointDefinition::new(&testing, &context);
 
     
     let mut window = Window::new("Tracks", W, H, WindowOptions::default())?;
