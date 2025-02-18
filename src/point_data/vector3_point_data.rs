@@ -12,6 +12,7 @@ use super::BasePointData;
 pub struct Vector3PointData {
     base_modifier: Vector3Modifier,
     easing: Functions,
+    pub smooth: bool,
     time: f32,
 }
 
@@ -19,6 +20,7 @@ impl Vector3PointData {
     pub fn new(
         point: Option<Vec3>,
         values: Option<Vec<Box<dyn BaseValues>>>,
+        smooth: bool,
         time: f32,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         easing: Functions,
@@ -26,6 +28,7 @@ impl Vector3PointData {
         Self {
             base_modifier: Vector3Modifier::new(point, values, modifiers, Operation::None),
             easing,
+            smooth,
             time,
         }
     }

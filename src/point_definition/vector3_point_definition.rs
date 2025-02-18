@@ -14,6 +14,42 @@ pub struct Vector3PointDefinition {
     points: Vec<Box<dyn BasePointData<Vec3>>>,
 }
 
+impl Vector3PointDefinition {
+    fn smooth_vector_lerp(
+        &self,
+        points: &[Box<dyn BasePointData<Vec3>>],
+        l: usize,
+        r: usize,
+        time: f32,
+        context: &BaseProviderContext,
+    ) -> Vec3 {
+        let point_a = points[l].get_point(context);
+        let point_b = points[r].get_point(context);
+
+        // Catmull-Rom Spline
+        let p0 = if l > 0 {
+            points[l - 1].get_point(context)
+        } else {
+            point_a
+        };
+        let p3 = if r + 1 < points.len() {
+            points[r + 1].get_point(context)
+        } else {
+            point_b
+        };
+
+        let tt = time * time;
+        let ttt = tt * time;
+
+        let q0 = -ttt + (2.0 * tt) - time;
+        let q1 = (3.0 * ttt) - (5.0 * tt) + 2.0;
+        let q2 = (-3.0 * ttt) + (4.0 * tt) + time;
+        let q3 = ttt - tt;
+
+        0.5 * ((p0 * q0) + (point_a * q1) + (point_b * q2) + (p3 * q3))
+    }
+}
+
 impl PointDefinition for Vector3PointDefinition {
     type Value = Vec3;
 
@@ -72,7 +108,7 @@ impl PointDefinition for Vector3PointDefinition {
     fn create_point_data(
         &self,
         values: Vec<Box<dyn BaseValues>>,
-        _flags: Vec<String>,
+        flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         easing: Functions,
         context: &BaseProviderContext,
@@ -111,6 +147,7 @@ impl PointDefinition for Vector3PointDefinition {
         Box::new(Vector3PointData::new(
             raw_point,
             base_values,
+            flags.iter().any(|f| f == "splineCatmullRom"),
             time,
             modifiers,
             easing,
@@ -125,10 +162,18 @@ impl PointDefinition for Vector3PointDefinition {
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec3 {
-        let point_l = points[l].get_point(context);
-        let point_r = points[r].get_point(context);
+        let point_r = points[r]
+            .as_any()
+            .downcast_ref::<Vector3PointData>()
+            .unwrap();
 
-        point_l.lerp(point_r, time)
+        if point_r.smooth {
+            self.smooth_vector_lerp(points, l, r, time, context)
+        } else {
+            let point_l = points[l].get_point(context);
+            let point_r = points[r].get_point(context);
+            point_l.lerp(point_r, time)
+        }
     }
 
     fn get_points(&self) -> &Vec<Box<dyn BasePointData<Vec3>>> {

@@ -29,7 +29,11 @@ impl Vec3Context {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = Vector3PointDefinition::new(
-            &json!([[3.0, 0.0, 0.0, ["baseCombo", 0, 0, "opMul"], 0.0], [1.0, 2.0, 3.0, 1.0, "easeInBounce"]]),
+            &json!([
+                [3.0, 0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0, 0.5, "splineCatmullRom", "easeInSine"],
+                [1.0, 2.0, 3.0, 1.0, "splineCatmullRom", "easeOutSine"]
+            ]),
             &context,
         );
         Self {
@@ -74,8 +78,10 @@ pub fn draw_vec3(
     window: &Window,
 ) {
     {
-
-        context.context.borrow_mut().set_values("baseCombo", vec![(epoch.sin() as f32 + 1.0) * 0.5]);    
+        context
+            .context
+            .borrow_mut()
+            .set_values("baseCombo", vec![(epoch.sin() as f32 + 1.0) * 0.5]);
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
 
@@ -116,11 +122,17 @@ pub fn draw_vec3(
         };
 
         let mut draw_T = |x: f32| {
-          let point = context
-            .definition
-            .interpolate(x as f32, &context.context.borrow())
-            .0;
-          chart.draw_series(std::iter::once(dot_and_label(point.x as f64, point.y as f64, point.z as f64))).unwrap();
+            let point = context
+                .definition
+                .interpolate(x as f32, &context.context.borrow())
+                .0;
+            chart
+                .draw_series(std::iter::once(dot_and_label(
+                    point.x as f64,
+                    point.y as f64,
+                    point.z as f64,
+                )))
+                .unwrap();
         };
 
         draw_T(0.0);
