@@ -59,21 +59,21 @@ impl BorrowMut<[u32]> for BufferWrapper {
 
 #[cfg(target_os = "windows")]
 fn main() -> Result<(), Box<dyn Error>> {
-    use std::ffi::CString;
+    use std::cell::RefCell;
 
-    use crate::ffi::*;
+    use values::base_provider_context::BaseProviderContext;
 
-    println!("FFI TESTING");
-    let container = unsafe { tracks_make_point_manager_container() };
-    let float_point_definition = unsafe { tracks_make_float_point_definition(CString::new("[[0.0, 0.0], [5.0, 1.0, \"easeInBounce\"]]").unwrap().as_ptr(), container) };
+    let testing = json!([["baseCombo", 0.0], [5.0, 1.0, "easeInOutSine"],]);
 
-    let float_value = unsafe { tracks_interpolate_float(float_point_definition, 0.5) };
-    println!("Float value: {}", float_value);
+    let mut context = BaseProviderContext {
+        base_combo: RefCell::new(vec![0f32]),
+    };
 
+    let float_point_definition = FloatPointDefinition::new(&testing, &mut context);
+
+    
     let mut window = Window::new("Tracks", W, H, WindowOptions::default())?;
-
     let mut buf = BufferWrapper(vec![0u32; W * H]);
-
     let cs = {
         let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
             buf.borrow_mut(),
@@ -107,6 +107,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             .unwrap()
             .as_secs_f64();
 
+        context.base_combo.borrow_mut()[0] = epoch as f32 / 2.0;
+
         if epoch - last_flushed > 1.0 / FRAME_RATE {
             {
                 let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
@@ -124,15 +126,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .light_line_style(TRANSPARENT)
                         .draw()?;
 
-                    let testing = json!([[0.0, 0.0], [5.0, 1.0, "easeInOutSine"],]);
-
-                    let float_point_definition = FloatPointDefinition::new(&testing);
-
                     chart.draw_series(LineSeries::new(
                         (0f64..1f64)
                             .step(0.0001)
                             .values()
-                            .map(|x| (x, float_point_definition.interpolate(x as f32).0 as f64)),
+                            .map(|x| (x, float_point_definition.interpolate(x as f32, &context).0 as f64)),
                         &BLUE,
                     ))?;
                 }

@@ -3,7 +3,7 @@ use std::any::Any;
 use crate::{
     easings::functions::Functions,
     modifiers::{ModifierBase, float_modifier::FloatModifier, operation::Operation},
-    values::BaseValues,
+    values::{BaseValues, base_provider_context::BaseProviderContext},
 };
 
 use super::BasePointData;
@@ -33,8 +33,8 @@ impl FloatPointData {
 impl ModifierBase for FloatPointData {
     type Value = f32;
 
-    fn get_point(&self) -> f32 {
-        self.base_modifier.get_point()
+    fn get_point(&self, context: &BaseProviderContext) -> f32 {
+        self.base_modifier.get_point(context)
     }
 
     fn get_raw_point(&self) -> f32 {
@@ -62,8 +62,8 @@ impl BasePointData<f32> for FloatPointData {
         false
     }
 
-    fn get_point(&self) -> f32 {
-        <Self as ModifierBase>::get_point(self)
+    fn get_point(&self, context: &BaseProviderContext) -> f32 {
+        <Self as ModifierBase>::get_point(self, context)
     }
 
     fn as_any(&self) -> &dyn Any {

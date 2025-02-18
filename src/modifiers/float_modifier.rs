@@ -1,5 +1,5 @@
 use crate::values::BaseValues;
-
+use crate::values::base_provider_context::BaseProviderContext;
 use super::{
     operation::Operation,
     {Modifier, ModifierBase},
@@ -31,18 +31,18 @@ impl FloatModifier {
 impl ModifierBase for FloatModifier {
     type Value = f32;
 
-    fn get_point(&self) -> f32 {
+    fn get_point(&self, context: &BaseProviderContext) -> f32 {
         let original_point = self
             .raw_point
-            .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap()));
+            .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap(), context));
         self.modifiers
             .iter()
             .fold(original_point, |acc, x| match x.get_operation() {
-                Operation::Add => acc + x.get_point(),
-                Operation::Sub => acc - x.get_point(),
-                Operation::Mul => acc * x.get_point(),
-                Operation::Div => acc / x.get_point(),
-                Operation::None => x.get_point(),
+                Operation::Add => acc + x.get_point(context),
+                Operation::Sub => acc - x.get_point(context),
+                Operation::Mul => acc * x.get_point(context),
+                Operation::Div => acc / x.get_point(context),
+                Operation::None => x.get_point(context),
             })
     }
 

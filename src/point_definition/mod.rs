@@ -9,7 +9,7 @@ use crate::{
     modifiers::ModifierBase,
     modifiers::operation::Operation,
     point_data::BasePointData,
-    values::{BaseValues, deserialize_values},
+    values::{BaseValues, deserialize_values, base_provider_context::BaseProviderContext},
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -32,12 +32,14 @@ pub trait PointDefinition {
         l: usize,
         r: usize,
         time: f32,
+        context: &BaseProviderContext,
     ) -> Self::Value;
     fn create_modifier(
         &self,
         values: Vec<Box<dyn BaseValues>>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Self::Value>>>,
         operation: Operation,
+        context: &BaseProviderContext,
     ) -> Box<dyn ModifierBase<Value = Self::Value>>;
     fn create_point_data(
         &self,
@@ -45,12 +47,13 @@ pub trait PointDefinition {
         flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Self::Value>>>,
         easing: Functions,
+        context: &BaseProviderContext,
     ) -> Box<dyn BasePointData<Self::Value>>;
     fn get_points_mut(&mut self) -> &mut Vec<Box<dyn BasePointData<Self::Value>>>;
     fn get_points(&self) -> &Vec<Box<dyn BasePointData<Self::Value>>>;
 
     #[cfg(feature = "json")]
-    fn deserialize_modifier(&self, list: &JsonValue) -> Box<dyn ModifierBase<Value = Self::Value>> {
+    fn deserialize_modifier(&self, list: &JsonValue, context: &BaseProviderContext) -> Box<dyn ModifierBase<Value = Self::Value>> {
         let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<Box<dyn BaseValues>>> = None;
@@ -59,14 +62,14 @@ pub trait PointDefinition {
         for group in Self::group_values(list) {
             match group.0 {
                 GroupType::Value => {
-                    values = Some(deserialize_values(&group.1));
+                    values = Some(deserialize_values(&group.1, context));
                 }
                 GroupType::Modifier => {
                     modifiers = Some(
                         group
                             .1
                             .iter()
-                            .map(|m| self.deserialize_modifier(m))
+                            .map(|m| self.deserialize_modifier(m, context))
                             .collect(),
                     );
                 }
@@ -85,12 +88,13 @@ pub trait PointDefinition {
             values.unwrap(),
             modifiers.unwrap_or_default(),
             operation.unwrap(),
+            context,
         )
     }
 
     // Shared parse implementation
     #[cfg(feature = "json")]
-    fn parse(&mut self, value: &JsonValue) {
+    fn parse(&mut self, value: &JsonValue, context: &BaseProviderContext) {
         // Expect an array of raw points
         if let Some(array) = value.as_array() {
             for raw_point in array {
@@ -107,14 +111,14 @@ pub trait PointDefinition {
                 for group in Self::group_values(raw_point) {
                     match group.0 {
                         GroupType::Value => {
-                            vals = Some(deserialize_values(&group.1));
+                            vals = Some(deserialize_values(&group.1, context));
                         }
                         GroupType::Modifier => {
                             modifiers = Some(
                                 group
                                     .1
                                     .iter()
-                                    .map(|m| self.deserialize_modifier(m))
+                                    .map(|m| self.deserialize_modifier(m, context))
                                     .collect(),
                             );
                         }
@@ -148,6 +152,7 @@ pub trait PointDefinition {
                         flags.unwrap_or_default(),
                         modifiers.unwrap_or_default(),
                         easing,
+                        context,
                     );
                     self.get_points_mut().push(point_data);
                 }
@@ -212,7 +217,7 @@ pub trait PointDefinition {
     }
 
     // The main interpolation method. Returns a tuple (interpolated value, is_last_point)
-    fn interpolate(&self, time: f32) -> (Self::Value, bool) {
+    fn interpolate(&self, time: f32, context: &BaseProviderContext) -> (Self::Value, bool) {
         let points = self.get_points();
 
         if points.is_empty() {
@@ -221,12 +226,12 @@ pub trait PointDefinition {
 
         let last_point = points.last().unwrap();
         if last_point.get_time() <= time {
-            return (last_point.get_point(), true);
+            return (last_point.get_point(context), true);
         }
 
         let first_point = points.first().unwrap();
         if first_point.get_time() >= time {
-            return (first_point.get_point(), false);
+            return (first_point.get_point(context), false);
         }
 
         let (l, r) = self.search_index(points, time);
@@ -240,6 +245,6 @@ pub trait PointDefinition {
         };
 
         let eased_time = point_r.get_easing().interpolate(normal_time);
-        (self.interpolate_points(points, l, r, eased_time), false)
+        (self.interpolate_points(points, l, r, eased_time, context), false)
     }
 }
