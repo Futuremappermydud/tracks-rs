@@ -1,6 +1,7 @@
-use crate::point_definition::PointDefinition;
+use crate::point_definition::{vector3_point_definition::Vector3PointDefinition, PointDefinition};
 use crate::point_definition::float_point_definition::FloatPointDefinition;
 use crate::values::base_provider_context::BaseProviderContext;
+use glam::Vec3;
 use serde_json::Value;
 use std::ffi::{CStr, c_char};
 
@@ -32,6 +33,28 @@ pub unsafe extern "C" fn tracks_interpolate_float(
     time: f32,
     context: *mut BaseProviderContext,
 ) -> f32 {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.interpolate(time, unsafe { &*context }).0
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn tracks_make_vector3_point_definition(
+    json: *const c_char,
+    context: *mut BaseProviderContext,
+) -> *const Vector3PointDefinition {  
+    let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
+    let value: Value = serde_json::from_str(json_str).unwrap();
+    let point_definition = Box::new(Vector3PointDefinition::new(&value, unsafe { &*context }));
+    let point_definition_ptr = Box::leak(point_definition);
+    point_definition_ptr
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn tracks_interpolate_vector3(
+    point_definition: *const Vector3PointDefinition,
+    time: f32,
+    context: *mut BaseProviderContext,
+) -> Vec3 {
     let point_definition = unsafe { &*point_definition };
     point_definition.interpolate(time, unsafe { &*context }).0
 }
