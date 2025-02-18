@@ -4,19 +4,20 @@ use super::{
 };
 use crate::values::BaseValues;
 use crate::values::base_provider_context::BaseProviderContext;
+use glam::Vec3;
 
-pub struct FloatModifier {
-    raw_point: Option<f32>,
+pub struct Vector3Modifier {
+    raw_point: Option<Vec3>,
     values: Option<Vec<Box<dyn BaseValues>>>,
-    modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
+    modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
     operation: Operation,
 }
 
-impl FloatModifier {
+impl Vector3Modifier {
     pub fn new(
-        point: Option<f32>,
+        point: Option<Vec3>,
         values: Option<Vec<Box<dyn BaseValues>>>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         operation: Operation,
     ) -> Self {
         Self {
@@ -28,10 +29,10 @@ impl FloatModifier {
     }
 }
 
-impl ModifierBase for FloatModifier {
-    type Value = f32;
+impl ModifierBase for Vector3Modifier {
+    type Value = Vec3;
 
-    fn get_point(&self, context: &BaseProviderContext) -> f32 {
+    fn get_point(&self, context: &BaseProviderContext) -> Vec3 {
         let original_point = self
             .raw_point
             .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap(), context));
@@ -46,12 +47,12 @@ impl ModifierBase for FloatModifier {
             })
     }
 
-    fn get_raw_point(&self) -> f32 {
-        self.raw_point.unwrap_or(0.0)
+    fn get_raw_point(&self) -> Vec3 {
+        self.raw_point.unwrap_or(Vec3::ZERO)
     }
 
-    fn translate(&self, values: &[f32]) -> f32 {
-        values[0]
+    fn translate(&self, values: &[f32]) -> Vec3 {
+        Vec3::new(values[0], values[1], values[2])
     }
 
     fn get_operation(&self) -> Operation {
@@ -59,6 +60,6 @@ impl ModifierBase for FloatModifier {
     }
 }
 
-impl Modifier for FloatModifier {
-    const VALUE_COUNT: usize = 1;
+impl Modifier for Vector3Modifier {
+    const VALUE_COUNT: usize = 3;
 }

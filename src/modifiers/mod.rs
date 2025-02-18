@@ -1,5 +1,6 @@
 pub mod float_modifier;
 pub mod operation;
+pub mod vector3_modifier;
 
 use crate::modifiers::operation::Operation;
 use crate::values::BaseValues;
@@ -16,7 +17,11 @@ pub trait ModifierBase {
 pub trait Modifier: ModifierBase {
     const VALUE_COUNT: usize;
 
-    fn fill_values(&self, ivals: &[Box<dyn BaseValues>], context: &BaseProviderContext) -> Vec<f32> {
+    fn fill_values(
+        &self,
+        ivals: &[Box<dyn BaseValues>],
+        context: &BaseProviderContext,
+    ) -> Vec<f32> {
         let mut values = Vec::with_capacity(Self::VALUE_COUNT);
         for value in ivals {
             for v in value.values(context) {

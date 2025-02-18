@@ -9,7 +9,7 @@ use crate::{
     modifiers::ModifierBase,
     modifiers::operation::Operation,
     point_data::BasePointData,
-    values::{BaseValues, deserialize_values, base_provider_context::BaseProviderContext},
+    values::{BaseValues, base_provider_context::BaseProviderContext, deserialize_values},
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -53,7 +53,11 @@ pub trait PointDefinition {
     fn get_points(&self) -> &Vec<Box<dyn BasePointData<Self::Value>>>;
 
     #[cfg(feature = "json")]
-    fn deserialize_modifier(&self, list: &JsonValue, context: &BaseProviderContext) -> Box<dyn ModifierBase<Value = Self::Value>> {
+    fn deserialize_modifier(
+        &self,
+        list: &JsonValue,
+        context: &BaseProviderContext,
+    ) -> Box<dyn ModifierBase<Value = Self::Value>> {
         let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<Box<dyn BaseValues>>> = None;
@@ -245,6 +249,9 @@ pub trait PointDefinition {
         };
 
         let eased_time = point_r.get_easing().interpolate(normal_time);
-        (self.interpolate_points(points, l, r, eased_time, context), false)
+        (
+            self.interpolate_points(points, l, r, eased_time, context),
+            false,
+        )
     }
 }

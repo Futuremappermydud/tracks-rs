@@ -1,7 +1,7 @@
+use crate::values::base_provider_context::BaseProviderContext;
 use glam::Quat;
 use serde_json::Value as JsonValue;
 use std::{any::Any, sync::Arc};
-use crate::values::base_provider_context::BaseProviderContext;
 
 pub mod base_provider_context;
 
@@ -42,7 +42,7 @@ impl BaseValues for StaticValues {
 
 #[derive(Clone)]
 pub struct BaseProviderValues {
-    base: String
+    base: String,
 }
 
 impl BaseProviderValues {
@@ -218,17 +218,20 @@ fn lerp(start: f32, end: f32, t: f32) -> f32 {
 
 // Values deserialization
 #[cfg(feature = "json")]
-pub fn deserialize_values(value: &[&JsonValue], _context: &BaseProviderContext) -> Vec<Box<dyn BaseValues>> {
+pub fn deserialize_values(
+    value: &[&JsonValue],
+    _context: &BaseProviderContext,
+) -> Vec<Box<dyn BaseValues>> {
     let mut result = Vec::new();
     let mut start = 0;
 
     for (i, v) in value.iter().enumerate() {
-      if v.is_string() {
-        close(&mut result, value.to_vec(), start, i);
-        start = i + 1;
-        let base = v.as_str().unwrap().to_string();
-        result.push(Box::new(BaseProviderValues::new(base.clone())));
-      }
+        if v.is_string() {
+            close(&mut result, value.to_vec(), start, i);
+            start = i + 1;
+            let base = v.as_str().unwrap().to_string();
+            result.push(Box::new(BaseProviderValues::new(base.clone())));
+        }
     }
 
     close(&mut result, value.to_vec(), start, value.len());
@@ -236,7 +239,12 @@ pub fn deserialize_values(value: &[&JsonValue], _context: &BaseProviderContext) 
 }
 
 #[cfg(feature = "json")]
-fn close(result: &mut Vec<Box<dyn BaseValues>>, raw_values: Vec<&JsonValue>, open: usize, end: usize) {
+fn close(
+    result: &mut Vec<Box<dyn BaseValues>>,
+    raw_values: Vec<&JsonValue>,
+    open: usize,
+    end: usize,
+) {
     if end <= open {
         return;
     }

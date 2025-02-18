@@ -1,7 +1,7 @@
 pub mod float_point_data;
-use std::any::Any;
-use crate::values::base_provider_context::BaseProviderContext;
 use crate::easings::functions::Functions;
+use crate::values::base_provider_context::BaseProviderContext;
+use std::any::Any;
 
 // Generic trait for point data
 pub trait BasePointData<T> {
