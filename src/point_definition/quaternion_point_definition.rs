@@ -1,15 +1,12 @@
 use glam::{EulerRot, Quat, Vec3};
-use palette::angle::RealAngle;
 
 use crate::{
     easings::functions::Functions,
     modifiers::{
         ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
-        vector3_modifier::Vector3Modifier,
     },
     point_data::{
         BasePointData, quaternion_point_data::QuaternionPointData,
-        vector3_point_data::Vector3PointData,
     },
     values::{BaseValues, StaticValues, Values, base_provider_context::BaseProviderContext},
 };
@@ -88,7 +85,7 @@ impl PointDefinition for QuaternionPointDefinition {
     fn create_point_data(
         &self,
         values: Vec<Box<dyn BaseValues>>,
-        flags: Vec<String>,
+        _flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
         easing: Functions,
         context: &BaseProviderContext,

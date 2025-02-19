@@ -62,7 +62,7 @@ pub unsafe extern "C" fn tracks_make_base_provider_context() -> *mut BaseProvide
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_set_base_provider(context: *mut BaseProviderContext, base: *const c_char, values: &[f32]) {
+pub unsafe extern "C" fn tracks_set_base_provider(context: *mut BaseProviderContext, base: *const c_char, values: safer_ffi::Vec<f32>) {
   let base_str = unsafe { CStr::from_ptr(base).to_str().unwrap() };
   let context = unsafe { &mut *context };
   context.set_values(base_str, values.to_vec());

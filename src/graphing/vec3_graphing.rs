@@ -1,17 +1,15 @@
 use std::cell::RefCell;
 
-use glam::Vec3Swizzles;
-use minifb::{MouseButton, MouseMode, Window};
+use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
     chart::{ChartBuilder, ChartState},
     coord::{Shift, ranged3d::Cartesian3d, types::RangedCoordf64},
     prelude::{
-        BitMapBackend, Circle, DiscreteRanged, DrawingArea, EmptyElement, IntoLinspace,
-        PathElement, Text,
+        BitMapBackend, Circle, DiscreteRanged, DrawingArea, EmptyElement, IntoLinspace, Text,
     },
     series::LineSeries,
-    style::{BLACK, BLUE, Color, GREEN, IntoFont, RED, ShapeStyle, TRANSPARENT, WHITE},
+    style::{BLACK, Color, IntoFont, RED, ShapeStyle, WHITE},
 };
 use serde_json::json;
 
@@ -30,7 +28,7 @@ impl Vec3Context {
         let context = BaseProviderContext::new();
         let definition = Vector3PointDefinition::new(
             &json!([
-                [3.0, 0.0, 0.0, 0.0],
+                [3.0, 0.0, "baseCombo", 0.0],
                 [1.0, 0.0, 0.0, 0.5, "splineCatmullRom", "easeInSine"],
                 [1.0, 2.0, 3.0, 1.0, "splineCatmullRom", "easeOutSine"]
             ]),
@@ -75,7 +73,7 @@ pub fn draw_vec3(
     chart: &ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
     context: &Vec3Context,
     epoch: f64,
-    window: &Window,
+    _window: &Window,
 ) {
     {
         context
@@ -121,7 +119,7 @@ pub fn draw_vec3(
                 );
         };
 
-        let mut draw_T = |x: f32| {
+        let mut draw_t = |x: f32| {
             let point = context
                 .definition
                 .interpolate(x as f32, &context.context.borrow())
@@ -135,9 +133,9 @@ pub fn draw_vec3(
                 .unwrap();
         };
 
-        draw_T(0.0);
-        draw_T(((epoch.sin() + 1.0) * 0.5) as f32);
-        draw_T(1.0);
+        draw_t(0.0);
+        draw_t(((epoch.sin() + 1.0) * 0.5) as f32);
+        draw_t(1.0);
 
         chart
             .configure_series_labels()

@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use glam::{EulerRot, Quat, Vec3, Vec4};
+use glam::{Quat, Vec3, Vec4};
 
 pub struct BaseProviderContext {
     //Score

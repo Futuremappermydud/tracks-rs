@@ -126,7 +126,7 @@ impl PointDefinition for Vector4PointDefinition {
             }
         } else {
             let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            if count != 4 {
+            if count != 5 {
                 eprintln!("Vector4 point must have 4 numbers");
             }
             time = values

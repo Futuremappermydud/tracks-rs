@@ -57,7 +57,7 @@ pub fn draw_2d(
     root: &DrawingArea<BitMapBackend<'_, BGRXPixel>, Shift>,
     chart: &ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>,
     context: &FloatContext,
-    epoch: f64,
+    _epoch: f64,
 ) {
     {
         let mut chart = chart.clone().restore(&root);

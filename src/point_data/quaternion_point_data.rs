@@ -4,7 +4,6 @@ use crate::{
     easings::functions::Functions,
     modifiers::{
         ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
-        vector3_modifier::Vector3Modifier,
     },
     values::{BaseValues, base_provider_context::BaseProviderContext},
 };
