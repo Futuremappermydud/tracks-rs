@@ -14,6 +14,6 @@ fn main() {
         .with_cpp_compat(true)
         .with_pragma_once(true)
         .generate()
-    .expect("Unable to generate bindings")
-    .write_to_file("./shared/bindings.h");
+        .expect("Unable to generate bindings")
+        .write_to_file("./shared/bindings.h");
 }

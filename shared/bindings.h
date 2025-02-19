@@ -15,8 +15,6 @@ typedef struct FloatPointDefinition FloatPointDefinition;
 
 typedef struct QuaternionPointDefinition QuaternionPointDefinition;
 
-typedef struct Vec_f32 Vec_f32;
-
 typedef struct Vector3PointDefinition Vector3PointDefinition;
 
 typedef struct Vector4PointDefinition Vector4PointDefinition;
@@ -72,7 +70,8 @@ struct BaseProviderContext *tracks_make_base_provider_context(void);
 
 void tracks_set_base_provider(struct BaseProviderContext *context,
                               const char *base,
-                              struct Vec_f32 values);
+                              float *values,
+                              uintptr_t count);
 
 /**
  *FLOAT POINT DEFINITION

@@ -64,8 +64,11 @@ pub fn draw_color(
     {
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
-        
-        context.context.borrow_mut().set_values("baseNote0Color", vec![1.0, 0.0, 0.0, 1.0]);
+
+        context
+            .context
+            .borrow_mut()
+            .set_values("baseNote0Color", vec![1.0, 0.0, 0.0, 1.0]);
 
         chart
             .configure_mesh()
@@ -76,7 +79,8 @@ pub fn draw_color(
 
         chart
             .draw_series((0.0..1.0).step(0.01).values().map(|x| {
-                let color = context.definition
+                let color = context
+                    .definition
                     .interpolate(x as f32, &context.context.borrow())
                     .0;
                 Rectangle::new(

@@ -96,7 +96,12 @@ impl ModifierBase for QuaternionModifier {
     }
 
     fn translate(&self, values: &[f32]) -> Quat {
-        Quat::from_euler(EulerRot::ZXY, values[0].to_radians(), values[1].to_radians(), values[2].to_radians())
+        Quat::from_euler(
+            EulerRot::ZXY,
+            values[0].to_radians(),
+            values[1].to_radians(),
+            values[2].to_radians(),
+        )
     }
 
     fn get_operation(&self) -> Operation {

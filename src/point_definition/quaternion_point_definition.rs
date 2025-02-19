@@ -2,12 +2,8 @@ use glam::{EulerRot, Quat, Vec3};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{
-        ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
-    },
-    point_data::{
-        BasePointData, quaternion_point_data::QuaternionPointData,
-    },
+    modifiers::{ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier},
+    point_data::{BasePointData, quaternion_point_data::QuaternionPointData},
     values::{BaseValues, StaticValues, Values, base_provider_context::BaseProviderContext},
 };
 

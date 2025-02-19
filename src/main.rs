@@ -9,11 +9,11 @@ mod point_data;
 mod point_definition;
 mod values;
 
-use tracing::error;
-use tracing_error::SpanTrace;
-use std::{backtrace::Backtrace, panic::PanicHookInfo};
 use cfg_if::cfg_if;
-
+use ctor::ctor;
+use std::{backtrace::Backtrace, panic::PanicHookInfo};
+use tracing::{error, info};
+use tracing_error::SpanTrace;
 
 #[cfg(target_os = "windows")]
 fn main() {
@@ -24,21 +24,16 @@ fn main() {
 }
 
 #[cfg(target_os = "android")]
+#[ctor]
 fn main() {
-  setup("tracks-rs");
+    setup("tracks-rs");
+
+    info!("setup HI");
 }
 
 #[allow(clippy::needless_pass_by_value)]
 pub fn setup(tag: impl ToString) {
-    cfg_if! {
-        if #[cfg(target_os = "android")] {
-            paranoid_android::init(tag);
-        } else {
-            let env = format!("LOG_{}", tag.to_string().to_ascii_uppercase());
-            let filter = tracing_subscriber::filter::EnvFilter::from_env(env);
-            tracing_subscriber::fmt().with_env_filter(filter).init();
-        }
-    }
+    paranoid_android::init(tag);
     std::panic::set_hook(panic_hook(true, true));
 }
 

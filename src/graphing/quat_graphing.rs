@@ -6,9 +6,7 @@ use plotters::{
     backend::BGRXPixel,
     chart::{ChartBuilder, ChartState},
     coord::{Shift, ranged3d::Cartesian3d, types::RangedCoordf64},
-    prelude::{
-        BitMapBackend, DiscreteRanged, DrawingArea, IntoLinspace,
-    },
+    prelude::{BitMapBackend, DiscreteRanged, DrawingArea, IntoLinspace},
     series::LineSeries,
     style::{BLACK, Color, RED, RGBAColor, WHITE},
 };
