@@ -36,7 +36,7 @@ impl UpdateableValues for QuaternionProviderValues {
             self.source[2],
             self.source[3],
         );
-        let euler = self.rotation.to_euler(glam::EulerRot::XYZ);
+        let euler = self.rotation.to_euler(glam::EulerRot::ZXY);
         let vec = Value::Vector3(vec3(
             euler.0.to_degrees(),
             euler.1.to_degrees(),
