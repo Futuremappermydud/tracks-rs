@@ -53,9 +53,7 @@ impl ModifierBase for Vector3PointData {
         self.base_modifier.get_operation()
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
+  
 }
 
 impl BasePointData<Vec3> for Vector3PointData {
@@ -75,7 +73,5 @@ impl BasePointData<Vec3> for Vector3PointData {
         <Self as ModifierBase>::get_point(self, context)
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
+
 }

@@ -61,9 +61,7 @@ impl ModifierBase for Vector4Modifier {
         self.operation
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
+    
 }
 
 impl Modifier for Vector4Modifier {
