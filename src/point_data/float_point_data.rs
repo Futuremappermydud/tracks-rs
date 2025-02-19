@@ -2,8 +2,8 @@ use std::any::Any;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, float_modifier::FloatModifier, operation::Operation},
-    values::{BaseValues, base_provider_context::BaseProviderContext},
+    modifiers::{float_modifier::FloatModifier, operation::Operation, ModifierBase},
+    values::{base::BaseProviderValues, base_provider_context::BaseProviderContext, ValueProvider},
 };
 
 use super::BasePointData;
@@ -17,7 +17,7 @@ pub struct FloatPointData {
 impl FloatPointData {
     pub fn new(
         point: Option<f32>,
-        values: Option<Vec<Box<dyn BaseValues>>>,
+        values: Option<Vec<ValueProvider>>,
         time: f32,
         modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         easing: Functions,
@@ -48,10 +48,6 @@ impl ModifierBase for FloatPointData {
     fn get_operation(&self) -> Operation {
         self.base_modifier.get_operation()
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
 }
 
 impl BasePointData<f32> for FloatPointData {
@@ -68,9 +64,5 @@ impl BasePointData<f32> for FloatPointData {
 
     fn get_point(&self, context: &BaseProviderContext) -> f32 {
         <Self as ModifierBase>::get_point(self, context)
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }

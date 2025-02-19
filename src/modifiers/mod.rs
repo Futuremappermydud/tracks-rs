@@ -5,16 +5,17 @@ pub mod vector3_modifier;
 pub mod vector4_modifier;
 
 use crate::modifiers::operation::Operation;
-use crate::values::BaseValues;
 use crate::values::base_provider_context::BaseProviderContext;
-use std::any::Any;
+use crate::values::{AbstractValueProvider, Value, ValueProvider};
+
 pub trait ModifierBase {
     type Value;
     fn get_point(&self, context: &BaseProviderContext) -> Self::Value;
     fn get_raw_point(&self) -> Self::Value;
     fn translate(&self, values: &[f32]) -> Self::Value;
     fn get_operation(&self) -> Operation;
-    fn as_any(&self) -> &dyn Any;
+
+    fn modify(&self, value: Value, context: &BaseProviderContext) -> Value;
 }
 
 pub trait Modifier: ModifierBase {
@@ -22,7 +23,7 @@ pub trait Modifier: ModifierBase {
 
     fn fill_values(
         &self,
-        ivals: &[Box<dyn BaseValues>],
+        ivals: &[ValueProvider],
         context: &BaseProviderContext,
     ) -> Vec<f32> {
         let mut values = Vec::with_capacity(Self::VALUE_COUNT);
@@ -38,7 +39,7 @@ pub trait Modifier: ModifierBase {
         values
     }
 
-    fn convert(&self, ivals: &[Box<dyn BaseValues>], context: &BaseProviderContext) -> Self::Value {
+    fn convert(&self, ivals: &[ValueProvider], context: &BaseProviderContext) -> Self::Value {
         let values = self.fill_values(ivals, context);
         self.translate(&values)
     }

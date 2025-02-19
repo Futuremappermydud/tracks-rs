@@ -19,7 +19,7 @@ pub struct Vector4PointData {
 impl Vector4PointData {
     pub fn new(
         point: Option<Vec4>,
-        values: Option<Vec<Box<dyn BaseValues>>>,
+        values: Option<Vec<ValueProvider>>,
         hsv_lerp: bool,
         time: f32,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,

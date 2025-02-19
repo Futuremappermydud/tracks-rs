@@ -2,23 +2,19 @@ use super::UpdateableValues;
 
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::ValueProvider;
+use super::AbstractValueProvider;
 
 use glam::Quat;
 
-use super::RotationValues;
-
-use std::sync::Arc;
-
 pub struct SmoothRotationProvidersValues {
-    pub(crate) rotation_values: Arc<dyn RotationValues>,
+    pub(crate) rotation_values: Quat,
     pub(crate) mult: f32,
     pub(crate) last_quaternion: Quat,
     pub(crate) values: Vec<f32>,
 }
 
 impl SmoothRotationProvidersValues {
-    pub fn new(rotation_values: Arc<dyn RotationValues>, mult: f32) -> Self {
+    pub fn new(rotation_values: Quat, mult: f32) -> Self {
         Self {
             rotation_values,
             mult,
@@ -28,7 +24,7 @@ impl SmoothRotationProvidersValues {
     }
 }
 
-impl ValueProvider for SmoothRotationProvidersValues {
+impl AbstractValueProvider for SmoothRotationProvidersValues {
     fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
         self.values.clone()
     }

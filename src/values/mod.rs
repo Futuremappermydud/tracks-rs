@@ -1,5 +1,5 @@
 use crate::values::base_provider_context::BaseProviderContext;
-use glam::{DVec2, DVec3, DVec4, Quat};
+use glam::{DVec2, DVec3, DVec4, Quat, Vec2, Vec3, Vec4};
 use serde_json::Value as JsonValue;
 use std::{any::Any, sync::Arc};
 
@@ -11,7 +11,7 @@ pub mod smooth_rot;
 pub mod r#static;
 pub mod updatable;
 
-pub trait ValueProvider {
+pub trait AbstractValueProvider {
     fn values(&self, context: &BaseProviderContext) -> Value;
 
     fn as_float(&self, context: &BaseProviderContext) -> Option<f32> {
@@ -52,17 +52,32 @@ pub trait ValueProvider {
 
 pub enum Value {
     Float(f32),
-    Vector2(DVec2),
-    Vector3(DVec3),
-    Vector4(DVec4),
+    Vector2(Vec2),
+    Vector3(Vec3),
+    Vector4(Vec4),
     Quaternion(Quat),
 }
 
-pub trait UpdateableValues: ValueProvider {
+impl IntoIterator for Value {
+    type Item = f32;
+    type IntoIter = Box<dyn Iterator<Item = f32>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            Value::Float(v) => Box::new([v].into_iter()),
+            Value::Vector2(v) => Box::new([v.x, v.y].into_iter()),
+            Value::Vector3(v) => Box::new([v.x, v.y, v.z].into_iter()),
+            Value::Vector4(v) => Box::new([v.x, v.y, v.z, v.w].into_iter()),
+            Value::Quaternion(v) => Box::new([v.x, v.y, v.z, v.w].into_iter()),
+        }
+    }
+}
+
+pub trait UpdateableValues: AbstractValueProvider {
     fn update(&mut self);
 }
 
-pub enum BaseValueProvider {
+pub enum ValueProvider {
     Static(r#static::StaticValues),
     BaseProvider(base::BaseProviderValues),
     QuaternionProvider(quat::QuaternionProviderValues),
@@ -71,15 +86,15 @@ pub enum BaseValueProvider {
     SmoothRotationProviders(smooth_rot::SmoothRotationProvidersValues),
 }
 
-impl ValueProvider for BaseValueProvider {
+impl AbstractValueProvider for ValueProvider {
     fn values(&self, context: &BaseProviderContext) -> Value {
         let items = match self {
-            BaseValueProvider::Static(v) => v.values(context),
-            BaseValueProvider::BaseProvider(v) => v.values(context),
-            BaseValueProvider::QuaternionProvider(v) => v.values(context),
-            BaseValueProvider::PartialProvider(v) => v.values(context),
-            BaseValueProvider::SmoothProviders(v) => v.values(context),
-            BaseValueProvider::SmoothRotationProviders(v) => v.values(context),
+            ValueProvider::Static(v) => v.values(context),
+            ValueProvider::BaseProvider(v) => v.values(context),
+            ValueProvider::QuaternionProvider(v) => v.values(context),
+            ValueProvider::PartialProvider(v) => v.values(context),
+            ValueProvider::SmoothProviders(v) => v.values(context),
+            ValueProvider::SmoothRotationProviders(v) => v.values(context),
         };
         items
     }
@@ -113,12 +128,7 @@ pub fn deserialize_values(
 }
 
 #[cfg(feature = "json")]
-fn close(
-    result: &mut Vec<BaseValueProvider>,
-    raw_values: Vec<&JsonValue>,
-    open: usize,
-    end: usize,
-) {
+fn close(result: &mut Vec<ValueProvider>, raw_values: Vec<&JsonValue>, open: usize, end: usize) {
     if end <= open {
         return;
     }

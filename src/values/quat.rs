@@ -1,10 +1,8 @@
 use super::UpdateableValues;
 
-use super::RotationValues;
-
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::ValueProvider;
+use super::AbstractValueProvider;
 
 use glam::Quat;
 
@@ -24,15 +22,9 @@ impl QuaternionProviderValues {
     }
 }
 
-impl ValueProvider for QuaternionProviderValues {
+impl AbstractValueProvider for QuaternionProviderValues {
     fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
         self.values.clone()
-    }
-}
-
-impl RotationValues for QuaternionProviderValues {
-    fn rotation(&self) -> Quat {
-        self.rotation
     }
 }
 

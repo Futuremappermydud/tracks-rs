@@ -4,7 +4,7 @@ use super::UpdateableValues;
 
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::ValueProvider;
+use super::AbstractValueProvider;
 
 pub struct SmoothProvidersValues {
     pub(crate) source: Vec<f32>,
@@ -22,7 +22,7 @@ impl SmoothProvidersValues {
     }
 }
 
-impl ValueProvider for SmoothProvidersValues {
+impl AbstractValueProvider for SmoothProvidersValues {
     fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
         self.values.clone()
     }

@@ -36,7 +36,7 @@ impl PointDefinition for QuaternionPointDefinition {
 
     fn create_modifier(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
         operation: Operation,
         context: &BaseProviderContext,
@@ -86,7 +86,7 @@ impl PointDefinition for QuaternionPointDefinition {
 
     fn create_point_data(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
         easing: Functions,

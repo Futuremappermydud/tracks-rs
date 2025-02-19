@@ -2,7 +2,7 @@ use super::UpdateableValues;
 
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::ValueProvider;
+use super::AbstractValueProvider;
 
 pub struct PartialProviderValues {
     pub(crate) source: Vec<f32>,
@@ -20,7 +20,7 @@ impl PartialProviderValues {
     }
 }
 
-impl ValueProvider for PartialProviderValues {
+impl AbstractValueProvider for PartialProviderValues {
     fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
         self.values.clone()
     }

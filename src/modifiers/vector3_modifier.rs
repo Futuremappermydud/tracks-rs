@@ -10,7 +10,7 @@ use glam::Vec3;
 
 pub struct Vector3Modifier {
     raw_point: Option<Vec3>,
-    values: Option<Vec<Box<dyn BaseValues>>>,
+    values: Option<Vec<ValueProvider>>,
     modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
     operation: Operation,
 }
@@ -18,7 +18,7 @@ pub struct Vector3Modifier {
 impl Vector3Modifier {
     pub fn new(
         point: Option<Vec3>,
-        values: Option<Vec<Box<dyn BaseValues>>>,
+        values: Option<Vec<ValueProvider>>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         operation: Operation,
     ) -> Self {

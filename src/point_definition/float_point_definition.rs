@@ -31,7 +31,7 @@ impl PointDefinition for FloatPointDefinition {
 
     fn create_modifier(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         operation: Operation,
         context: &BaseProviderContext,
@@ -73,7 +73,7 @@ impl PointDefinition for FloatPointDefinition {
 
     fn create_point_data(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         _flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         easing: Functions,

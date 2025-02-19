@@ -67,7 +67,7 @@ impl PointDefinition for Vector3PointDefinition {
 
     fn create_modifier(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         operation: Operation,
         context: &BaseProviderContext,
@@ -107,7 +107,7 @@ impl PointDefinition for Vector3PointDefinition {
 
     fn create_point_data(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         easing: Functions,

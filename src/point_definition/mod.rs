@@ -9,10 +9,11 @@ use serde_json::Value as JsonValue;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::ModifierBase,
-    modifiers::operation::Operation,
+    modifiers::{ModifierBase, operation::Operation},
     point_data::BasePointData,
-    values::{BaseValues, base_provider_context::BaseProviderContext, deserialize_values},
+    values::{
+        PossibleValueProvider, base_provider_context::BaseProviderContext, deserialize_values,
+    },
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -39,14 +40,14 @@ pub trait PointDefinition {
     ) -> Self::Value;
     fn create_modifier(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<PossibleValueProvider>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Self::Value>>>,
         operation: Operation,
         context: &BaseProviderContext,
     ) -> Box<dyn ModifierBase<Value = Self::Value>>;
     fn create_point_data(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Self::Value>>>,
         easing: Functions,
@@ -63,7 +64,7 @@ pub trait PointDefinition {
     ) -> Box<dyn ModifierBase<Value = Self::Value>> {
         let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
         let mut operation: Option<Operation> = None;
-        let mut values: Option<Vec<Box<dyn BaseValues>>> = None;
+        let mut values: Option<Vec<ValueProvider>> = None;
 
         // Group values similar to PointDefinition::group_values
         for group in Self::group_values(list) {
@@ -112,7 +113,7 @@ pub trait PointDefinition {
                 let mut easing = Functions::EaseLinear;
                 let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
                 let mut flags: Option<Vec<String>> = None;
-                let mut vals: Option<Vec<Box<dyn BaseValues>>> = None;
+                let mut vals: Option<Vec<ValueProvider>> = None;
 
                 // Group the values and flags. (Assuming each raw_point has a structure similar to the C++ JSON)
                 for group in Self::group_values(raw_point) {
