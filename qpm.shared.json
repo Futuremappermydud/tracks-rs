@@ -9,7 +9,7 @@
       "version": "0.1.0",
       "url": "https://github.com/Futuremappermydud/tracks-rs",
       "additionalData": {
-        "overrideSoName": "libpaper2_scotland2.so",
+        "overrideSoName": "libtracks_rs.so",
         "compileOptions": {},
         "cmake": false
       }

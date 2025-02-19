@@ -2,6 +2,7 @@
 
 mod easings;
 mod ffi;
+#[cfg(not(target_os = "android"))]
 mod graphing;
 mod modifiers;
 mod point_data;
