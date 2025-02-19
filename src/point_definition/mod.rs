@@ -8,6 +8,8 @@ use std::str::FromStr;
 use serde_json::Value as JsonValue;
 use serde_json::json;
 
+use crate::point_data::float_point_data::FloatPointData;
+use crate::point_data::PointData;
 use crate::{
     easings::functions::Functions,
     modifiers::{Modifier, ModifierBase, operation::Operation},
@@ -33,7 +35,7 @@ pub trait PointDefinition {
     fn has_base_provider(&self) -> bool;
     fn interpolate_points(
         &self,
-        points: &[Box<dyn BasePointData<Self::Value>>],
+        points: &[Box<PointData>],
         l: usize,
         r: usize,
         time: f32,
@@ -53,9 +55,10 @@ pub trait PointDefinition {
         modifiers: Vec<Box<Modifier>>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<dyn BasePointData<Self::Value>>;
-    fn get_points_mut(&mut self) -> &mut Vec<Box<dyn BasePointData<Self::Value>>>;
-    fn get_points(&self) -> &Vec<Box<dyn BasePointData<Self::Value>>>;
+    ) -> Box<PointData>;
+    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>>;
+    fn get_points(&self) -> &Vec<Box<PointData>>;
+    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Self::Value;
 
     #[cfg(feature = "json")]
     fn deserialize_modifier(
@@ -176,7 +179,7 @@ pub trait PointDefinition {
     // Binary search algorithm to find the relevant interval
     fn search_index(
         &self,
-        points: &[Box<dyn BasePointData<Self::Value>>],
+        points: &[Box<PointData>],
         time: f32,
     ) -> (usize, usize) {
         let mut l = 0;
@@ -228,7 +231,7 @@ pub trait PointDefinition {
         }
         result
     }
-
+    
     // The main interpolation method. Returns a tuple (interpolated value, is_last_point)
     fn interpolate(&self, time: f32, context: &BaseProviderContext) -> (Self::Value, bool) {
         let points = self.get_points();
@@ -239,12 +242,12 @@ pub trait PointDefinition {
 
         let last_point = points.last().unwrap();
         if last_point.get_time() <= time {
-            return (last_point.get_point(context), true);
+            return (self.get_point(last_point, context), true);
         }
 
         let first_point = points.first().unwrap();
         if first_point.get_time() >= time {
-            return (first_point.get_point(context), false);
+            return (self.get_point(first_point, context), false);
         }
 
         let (l, r) = self.search_index(points, time);

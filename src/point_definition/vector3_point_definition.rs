@@ -2,37 +2,37 @@ use glam::Vec3;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, vector3_modifier::Vector3Modifier, Modifier, ModifierBase},
-    point_data::{vector3_point_data::Vector3PointData, BasePointData},
-    values::{base_provider_context::BaseProviderContext, r#static::StaticValues, AbstractValueProvider, ValueProvider},
+    modifiers::{operation::Operation, vector3_modifier::Vector3Modifier, Modifier},
+    point_data::{vector3_point_data::Vector3PointData, PointData},
+    values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider},
 };
 
 use super::PointDefinition;
 
 pub struct Vector3PointDefinition {
-    points: Vec<Box<dyn BasePointData<Vec3>>>,
+    points: Vec<Box<PointData>>,
 }
 
 impl Vector3PointDefinition {
     fn smooth_vector_lerp(
         &self,
-        points: &[Box<dyn BasePointData<Vec3>>],
+        points: &[Box<PointData>],
         l: usize,
         r: usize,
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec3 {
-        let point_a = points[l].get_point(context);
-        let point_b = points[r].get_point(context);
+        let point_a = points[l].get_vector3(context);
+        let point_b = points[r].get_vector3(context);
 
         // Catmull-Rom Spline
         let p0 = if l > 0 {
-            points[l - 1].get_point(context)
+            points[l - 1].get_vector3(context)
         } else {
             point_a
         };
         let p3 = if r + 1 < points.len() {
-            points[r + 1].get_point(context)
+            points[r + 1].get_vector3(context)
         } else {
             point_b
         };
@@ -60,7 +60,7 @@ impl PointDefinition for Vector3PointDefinition {
         self.points.iter().any(|p| p.has_base_provider())
     }
 
-    fn get_points_mut(&mut self) -> &mut Vec<Box<dyn BasePointData<Self::Value>>> {
+    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>> {
         &mut self.points
     }
 
@@ -111,7 +111,7 @@ impl PointDefinition for Vector3PointDefinition {
         modifiers: Vec<Box<Modifier>>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<dyn BasePointData<Vec3>> {
+    ) -> Box<PointData> {
         let mut raw_point: Option<Vec3> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
@@ -143,36 +143,39 @@ impl PointDefinition for Vector3PointDefinition {
                 .unwrap_or(0.0);
             Some(values)
         };
-        Box::new(Vector3PointData::new(
+        Box::new(PointData::Vector3(Vector3PointData::new(
             raw_point,
             base_values,
             flags.iter().any(|f| f == "splineCatmullRom"),
             time,
             modifiers,
             easing,
-        ))
+        )))
     }
 
     fn interpolate_points(
         &self,
-        points: &[Box<dyn BasePointData<Vec3>>],
+        points: &[Box<PointData>],
         l: usize,
         r: usize,
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec3 {
-
-        if false {
+        if let PointData::Vector3(vector3_point) = points[r].as_ref() && vector3_point.smooth {
             self.smooth_vector_lerp(points, l, r, time, context)
         } else {
-            let point_l = points[l].get_point(context);
-            let point_r = points[r].get_point(context);
+            let point_l = points[l].get_vector3(context);
+            let point_r = points[r].get_vector3(context);
             point_l.lerp(point_r, time)
         }
     }
 
-    fn get_points(&self) -> &Vec<Box<dyn BasePointData<Vec3>>> {
+    fn get_points(&self) -> &Vec<Box<PointData>> {
         &self.points
+    }
+
+    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Vec3 {
+        point.get_vector3(context)
     }
 }
 

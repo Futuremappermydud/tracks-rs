@@ -3,14 +3,14 @@ use glam::FloatExt;
 use crate::{
     easings::functions::Functions,
     modifiers::{float_modifier::FloatModifier, operation::Operation, Modifier, ModifierBase},
-    point_data::{float_point_data::FloatPointData, BasePointData},
-    values::{base_provider_context::BaseProviderContext, r#static::StaticValues, AbstractValueProvider, ValueProvider},
+    point_data::{float_point_data::FloatPointData, BasePointData, PointData},
+    values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider},
 };
 
 use super::PointDefinition;
 
 pub struct FloatPointDefinition {
-    points: Vec<Box<dyn BasePointData<f32>>>,
+    points: Vec<Box<PointData>>,
 }
 
 impl PointDefinition for FloatPointDefinition {
@@ -24,7 +24,7 @@ impl PointDefinition for FloatPointDefinition {
         self.points.iter().any(|p| p.has_base_provider())
     }
 
-    fn get_points_mut(&mut self) -> &mut Vec<Box<dyn BasePointData<Self::Value>>> {
+    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>> {
         &mut self.points
     }
 
@@ -77,7 +77,7 @@ impl PointDefinition for FloatPointDefinition {
         modifiers: Vec<Box<Modifier>>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<dyn BasePointData<f32>> {
+    ) -> Box<PointData> {
         // If one value is present and it contains two floats, the first is the point value and the second is time.
         let mut raw_point: Option<f32> = None;
         let time: f32;
@@ -106,31 +106,35 @@ impl PointDefinition for FloatPointDefinition {
                 .unwrap_or(0.0);
             Some(values)
         };
-        Box::new(FloatPointData::new(
+        Box::new(PointData::Float(FloatPointData::new(
             raw_point,
             base_values,
             time,
             modifiers,
             easing,
-        ))
+        )))
     }
 
     fn interpolate_points(
         &self,
-        points: &[Box<dyn BasePointData<f32>>],
+        points: &[Box<PointData>],
         l: usize,
         r: usize,
         time: f32,
         context: &BaseProviderContext,
     ) -> f32 {
-        let point_l = points[l].get_point(context);
-        let point_r = points[r].get_point(context);
+        let point_l = points[l].get_float(context);
+        let point_r = points[r].get_float(context);
 
         f32::lerp(point_l, point_r, time)
     }
 
-    fn get_points(&self) -> &Vec<Box<dyn BasePointData<f32>>> {
+    fn get_points(&self) -> &Vec<Box<PointData>> {
         &self.points
+    }
+
+    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> f32 {
+        point.get_float(context)
     }
 }
 
