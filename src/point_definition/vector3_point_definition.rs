@@ -2,10 +2,9 @@ use glam::Vec3;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, operation::Operation, vector3_modifier::Vector3Modifier},
-    point_data::{BasePointData, vector3_point_data::Vector3PointData},
-    values::base_provider_context::BaseProviderContext,
-    values::{BaseValues, StaticValues, Values},
+    modifiers::{operation::Operation, vector3_modifier::Vector3Modifier, ModifierBase},
+    point_data::{vector3_point_data::Vector3PointData, BasePointData},
+    values::{base_provider_context::BaseProviderContext, BaseValues, StaticValues, ValueProvider, Values},
 };
 
 use super::PointDefinition;

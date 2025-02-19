@@ -84,6 +84,16 @@ impl Value {
             _ => None,
         }
     }
+    
+    pub fn len(&self) -> usize {
+        match self {
+            Value::Float(_) => 1,
+            Value::Vector2(_) => 2,
+            Value::Vector3(_) => 3,
+            Value::Vector4(_) => 4,
+            Value::Quaternion(_) => 4,
+        }
+    }
 }
 
 impl From<f32> for Value {

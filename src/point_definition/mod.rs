@@ -104,6 +104,8 @@ pub trait PointDefinition {
     #[cfg(feature = "json")]
     fn parse(&mut self, value: &JsonValue, context: &BaseProviderContext) {
         // Expect an array of raw points
+
+        use crate::values::ValueProvider;
         if let Some(array) = value.as_array() {
             for raw_point in array {
                 if raw_point.is_null() {
