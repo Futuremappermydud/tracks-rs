@@ -3,7 +3,8 @@ use crate::point_definition::quaternion_point_definition::QuaternionPointDefinit
 use crate::point_definition::vector4_point_definition::Vector4PointDefinition;
 use crate::point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition};
 use crate::values::base_provider_context::BaseProviderContext;
-use serde_json::Value;
+use crate::values::Value;
+use serde_json::Value as JsonValue;
 use std::ffi::{CStr, c_char};
 
 #[repr(C)]
@@ -65,7 +66,8 @@ pub unsafe extern "C" fn tracks_make_base_provider_context() -> *mut BaseProvide
 pub unsafe extern "C" fn tracks_set_base_provider(context: *mut BaseProviderContext, base: *const c_char, values: &[f32]) {
   let base_str = unsafe { CStr::from_ptr(base).to_str().unwrap() };
   let context = unsafe { &mut *context };
-  context.set_values(base_str, values.to_vec());
+  let values = Value::from_vec(values.to_vec());
+  context.set_values(base_str, values);
 }
 
 ///FLOAT POINT DEFINITION
@@ -75,7 +77,7 @@ pub unsafe extern "C" fn tracks_make_float_point_definition(
     context: *mut BaseProviderContext,
 ) -> *const FloatPointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
-    let value: Value = serde_json::from_str(json_str).unwrap();
+    let value: JsonValue = serde_json::from_str(json_str).unwrap();
     let point_definition = Box::new(FloatPointDefinition::new(&value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
@@ -111,7 +113,7 @@ pub unsafe extern "C" fn tracks_make_vector3_point_definition(
     context: *mut BaseProviderContext,
 ) -> *const Vector3PointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
-    let value: Value = serde_json::from_str(json_str).unwrap();
+    let value: JsonValue = serde_json::from_str(json_str).unwrap();
     let point_definition = Box::new(Vector3PointDefinition::new(&value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
@@ -154,7 +156,7 @@ pub unsafe extern "C" fn tracks_make_vector4_point_definition(
     context: *mut BaseProviderContext,
 ) -> *const Vector4PointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
-    let value: Value = serde_json::from_str(json_str).unwrap();
+    let value: JsonValue = serde_json::from_str(json_str).unwrap();
     let point_definition = Box::new(Vector4PointDefinition::new(&value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
@@ -198,7 +200,7 @@ pub unsafe extern "C" fn tracks_make_quat_point_definition(
     context: *mut BaseProviderContext,
 ) -> *const QuaternionPointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
-    let value: Value = serde_json::from_str(json_str).unwrap();
+    let value: JsonValue = serde_json::from_str(json_str).unwrap();
     let point_definition = Box::new(QuaternionPointDefinition::new(&value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr

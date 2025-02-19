@@ -1,24 +1,26 @@
 use std::cell::RefCell;
 
+use super::Value;
+
 pub struct BaseProviderContext {
-    base_combo: RefCell<Vec<f32>>,
+    base_combo: RefCell<Value>,
 }
 
 impl BaseProviderContext {
     pub fn new() -> Self {
         Self {
-            base_combo: RefCell::new(vec![0f32]),
+            base_combo: RefCell::new(Value::Float(0.0)),
         }
     }
 
-    pub fn get_values(&self, base: &str) -> Vec<f32> {
+    pub fn get_values(&self, base: &str) -> Value {
         match base {
-            "baseCombo" => self.base_combo.borrow().to_vec(),
+            "baseCombo" => self.base_combo.borrow().clone(),
             _ => panic!("Base provider not found"),
         }
     }
 
-    pub fn set_values(&self, base: &str, values: Vec<f32>) {
+    pub fn set_values(&self, base: &str, values: Value) {
         match base {
             "baseCombo" => {
                 self.base_combo.replace(values);

@@ -1,14 +1,14 @@
-use super::UpdateableValues;
+use super::{UpdateableValues, Value};
 
 use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
 
-use glam::Quat;
+use glam::{Quat, vec3};
 
 pub struct QuaternionProviderValues {
     pub(crate) source: Vec<f32>,
-    pub(crate) values: Vec<f32>,
+    pub(crate) values: Value,
     pub(crate) rotation: Quat,
 }
 
@@ -16,14 +16,14 @@ impl QuaternionProviderValues {
     pub fn new(source: Vec<f32>) -> Self {
         Self {
             source,
-            values: vec![0.0; 3],
+            values: Value::Vector3(Default::default()),
             rotation: Quat::IDENTITY,
         }
     }
 }
 
 impl AbstractValueProvider for QuaternionProviderValues {
-    fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
+    fn values(&self, _context: &BaseProviderContext) -> Value {
         self.values.clone()
     }
 }
@@ -37,8 +37,11 @@ impl UpdateableValues for QuaternionProviderValues {
             self.source[3],
         );
         let euler = self.rotation.to_euler(glam::EulerRot::XYZ);
-        self.values[0] = euler.0.to_degrees();
-        self.values[1] = euler.1.to_degrees();
-        self.values[2] = euler.2.to_degrees();
+        let vec = Value::Vector3(vec3(
+            euler.0.to_degrees(),
+            euler.1.to_degrees(),
+            euler.2.to_degrees(),
+        ));
+        self.values = vec;
     }
 }
