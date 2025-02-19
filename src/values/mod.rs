@@ -12,11 +12,50 @@ pub mod r#static;
 pub mod updatable;
 
 pub trait ValueProvider {
-    fn values(&self, context: &BaseProviderContext) -> Vec<f32>;
+    fn values(&self, context: &BaseProviderContext) -> Value;
+
+    fn as_float(&self, context: &BaseProviderContext) -> Option<f32> {
+        match self.values(context) {
+            Value::Float(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    fn as_vector2(&self, context: &BaseProviderContext) -> Option<DVec2> {
+        match self.values(context) {
+            Value::Vector2(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    fn as_vector3(&self, context: &BaseProviderContext) -> Option<DVec3> {
+        match self.values(context) {
+            Value::Vector3(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    fn as_vector4(&self, context: &BaseProviderContext) -> Option<DVec4> {
+        match self.values(context) {
+            Value::Vector4(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    fn as_quaternion(&self, context: &BaseProviderContext) -> Option<Quat> {
+        match self.values(context) {
+            Value::Quaternion(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
-pub trait RotationValues {
-    fn rotation(&self) -> Quat;
+pub enum Value {
+    Float(f32),
+    Vector2(DVec2),
+    Vector3(DVec3),
+    Vector4(DVec4),
+    Quaternion(Quat),
 }
 
 pub trait UpdateableValues: ValueProvider {
@@ -32,16 +71,8 @@ pub enum BaseValueProvider {
     SmoothRotationProviders(smooth_rot::SmoothRotationProvidersValues),
 }
 
-pub enum Value {
-    Float(f32),
-    Vector2(DVec2),
-    Vector3(DVec3),
-    Vector4(DVec4),
-    Quaternion(Quat),
-}
-
 impl ValueProvider for BaseValueProvider {
-    fn values(&self, context: &BaseProviderContext) -> Vec<f32> {
+    fn values(&self, context: &BaseProviderContext) -> Value {
         let items = match self {
             BaseValueProvider::Static(v) => v.values(context),
             BaseValueProvider::BaseProvider(v) => v.values(context),
