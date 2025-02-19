@@ -4,7 +4,7 @@ use crate::point_definition::vector4_point_definition::Vector4PointDefinition;
 use crate::point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition};
 use crate::values::base_provider_context::BaseProviderContext;
 use core::ffi;
-use serde_json::Value;
+use serde_json::Value as JsonValue;
 use std::ffi::{CStr, c_char};
 
 #[repr(C)]
