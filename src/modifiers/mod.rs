@@ -6,7 +6,7 @@ pub mod vector4_modifier;
 
 use crate::modifiers::operation::Operation;
 use crate::values::base_provider_context::BaseProviderContext;
-use crate::values::{AbstractValueProvider, Value, ValueProvider};
+use crate::values::{AbstractValueProvider, ValueProvider};
 
 pub trait ModifierBase {
     type Value;
@@ -14,18 +14,12 @@ pub trait ModifierBase {
     fn get_raw_point(&self) -> Self::Value;
     fn translate(&self, values: &[f32]) -> Self::Value;
     fn get_operation(&self) -> Operation;
-
-    fn modify(&self, value: Value, context: &BaseProviderContext) -> Value;
 }
 
 pub trait Modifier: ModifierBase {
     const VALUE_COUNT: usize;
 
-    fn fill_values(
-        &self,
-        ivals: &[ValueProvider],
-        context: &BaseProviderContext,
-    ) -> Vec<f32> {
+    fn fill_values(&self, ivals: &[ValueProvider], context: &BaseProviderContext) -> Vec<f32> {
         let mut values = Vec::with_capacity(Self::VALUE_COUNT);
         for value in ivals {
             for v in value.values(context) {
