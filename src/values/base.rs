@@ -1,6 +1,6 @@
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::{AbstractValueProvider, Value};
+use super::{AbstractValueProvider, value::Value};
 
 #[derive(Clone)]
 pub struct BaseProviderValues {

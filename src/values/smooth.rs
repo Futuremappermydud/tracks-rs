@@ -3,7 +3,7 @@ use serde_json::de;
 use super::lerp;
 
 use super::UpdateableValues;
-use super::Value;
+use super::value::Value;
 
 use crate::values::base_provider_context::BaseProviderContext;
 
