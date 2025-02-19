@@ -2,14 +2,8 @@ use glam::{EulerRot, Quat, Vec3};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{
-        ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
-        vector3_modifier::Vector3Modifier,
-    },
-    point_data::{
-        BasePointData, quaternion_point_data::QuaternionPointData,
-        vector3_point_data::Vector3PointData,
-    },
+    modifiers::{ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier},
+    point_data::{BasePointData, quaternion_point_data::QuaternionPointData},
     values::{BaseValues, StaticValues, Values, base_provider_context::BaseProviderContext},
 };
 
@@ -71,10 +65,10 @@ impl PointDefinition for QuaternionPointDefinition {
                 None
             } else {
                 Some(Quat::from_euler(
-                    EulerRot::ZXY,
-                    raw_vector_point.unwrap().x,
-                    raw_vector_point.unwrap().y,
-                    raw_vector_point.unwrap().z,
+                    EulerRot::XYZ,
+                    raw_vector_point.unwrap().x.to_radians(),
+                    raw_vector_point.unwrap().y.to_radians(),
+                    raw_vector_point.unwrap().z.to_radians(),
                 ))
             },
             raw_vector_point,
@@ -102,6 +96,7 @@ impl PointDefinition for QuaternionPointDefinition {
                         static_val.values(context)[1],
                         static_val.values(context)[2],
                     ));
+                    println!("raw_vector_point: {:?}", raw_vector_point);
                     time = static_val.values(context)[3];
                     None
                 } else {
@@ -127,11 +122,12 @@ impl PointDefinition for QuaternionPointDefinition {
             if raw_vector_point.is_none() {
                 None
             } else {
+                println!("raw_vector_point: {:?}", raw_vector_point);
                 Some(Quat::from_euler(
-                    EulerRot::ZXY,
-                    raw_vector_point.unwrap().x,
-                    raw_vector_point.unwrap().y,
-                    raw_vector_point.unwrap().z,
+                    EulerRot::XYZ,
+                    raw_vector_point.unwrap().x.to_radians(),
+                    raw_vector_point.unwrap().y.to_radians(),
+                    raw_vector_point.unwrap().z.to_radians(),
                 ))
             },
             raw_vector_point,

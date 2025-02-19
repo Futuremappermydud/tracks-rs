@@ -1,14 +1,12 @@
 use std::cell::RefCell;
 
 use minifb::Window;
-use palette::IntoColor;
 use plotters::{
     backend::BGRXPixel,
     chart::{ChartBuilder, ChartState},
     coord::{Shift, types::RangedCoordf64},
     prelude::{BitMapBackend, Cartesian2d, DiscreteRanged, DrawingArea, IntoLinspace, Rectangle},
-    series::LineSeries,
-    style::{BLACK, Color, RED, RGBAColor, RGBColor, WHITE},
+    style::{BLACK, Color, RED, RGBAColor, WHITE},
 };
 use serde_json::json;
 
@@ -26,7 +24,7 @@ impl ColorContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = Vector4PointDefinition::new(
-            &json!([[0.0, 0.0, 1.0, 1.0, 0.0], [0.0, 1.0, 0.0, 1.0, 1.0]]),
+            &json!([["baseNote0Color", 0.0], [0.0, 1.0, 0.0, 1.0, 1.0]]),
             &context,
         );
         Self {
@@ -60,12 +58,17 @@ pub fn draw_color(
     root: &DrawingArea<BitMapBackend<'_, BGRXPixel>, Shift>,
     chart: &ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>,
     context: &ColorContext,
-    epoch: f64,
-    window: &Window,
+    _epoch: f64,
+    _window: &Window,
 ) {
     {
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
+
+        context
+            .context
+            .borrow_mut()
+            .set_values("baseNote0Color", vec![1.0, 0.0, 0.0, 1.0]);
 
         chart
             .configure_mesh()
@@ -74,16 +77,10 @@ pub fn draw_color(
             .draw()
             .unwrap();
 
-        let flag = if epoch % 2.0 < 1.0 { "lerpHSV" } else { "" };
-
-        let definition = Vector4PointDefinition::new(
-            &json!([[0.0, 0.0, 1.0, 1.0, 0.0], [0.0, 1.0, 0.0, 1.0, 1.0, flag]]),
-            &context.context.borrow(),
-        );
-
         chart
             .draw_series((0.0..1.0).step(0.01).values().map(|x| {
-                let color = definition
+                let color = context
+                    .definition
                     .interpolate(x as f32, &context.context.borrow())
                     .0;
                 Rectangle::new(

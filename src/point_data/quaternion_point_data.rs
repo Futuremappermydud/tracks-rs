@@ -2,10 +2,8 @@ use std::any::Any;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{
-        operation::Operation, quaternion_modifier::QuaternionModifier, vector3_modifier::Vector3Modifier, ModifierBase
-    },
-    values::{ base_provider_context::BaseProviderContext, PossibleValueProvider},
+    modifiers::{ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier},
+    values::{BaseValues, base_provider_context::BaseProviderContext},
 };
 use glam::{Quat, Vec3};
 

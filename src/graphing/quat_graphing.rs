@@ -5,12 +5,10 @@ use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
     chart::{ChartBuilder, ChartState},
-    coord::{Shift, cartesian::MeshLine, ranged3d::Cartesian3d, types::RangedCoordf64},
-    prelude::{
-        BitMapBackend, Circle, DiscreteRanged, DrawingArea, EmptyElement, IntoLinspace, Text,
-    },
-    series::{DashedLineSeries, LineSeries},
-    style::{BLACK, Color, IntoFont, RED, RGBAColor, ShapeStyle, WHITE},
+    coord::{Shift, ranged3d::Cartesian3d, types::RangedCoordf64},
+    prelude::{BitMapBackend, DiscreteRanged, DrawingArea, IntoLinspace},
+    series::LineSeries,
+    style::{BLACK, Color, RED, RGBAColor, WHITE},
 };
 use serde_json::json;
 
@@ -70,7 +68,7 @@ pub fn draw_quat(
     chart: &ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
     context: &QuatContext,
     epoch: f64,
-    window: &Window,
+    _window: &Window,
 ) {
     {
         context

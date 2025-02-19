@@ -3,8 +3,8 @@ use crate::point_definition::quaternion_point_definition::QuaternionPointDefinit
 use crate::point_definition::vector4_point_definition::Vector4PointDefinition;
 use crate::point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition};
 use crate::values::base_provider_context::BaseProviderContext;
-use crate::values::Value;
-use serde_json::Value as JsonValue;
+use core::ffi;
+use serde_json::Value;
 use std::ffi::{CStr, c_char};
 
 #[repr(C)]
@@ -57,17 +57,23 @@ pub struct QuaternionInterpolationResult {
 /// CONTEXT
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn tracks_make_base_provider_context() -> *mut BaseProviderContext {
-  let context = Box::new(BaseProviderContext::new());
-  let context_ptr = Box::leak(context);
-  context_ptr
+    let context = Box::new(BaseProviderContext::new());
+    let context_ptr = Box::leak(context);
+    context_ptr
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_set_base_provider(context: *mut BaseProviderContext, base: *const c_char, values: &[f32]) {
-  let base_str = unsafe { CStr::from_ptr(base).to_str().unwrap() };
-  let context = unsafe { &mut *context };
-  let values = Value::from_vec(values.to_vec());
-  context.set_values(base_str, values);
+pub unsafe extern "C" fn tracks_set_base_provider(
+    context: *mut BaseProviderContext,
+    base: *const c_char,
+    values: *mut f32,
+    count: usize,
+) {
+    let base_str = unsafe { CStr::from_ptr(base).to_str().unwrap() };
+    let context = unsafe { &mut *context };
+    context.set_values(base_str, unsafe {
+        Vec::from_raw_parts(values, count, count)
+    });
 }
 
 ///FLOAT POINT DEFINITION
@@ -95,15 +101,19 @@ pub unsafe extern "C" fn tracks_interpolate_float(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_float_count(point_definition: *const FloatPointDefinition) -> usize {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.get_count()
+pub unsafe extern "C" fn tracks_float_count(
+    point_definition: *const FloatPointDefinition,
+) -> usize {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.get_count()
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_float_has_base_provider(point_definition: *const FloatPointDefinition) -> bool {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.has_base_provider()
+pub unsafe extern "C" fn tracks_float_has_base_provider(
+    point_definition: *const FloatPointDefinition,
+) -> bool {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.has_base_provider()
 }
 
 ///VECTOR3 POINT DEFINITION
@@ -138,15 +148,19 @@ pub unsafe extern "C" fn tracks_interpolate_vector3(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_vector3_count(point_definition: *const Vector3PointDefinition) -> usize {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.get_count()
+pub unsafe extern "C" fn tracks_vector3_count(
+    point_definition: *const Vector3PointDefinition,
+) -> usize {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.get_count()
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_vector3_has_base_provider(point_definition: *const Vector3PointDefinition) -> bool {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.has_base_provider()
+pub unsafe extern "C" fn tracks_vector3_has_base_provider(
+    point_definition: *const Vector3PointDefinition,
+) -> bool {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.has_base_provider()
 }
 
 ///VECTOR4 POINT DEFINITION
@@ -182,15 +196,19 @@ pub unsafe extern "C" fn tracks_interpolate_vector4(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_vector4_count(point_definition: *const Vector4PointDefinition) -> usize {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.get_count()
+pub unsafe extern "C" fn tracks_vector4_count(
+    point_definition: *const Vector4PointDefinition,
+) -> usize {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.get_count()
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_vector4_has_base_provider(point_definition: *const Vector4PointDefinition) -> bool {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.has_base_provider()
+pub unsafe extern "C" fn tracks_vector4_has_base_provider(
+    point_definition: *const Vector4PointDefinition,
+) -> bool {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.has_base_provider()
 }
 
 ///QUATERNION POINT DEFINITION
@@ -226,14 +244,17 @@ pub unsafe extern "C" fn tracks_interpolate_quat(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_quat_count(point_definition: *const QuaternionPointDefinition) -> usize {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.get_count()
+pub unsafe extern "C" fn tracks_quat_count(
+    point_definition: *const QuaternionPointDefinition,
+) -> usize {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.get_count()
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tracks_quat_has_base_provider(point_definition: *const QuaternionPointDefinition) -> bool {
-  let point_definition = unsafe { &*point_definition };
-  point_definition.has_base_provider()
+pub unsafe extern "C" fn tracks_quat_has_base_provider(
+    point_definition: *const QuaternionPointDefinition,
+) -> bool {
+    let point_definition = unsafe { &*point_definition };
+    point_definition.has_base_provider()
 }
-
