@@ -104,7 +104,7 @@ impl UpdateableValues for QuaternionProviderValues {
             self.source[2],
             self.source[3],
         );
-        let euler = self.rotation.to_euler(glam::EulerRot::XYZ);
+        let euler = self.rotation.to_euler(glam::EulerRot::ZXY);
         self.values[0] = euler.0.to_degrees();
         self.values[1] = euler.1.to_degrees();
         self.values[2] = euler.2.to_degrees();
@@ -172,7 +172,7 @@ impl UpdateableValues for SmoothRotationProvidersValues {
         self.last_quaternion = self
             .last_quaternion
             .slerp(self.rotation_values.rotation(), delta_time * self.mult);
-        let euler = self.last_quaternion.to_euler(glam::EulerRot::XYZ);
+        let euler = self.last_quaternion.to_euler(glam::EulerRot::ZXY);
         self.values[0] = euler.0.to_degrees();
         self.values[1] = euler.1.to_degrees();
         self.values[2] = euler.2.to_degrees();

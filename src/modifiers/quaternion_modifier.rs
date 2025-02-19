@@ -83,10 +83,10 @@ impl ModifierBase for QuaternionModifier {
         } else {
             let vector_point = self.get_vector_point(context);
             Quat::from_euler(
-                EulerRot::ZXY,
-                vector_point.x,
-                vector_point.y,
-                vector_point.z,
+                EulerRot::XYZ,
+                vector_point.x.to_radians(),
+                vector_point.y.to_radians(),
+                vector_point.z.to_radians(),
             )
         }
     }
@@ -96,7 +96,7 @@ impl ModifierBase for QuaternionModifier {
     }
 
     fn translate(&self, values: &[f32]) -> Quat {
-        Quat::from_euler(EulerRot::ZXY, values[0], values[1], values[2])
+        Quat::from_euler(EulerRot::ZXY, values[0].to_radians(), values[1].to_radians(), values[2].to_radians())
     }
 
     fn get_operation(&self) -> Operation {

@@ -9,6 +9,15 @@ mod point_data;
 mod point_definition;
 mod values;
 
+#[cfg(target_os = "android")]
+#[macro_use] extern crate log;
+#[cfg(target_os = "android")]
+extern crate android_logger;
+#[cfg(target_os = "android")]
+use log::LevelFilter;
+#[cfg(target_os = "android")]
+use android_logger::{Config,FilterBuilder};
+
 #[cfg(target_os = "windows")]
 fn main() {
     //graphing::graph("2d");
@@ -17,7 +26,10 @@ fn main() {
     graphing::graph("quat");
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(target_os = "android")]
 fn main() {
-    println!("Plot feature is not enabled");
+  android_logger::init_once(
+    Config::default()
+        .with_max_level(LevelFilter::Trace)
+);
 }

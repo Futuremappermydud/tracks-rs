@@ -1,4 +1,5 @@
 use glam::{EulerRot, Quat, Vec3};
+use palette::angle::RealAngle;
 
 use crate::{
     easings::functions::Functions,
@@ -71,10 +72,10 @@ impl PointDefinition for QuaternionPointDefinition {
                 None
             } else {
                 Some(Quat::from_euler(
-                    EulerRot::ZXY,
-                    raw_vector_point.unwrap().x,
-                    raw_vector_point.unwrap().y,
-                    raw_vector_point.unwrap().z,
+                    EulerRot::XYZ,
+                    raw_vector_point.unwrap().x.to_radians(),
+                    raw_vector_point.unwrap().y.to_radians(),
+                    raw_vector_point.unwrap().z.to_radians(),
                 ))
             },
             raw_vector_point,
@@ -102,6 +103,7 @@ impl PointDefinition for QuaternionPointDefinition {
                         static_val.values(context)[1],
                         static_val.values(context)[2],
                     ));
+                    println!("raw_vector_point: {:?}", raw_vector_point);
                     time = static_val.values(context)[3];
                     None
                 } else {
@@ -127,11 +129,12 @@ impl PointDefinition for QuaternionPointDefinition {
             if raw_vector_point.is_none() {
                 None
             } else {
+                println!("raw_vector_point: {:?}", raw_vector_point);
                 Some(Quat::from_euler(
-                    EulerRot::ZXY,
-                    raw_vector_point.unwrap().x,
-                    raw_vector_point.unwrap().y,
-                    raw_vector_point.unwrap().z,
+                    EulerRot::XYZ,
+                    raw_vector_point.unwrap().x.to_radians(),
+                    raw_vector_point.unwrap().y.to_radians(),
+                    raw_vector_point.unwrap().z.to_radians(),
                 ))
             },
             raw_vector_point,
