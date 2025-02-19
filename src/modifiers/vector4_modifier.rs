@@ -1,17 +1,16 @@
-use std::any::Any;
-
 use super::{
     operation::Operation,
-    {Modifier, ModifierBase},
+    ModifierBase,
+    Modifier,
 };
-use crate::values::BaseValues;
 use crate::values::base_provider_context::BaseProviderContext;
+use crate::values::ValueProvider;
 use glam::Vec4;
 
 pub struct Vector4Modifier {
     raw_point: Option<Vec4>,
     values: Option<Vec<ValueProvider>>,
-    modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+    modifiers: Vec<Box<Modifier>>,
     operation: Operation,
 }
 
@@ -19,7 +18,7 @@ impl Vector4Modifier {
     pub fn new(
         point: Option<Vec4>,
         values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+        modifiers: Vec<Box<Modifier>>,
         operation: Operation,
     ) -> Self {
         Self {
@@ -33,20 +32,22 @@ impl Vector4Modifier {
 
 impl ModifierBase for Vector4Modifier {
     type Value = Vec4;
+    const VALUE_COUNT: usize = 4;
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec4 {
         let original_point = self
             .raw_point
             .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap(), context));
-        self.modifiers
+        let result = self.modifiers
             .iter()
             .fold(original_point, |acc, x| match x.get_operation() {
-                Operation::Add => acc + x.get_point(context),
-                Operation::Sub => acc - x.get_point(context),
-                Operation::Mul => acc * x.get_point(context),
-                Operation::Div => acc / x.get_point(context),
-                Operation::None => x.get_point(context),
-            })
+                Operation::Add => acc + x.get_vector4(context),
+                Operation::Sub => acc - x.get_vector4(context),
+                Operation::Mul => acc * x.get_vector4(context), 
+                Operation::Div => acc / x.get_vector4(context),
+                Operation::None => x.get_vector4(context),
+            });
+        result
     }
 
     fn get_raw_point(&self) -> Vec4 {
@@ -60,10 +61,4 @@ impl ModifierBase for Vector4Modifier {
     fn get_operation(&self) -> Operation {
         self.operation
     }
-
-    
-}
-
-impl Modifier for Vector4Modifier {
-    const VALUE_COUNT: usize = 4;
 }

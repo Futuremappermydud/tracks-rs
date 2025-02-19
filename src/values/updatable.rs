@@ -1,27 +1,26 @@
-use super::{UpdateableValues, value::Value};
-
+use super::UpdateableValues;
 use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
 
 pub struct PartialProviderValues {
-    pub(crate) source: Value,
+    pub(crate) source: Vec<f32>,
     pub(crate) parts: Vec<usize>,
-    pub(crate) values: Value,
+    pub(crate) values: Vec<f32>,
 }
 
 impl PartialProviderValues {
-    pub fn new(source: Value, parts: Vec<usize>) -> Self {
+    pub fn new(source: Vec<f32>, parts: Vec<usize>) -> Self {
         Self {
             source,
-            values: Value::from_vec(vec![0.0; parts.len()]),
+            values: vec![0.0; parts.len()],
             parts,
         }
     }
 }
 
 impl AbstractValueProvider for PartialProviderValues {
-    fn values(&self, _context: &BaseProviderContext) -> Value {
+    fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
         self.values.clone()
     }
 }

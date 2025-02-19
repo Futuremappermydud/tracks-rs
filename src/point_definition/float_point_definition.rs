@@ -2,9 +2,9 @@ use glam::FloatExt;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{float_modifier::FloatModifier, operation::Operation, ModifierBase},
+    modifiers::{float_modifier::FloatModifier, operation::Operation, Modifier, ModifierBase},
     point_data::{float_point_data::FloatPointData, BasePointData},
-    values::{base_provider_context::BaseProviderContext, r#static::StaticValues, value::Value, AbstractValueProvider, ValueProvider},
+    values::{base_provider_context::BaseProviderContext, r#static::StaticValues, AbstractValueProvider, ValueProvider},
 };
 
 use super::PointDefinition;
@@ -31,14 +31,14 @@ impl PointDefinition for FloatPointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
+        modifiers: Vec<Box<Modifier>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<dyn ModifierBase<Value = f32>> {
+    ) -> Box<Modifier> {
         let mut raw_point: Option<f32> = None;
         let base_values = if values.len() == 1 {
             // Try to match the pattern: a single StaticValues with exactly one number.
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
+            if let ValueProvider::Static(static_val) = &values[0] {
                 if static_val.values(context).len() == 1 {
                     // Pattern match successful; set the value.
                     raw_point = Some(static_val.values(context)[0]);
@@ -62,19 +62,19 @@ impl PointDefinition for FloatPointDefinition {
             assert_eq!(count, 1, "Float modifier point must have 1 number");
             Some(values)
         };
-        Box::new(FloatModifier::new(
+        Box::new(Modifier::Float(FloatModifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        ))
+        )))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         _flags: Vec<String>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
+        modifiers: Vec<Box<Modifier>>,
         easing: Functions,
         context: &BaseProviderContext,
     ) -> Box<dyn BasePointData<f32>> {
@@ -82,8 +82,8 @@ impl PointDefinition for FloatPointDefinition {
         let mut raw_point: Option<f32> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
-                if static_val.values(context).len() == 2 {
+          if let ValueProvider::Static(static_val) = &values[0] {
+            if static_val.values(context).len() == 2 {
                     raw_point = Some(static_val.values(context)[0]);
                     time = static_val.values(context)[1];
                     None

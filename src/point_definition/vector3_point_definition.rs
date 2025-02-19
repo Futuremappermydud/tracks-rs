@@ -2,9 +2,9 @@ use glam::Vec3;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, vector3_modifier::Vector3Modifier, ModifierBase},
+    modifiers::{operation::Operation, vector3_modifier::Vector3Modifier, Modifier, ModifierBase},
     point_data::{vector3_point_data::Vector3PointData, BasePointData},
-    values::{base_provider_context::BaseProviderContext, BaseValues, StaticValues, ValueProvider, Values},
+    values::{base_provider_context::BaseProviderContext, r#static::StaticValues, AbstractValueProvider, ValueProvider},
 };
 
 use super::PointDefinition;
@@ -67,13 +67,13 @@ impl PointDefinition for Vector3PointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
+        modifiers: Vec<Box<Modifier>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<dyn ModifierBase<Value = Vec3>> {
+    ) -> Box<Modifier> {
         let mut raw_point: Option<Vec3> = None;
         let base_values = if values.len() == 1 {
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
+            if let ValueProvider::Static(static_val) = &values[0] {
                 if static_val.values(context).len() == 3 {
                     raw_point = Some(Vec3::new(
                         static_val.values(context)[0],
@@ -96,26 +96,26 @@ impl PointDefinition for Vector3PointDefinition {
             assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
             Some(values)
         };
-        Box::new(Vector3Modifier::new(
+        Box::new(Modifier::Vector3(Vector3Modifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        ))
+        )))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
+        modifiers: Vec<Box<Modifier>>,
         easing: Functions,
         context: &BaseProviderContext,
     ) -> Box<dyn BasePointData<Vec3>> {
         let mut raw_point: Option<Vec3> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
+            if let ValueProvider::Static(static_val) = &values[0] {
                 if static_val.values(context).len() == 4 {
                     raw_point = Some(Vec3::new(
                         static_val.values(context)[0],
@@ -161,12 +161,8 @@ impl PointDefinition for Vector3PointDefinition {
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec3 {
-        let point_r = points[r]
-            .as_any()
-            .downcast_ref::<Vector3PointData>()
-            .unwrap();
 
-        if point_r.smooth {
+        if false {
             self.smooth_vector_lerp(points, l, r, time, context)
         } else {
             let point_l = points[l].get_point(context);

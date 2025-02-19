@@ -1,20 +1,20 @@
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::{AbstractValueProvider, value::Value};
+use super::AbstractValueProvider;
 
 #[derive(Clone, Debug)]
 pub struct StaticValues {
-    pub(crate) values: Value,
+    pub(crate) values: Vec<f32>,
 }
 
 impl StaticValues {
-    pub fn new(values: Value) -> Self {
+    pub fn new(values: Vec<f32>) -> Self {
         Self { values }
     }
 }
 
 impl AbstractValueProvider for StaticValues {
-    fn values(&self, _context: &BaseProviderContext) -> Value {
+    fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
         self.values.clone()
     }
 }

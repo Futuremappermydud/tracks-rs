@@ -1,4 +1,4 @@
-use super::{UpdateableValues, value::Value};
+use super::{UpdateableValues};
 
 use crate::values::base_provider_context::BaseProviderContext;
 
@@ -10,7 +10,7 @@ pub struct SmoothRotationProvidersValues {
     pub(crate) rotation_values: Quat,
     pub(crate) mult: f32,
     pub(crate) last_quaternion: Quat,
-    pub(crate) values: Value,
+    pub(crate) values: Vec<f32>,
 }
 
 impl SmoothRotationProvidersValues {
@@ -19,14 +19,14 @@ impl SmoothRotationProvidersValues {
             rotation_values,
             mult,
             last_quaternion: Quat::IDENTITY,
-            values: Value::Vector3(Default::default()),
+            values: vec![0.0, 0.0, 0.0],
         }
     }
 }
 
 impl AbstractValueProvider for SmoothRotationProvidersValues {
-    fn values(&self, _context: &BaseProviderContext) -> Value {
-        self.values
+    fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
+        self.values.clone()
     }
 }
 
@@ -38,11 +38,11 @@ impl UpdateableValues for SmoothRotationProvidersValues {
             .last_quaternion
             .slerp(self.rotation_values, delta_time * self.mult);
         let euler = self.last_quaternion.to_euler(glam::EulerRot::XYZ);
-        let vec = Value::Vector3(vec3(
+        let vec = vec3(
             euler.0.to_degrees(),
             euler.1.to_degrees(),
             euler.2.to_degrees(),
-        ));
-        self.values = vec;
+        );
+        self.values = vec.to_array().to_vec();
     }
 }

@@ -1,6 +1,6 @@
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::{AbstractValueProvider, value::Value};
+use super::{AbstractValueProvider};
 
 #[derive(Clone)]
 pub struct BaseProviderValues {
@@ -14,7 +14,7 @@ impl BaseProviderValues {
 }
 
 impl AbstractValueProvider for BaseProviderValues {
-    fn values(&self, context: &BaseProviderContext) -> Value {
+    fn values(&self, context: &BaseProviderContext) -> Vec<f32> {
         let value = context.get_values(&self.base);
         value
     }

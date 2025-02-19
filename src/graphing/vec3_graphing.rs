@@ -79,7 +79,7 @@ pub fn draw_vec3(
         context
             .context
             .borrow_mut()
-            .set_values("baseCombo", ((epoch.sin() as f32 + 1.0) * 0.5).into());
+            .set_values("baseCombo", vec![(epoch.sin() as f32 + 1.0) * 0.5]);
         let mut chart: plotters::prelude::ChartContext<'_, BitMapBackend<'_, BGRXPixel>, Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>> = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
 

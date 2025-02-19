@@ -1,17 +1,16 @@
-use std::any::Any;
-
 use super::{
     operation::Operation,
-    {Modifier, ModifierBase},
+    Modifier,
+    ModifierBase,
 };
-use crate::values::BaseValues;
 use crate::values::base_provider_context::BaseProviderContext;
+use crate::values::ValueProvider;
 use glam::Vec3;
 
 pub struct Vector3Modifier {
     raw_point: Option<Vec3>,
     values: Option<Vec<ValueProvider>>,
-    modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
+    modifiers: Vec<Box<Modifier>>,
     operation: Operation,
 }
 
@@ -19,7 +18,7 @@ impl Vector3Modifier {
     pub fn new(
         point: Option<Vec3>,
         values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
+        modifiers: Vec<Box<Modifier>>,
         operation: Operation,
     ) -> Self {
         Self {
@@ -33,6 +32,7 @@ impl Vector3Modifier {
 
 impl ModifierBase for Vector3Modifier {
     type Value = Vec3;
+    const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec3 {
         let original_point = self
@@ -41,11 +41,11 @@ impl ModifierBase for Vector3Modifier {
         self.modifiers
             .iter()
             .fold(original_point, |acc, x| match x.get_operation() {
-                Operation::Add => acc + x.get_point(context),
-                Operation::Sub => acc - x.get_point(context),
-                Operation::Mul => acc * x.get_point(context),
-                Operation::Div => acc / x.get_point(context),
-                Operation::None => x.get_point(context),
+                Operation::Add => acc + x.get_vector3(context),
+                Operation::Sub => acc - x.get_vector3(context),
+                Operation::Mul => acc * x.get_vector3(context),
+                Operation::Div => acc / x.get_vector3(context),
+                Operation::None => x.get_vector3(context),
             })
     }
 
@@ -60,10 +60,4 @@ impl ModifierBase for Vector3Modifier {
     fn get_operation(&self) -> Operation {
         self.operation
     }
-
-    
-}
-
-impl Modifier for Vector3Modifier {
-    const VALUE_COUNT: usize = 3;
 }

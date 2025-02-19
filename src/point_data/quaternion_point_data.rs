@@ -1,9 +1,7 @@
-use std::any::Any;
-
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier},
-    values::{BaseValues, base_provider_context::BaseProviderContext},
+    modifiers::{operation::Operation, quaternion_modifier::QuaternionModifier, Modifier, ModifierBase},
+    values::{base_provider_context::BaseProviderContext, ValueProvider},
 };
 use glam::{Quat, Vec3};
 
@@ -19,9 +17,9 @@ impl QuaternionPointData {
     pub fn new(
         point: Option<Quat>,
         vector_point: Option<Vec3>,
-        values: Option<Vec<PossibleValueProvider>>,
+        values: Option<Vec<ValueProvider>>,
         time: f32,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
+        modifiers: Vec<Box<Modifier>>,
         easing: Functions,
     ) -> Self {
         Self {
@@ -40,6 +38,7 @@ impl QuaternionPointData {
 
 impl ModifierBase for QuaternionPointData {
     type Value = Quat;
+    const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Quat {
         self.base_modifier.get_point(context)

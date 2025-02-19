@@ -3,7 +3,7 @@ use palette::{Hsv, IntoColor, LinSrgb, RgbHue, rgb::Rgb};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, vector4_modifier::Vector4Modifier, ModifierBase},
+    modifiers::{operation::Operation, vector4_modifier::Vector4Modifier, Modifier, ModifierBase},
     point_data::{vector4_point_data::Vector4PointData, BasePointData},
     values::{base_provider_context::BaseProviderContext, r#static::StaticValues, AbstractValueProvider, ValueProvider},
 };
@@ -56,13 +56,13 @@ impl PointDefinition for Vector4PointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+        modifiers: Vec<Box<Modifier>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<dyn ModifierBase<Value = Vec4>> {
+    ) -> Box<Modifier> {
         let mut raw_point: Option<Vec4> = None;
         let base_values = if values.len() == 1 {
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
+            if let ValueProvider::Static(static_val) = &values[0] {
                 if static_val.values(context).len() == 4 {
                     raw_point = Some(Vec4::new(
                         static_val.values(context)[0],
@@ -86,26 +86,26 @@ impl PointDefinition for Vector4PointDefinition {
             assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
             Some(values)
         };
-        Box::new(Vector4Modifier::new(
+        Box::new(Modifier::Vector4(Vector4Modifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        ))
+        )))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+        modifiers: Vec<Box<Modifier>>,
         easing: Functions,
         context: &BaseProviderContext,
     ) -> Box<dyn BasePointData<Vec4>> {
         let mut raw_point: Option<Vec4> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
+            if let ValueProvider::Static(static_val) = &values[0] {
                 if static_val.values(context).len() == 5 {
                     raw_point = Some(Vec4::new(
                         static_val.values(context)[0],
@@ -152,15 +152,11 @@ impl PointDefinition for Vector4PointDefinition {
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec4 {
-        let point_data_r = points[r]
-            .as_any()
-            .downcast_ref::<Vector4PointData>()
-            .unwrap();
 
         let point_l = points[l].get_point(context);
         let point_r = points[r].get_point(context);
 
-        if !point_data_r.hsv_lerp {
+        if true {
             point_l.lerp(point_r, time)
         } else {
             lerp_hsv_vec4(point_l, point_r, time)

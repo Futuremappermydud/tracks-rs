@@ -3,7 +3,6 @@ use crate::point_definition::quaternion_point_definition::QuaternionPointDefinit
 use crate::point_definition::vector4_point_definition::Vector4PointDefinition;
 use crate::point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition};
 use crate::values::base_provider_context::BaseProviderContext;
-use crate::values::value::Value;
 use core::ffi;
 use std::slice;
 use serde_json::Value as JsonValue;
@@ -75,7 +74,7 @@ pub unsafe extern "C" fn tracks_set_base_provider(
     let context = unsafe { &mut *context };
     context.set_values(base_str, unsafe {
         let v = slice::from_raw_parts(values, count);
-        Value::from_slice(v)
+        v.to_vec()
     });
 }
 
