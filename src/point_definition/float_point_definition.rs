@@ -2,10 +2,9 @@ use glam::FloatExt;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, float_modifier::FloatModifier, operation::Operation},
-    point_data::{BasePointData, float_point_data::FloatPointData},
-    values::base_provider_context::BaseProviderContext,
-    values::{BaseValues, StaticValues, Values},
+    modifiers::{float_modifier::FloatModifier, operation::Operation, ModifierBase},
+    point_data::{float_point_data::FloatPointData, BasePointData},
+    values::{base_provider_context::BaseProviderContext, r#static::StaticValues, value::Value, AbstractValueProvider, ValueProvider},
 };
 
 use super::PointDefinition;
@@ -31,7 +30,7 @@ impl PointDefinition for FloatPointDefinition {
 
     fn create_modifier(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         operation: Operation,
         context: &BaseProviderContext,
@@ -73,7 +72,7 @@ impl PointDefinition for FloatPointDefinition {
 
     fn create_point_data(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         _flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         easing: Functions,

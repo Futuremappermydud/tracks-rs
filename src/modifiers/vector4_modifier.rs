@@ -10,7 +10,7 @@ use glam::Vec4;
 
 pub struct Vector4Modifier {
     raw_point: Option<Vec4>,
-    values: Option<Vec<Box<dyn BaseValues>>>,
+    values: Option<Vec<ValueProvider>>,
     modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
     operation: Operation,
 }
@@ -18,7 +18,7 @@ pub struct Vector4Modifier {
 impl Vector4Modifier {
     pub fn new(
         point: Option<Vec4>,
-        values: Option<Vec<Box<dyn BaseValues>>>,
+        values: Option<Vec<ValueProvider>>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
         operation: Operation,
     ) -> Self {
@@ -61,9 +61,7 @@ impl ModifierBase for Vector4Modifier {
         self.operation
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
+    
 }
 
 impl Modifier for Vector4Modifier {

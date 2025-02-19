@@ -4,12 +4,12 @@ use super::{
     operation::Operation,
     {Modifier, ModifierBase},
 };
-use crate::values::BaseValues;
+use crate::values::ValueProvider;
 use crate::values::base_provider_context::BaseProviderContext;
 
 pub struct FloatModifier {
     raw_point: Option<f32>,
-    values: Option<Vec<Box<dyn BaseValues>>>,
+    values: Option<Vec<ValueProvider>>,
     modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
     operation: Operation,
 }
@@ -17,7 +17,7 @@ pub struct FloatModifier {
 impl FloatModifier {
     pub fn new(
         point: Option<f32>,
-        values: Option<Vec<Box<dyn BaseValues>>>,
+        values: Option<Vec<ValueProvider>>,
         modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         operation: Operation,
     ) -> Self {
@@ -58,10 +58,6 @@ impl ModifierBase for FloatModifier {
 
     fn get_operation(&self) -> Operation {
         self.operation
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 

@@ -2,8 +2,8 @@ use std::any::Any;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, operation::Operation, vector4_modifier::Vector4Modifier},
-    values::{BaseValues, base_provider_context::BaseProviderContext},
+    modifiers::{operation::Operation, vector4_modifier::Vector4Modifier, ModifierBase},
+    values::{base_provider_context::BaseProviderContext, ValueProvider},
 };
 use glam::Vec4;
 
@@ -19,7 +19,7 @@ pub struct Vector4PointData {
 impl Vector4PointData {
     pub fn new(
         point: Option<Vec4>,
-        values: Option<Vec<Box<dyn BaseValues>>>,
+        values: Option<Vec<ValueProvider>>,
         hsv_lerp: bool,
         time: f32,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
@@ -52,10 +52,6 @@ impl ModifierBase for Vector4PointData {
     fn get_operation(&self) -> Operation {
         self.base_modifier.get_operation()
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
 }
 
 impl BasePointData<Vec4> for Vector4PointData {
@@ -73,9 +69,5 @@ impl BasePointData<Vec4> for Vector4PointData {
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec4 {
         <Self as ModifierBase>::get_point(self, context)
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }

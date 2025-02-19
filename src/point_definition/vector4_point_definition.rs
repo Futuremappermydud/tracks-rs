@@ -3,10 +3,9 @@ use palette::{Hsv, IntoColor, LinSrgb, RgbHue, rgb::Rgb};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{ModifierBase, operation::Operation, vector4_modifier::Vector4Modifier},
-    point_data::{BasePointData, vector4_point_data::Vector4PointData},
-    values::base_provider_context::BaseProviderContext,
-    values::{BaseValues, StaticValues, Values},
+    modifiers::{operation::Operation, vector4_modifier::Vector4Modifier, ModifierBase},
+    point_data::{vector4_point_data::Vector4PointData, BasePointData},
+    values::{base_provider_context::BaseProviderContext, r#static::StaticValues, AbstractValueProvider, ValueProvider},
 };
 
 use super::PointDefinition;
@@ -56,7 +55,7 @@ impl PointDefinition for Vector4PointDefinition {
 
     fn create_modifier(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
         operation: Operation,
         context: &BaseProviderContext,
@@ -97,7 +96,7 @@ impl PointDefinition for Vector4PointDefinition {
 
     fn create_point_data(
         &self,
-        values: Vec<Box<dyn BaseValues>>,
+        values: Vec<ValueProvider>,
         flags: Vec<String>,
         modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
         easing: Functions,

@@ -13,5 +13,4 @@ pub trait BasePointData<T> {
     fn has_base_provider(&self) -> bool;
     fn get_point(&self, context: &BaseProviderContext) -> T;
     fn get_time(&self) -> f32;
-    fn as_any(&self) -> &dyn Any;
 }
