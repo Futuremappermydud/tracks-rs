@@ -54,3 +54,6 @@ cbindgen = "0.28"
 plot = ["dep:minifb", "dep:plotters"]
 json = ["dep:serde_json"]
 default = ["json", "plot"]
+
+[patch.crates-io]
+pathfinder_simd = { git = "https://github.com/theoparis/pathfinder.git" }
