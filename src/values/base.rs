@@ -2,7 +2,8 @@ use crate::values::base_provider_context::BaseProviderContext;
 
 use super::{value::BaseValue, AbstractValueProvider};
 
-#[derive(Clone)]
+
+#[derive(Clone, Debug)]
 pub struct BaseProviderValues {
     pub(crate) base: String,
 }

@@ -6,6 +6,7 @@ use super::AbstractValueProvider;
 
 use glam::{Quat, vec3};
 
+#[derive(Clone, Debug)]
 pub struct SmoothRotationProvidersValues {
     pub(crate) rotation_values: Quat,
     pub(crate) mult: f32,

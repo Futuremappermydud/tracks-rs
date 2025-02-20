@@ -6,6 +6,8 @@ use super::AbstractValueProvider;
 
 use glam::{Quat, vec3};
 
+
+#[derive(Clone, Debug)]
 pub struct QuaternionProviderValues {
     pub(crate) source: Vec<f32>,
     pub(crate) values: BaseValue,

@@ -9,6 +9,8 @@ use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
 
+
+#[derive(Clone, Debug)]
 pub struct SmoothProvidersValues {
     pub(crate) source: BaseValue,
     pub(crate) mult: f32,

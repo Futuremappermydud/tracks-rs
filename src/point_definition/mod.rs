@@ -98,73 +98,73 @@ pub trait PointDefinition {
 
     // Shared parse implementation
     #[cfg(feature = "json")]
-    fn parse(&mut self, value: &JsonValue, context: &BaseProviderContext) {
-        let root: &JsonValue = if value.as_array().unwrap()[0].is_array() {
-            value
-        } else {
-            &json!([value])
+    fn parse(&mut self, value: JsonValue, context: &BaseProviderContext) {
+        let root: JsonValue = match value {
+            JsonValue::Array(_) => value,
+            _ => json!([value]),
         };
-        if let Some(array) = root.as_array() {
-            for raw_point in array {
-                if raw_point.is_null() {
-                    continue;
-                }
 
-                let mut easing = Functions::EaseLinear;
-                let mut modifiers: Option<Vec<Modifier>> = None;
-                let mut flags: Option<Vec<String>> = None;
-                let mut vals: Option<Vec<ValueProvider>> = None;
+        let Some(array) = root.as_array() else { return };
 
-                // Group the values and flags. (Assuming each raw_point has a structure similar to the C++ JSON)
-                for group in Self::group_values(raw_point) {
-                    match group.0 {
-                        GroupType::Value => {
-                            vals = Some(deserialize_values(&group.1, context));
-                        }
-                        GroupType::Modifier => {
-                            modifiers = Some(
-                                group
-                                    .1
-                                    .iter()
-                                    .map(|m| self.deserialize_modifier(m, context))
-                                    .collect(),
-                            );
-                        }
-                        GroupType::Flag => {
-                            // Convert the group values (group.1) into a Vec<String>
-                            let flags_vec: Vec<String> = group
+        for raw_point in array {
+            if raw_point.is_null() {
+                continue;
+            }
+
+            let mut easing = Functions::EaseLinear;
+            let mut modifiers: Option<Vec<Modifier>> = None;
+            let mut flags: Option<Vec<String>> = None;
+            let mut vals: Option<Vec<ValueProvider>> = None;
+
+            // Group the values and flags. (Assuming each raw_point has a structure similar to the C++ JSON)
+            for group in Self::group_values(raw_point) {
+                match group.0 {
+                    GroupType::Value => {
+                        vals = Some(deserialize_values(&group.1, context));
+                    }
+                    GroupType::Modifier => {
+                        modifiers = Some(
+                            group
                                 .1
                                 .iter()
-                                .filter_map(|v| v.as_str().map(String::from))
-                                .collect();
+                                .map(|m| self.deserialize_modifier(m, context))
+                                .collect(),
+                        );
+                    }
+                    GroupType::Flag => {
+                        // Convert the group values (group.1) into a Vec<String>
+                        let flags_vec: Vec<String> = group
+                            .1
+                            .iter()
+                            .filter_map(|v| v.as_str().map(String::from))
+                            .collect();
 
-                            // Set the flags collected from the group.
-                            flags = Some(flags_vec);
+                        // Set the flags collected from the group.
+                        flags = Some(flags_vec);
 
-                            // Find the first flag starting with "ease" just like in the C# code.
-                            if let Some(ref flags_inner) = flags
-                                && let Some(easing_string) =
-                                    flags_inner.iter().find(|flag| flag.starts_with("ease"))
-                            {
-                                easing = Functions::from_str(easing_string)
-                                    .unwrap_or(Functions::EaseLinear);
-                            }
+                        // Find the first flag starting with "ease" just like in the C# code.
+                        if let Some(ref flags_inner) = flags
+                            && let Some(easing_string) =
+                                flags_inner.iter().find(|flag| flag.starts_with("ease"))
+                        {
+                            easing =
+                                Functions::from_str(easing_string).unwrap_or(Functions::EaseLinear);
                         }
                     }
                 }
-
-                // Create point data only if we have values
-                if let Some(vs) = vals {
-                    let point_data = self.create_point_data(
-                        vs,
-                        flags.unwrap_or_default(),
-                        modifiers.unwrap_or_default(),
-                        easing,
-                        context,
-                    );
-                    self.get_points_mut().push(point_data);
-                }
             }
+
+            // Create point data only if we have values
+            let Some(vs) = vals else { continue };
+            
+            let point_data = self.create_point_data(
+                vs,
+                flags.unwrap_or_default(),
+                modifiers.unwrap_or_default(),
+                easing,
+                context,
+            );
+            self.get_points_mut().push(point_data);
         }
     }
 
@@ -201,9 +201,7 @@ pub trait PointDefinition {
         for val in &values {
             // group values by their type in the array
             let entry = match value {
-                JsonValue::String(s) if !s.starts_with("base") => {
-                    GroupType::Flag
-                }
+                JsonValue::String(s) if !s.starts_with("base") => GroupType::Flag,
                 JsonValue::Array(_) => GroupType::Modifier,
                 _ => GroupType::Value,
             };

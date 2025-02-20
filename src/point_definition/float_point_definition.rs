@@ -79,26 +79,31 @@ impl PointDefinition for FloatPointDefinition {
         context: &BaseProviderContext,
     ) -> PointData {
         // If one value is present and it contains two floats, the first is the point value and the second is time.
+        // [x, t]
         let mut raw_point: Option<f32> = None;
         let time: f32;
+
+        // If there is only one value, it must be a static value.
+        // If it's a timed value, extract the time and the value.
         let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
-                if static_val.values(context).len() == 2 {
-                    raw_point = Some(static_val.values(context)[0]);
-                    time = static_val.values(context)[1];
+            // [x, t]
+            match &values[0] {
+                ValueProvider::TimedValue(static_val, t) => {
+                    raw_point = static_val.values(context).as_float();
+                    time = *t;
                     None
-                } else {
+                }
+                _ => {
                     time = 0.0;
                     Some(values)
                 }
-            } else {
-                time = 0.0;
-                Some(values)
             }
         } else {
+            // If there are multiple values, the last one is the time.
+            // [x, x, x, ..., t]
             let count: usize = values.iter().map(|v| v.values(context).len()).sum();
             if count != 2 {
-                eprintln!("Float modifier point must have 2 numbers");
+                eprintln!("Float modifier point must have only 2 numbers");
             }
             time = values
                 .last()

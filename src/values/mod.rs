@@ -24,6 +24,7 @@ pub trait UpdateableValues: AbstractValueProvider {
     fn update(&mut self);
 }
 
+#[derive(Clone, Debug)]
 pub enum ValueProvider {
     Static(r#static::StaticValues),
     BaseProvider(base::BaseProviderValues),
@@ -52,12 +53,23 @@ fn lerp(start: f32, end: f32, t: f32) -> f32 {
     start + (end - start) * t.clamp(0.0, 1.0)
 }
 
+#[derive(Clone, Debug)]
+pub struct JsonKeyframe {
+    pub values: ValueProvider,
+    pub time: f32,
+}
+
 // Values deserialization
+/// Creates a new instance of [`BaseProviderValues`] using the provided base values.
+///
+/// # Arguments
+///
+/// * `base` - Clone of the base values used to initialize the provider.
 #[cfg(feature = "json")]
 pub fn deserialize_values(
     value: &[&JsonValue],
     _context: &BaseProviderContext,
-) -> Vec<ValueProvider> {
+) -> Vec<JsonKeyframe> {
     use base::BaseProviderValues;
 
     let mut result = Vec::new();
@@ -68,8 +80,13 @@ pub fn deserialize_values(
             close(&mut result, value.to_vec(), start, i);
             start = i + 1;
             let base = v.as_str().unwrap().to_string();
+
             let base_provider_values = BaseProviderValues::new(base.clone());
-            result.push(ValueProvider::BaseProvider(base_provider_values));
+            let base_provider = ValueProvider::BaseProvider(base_provider_values);
+            result.push(JsonKeyframe {
+                values: base_provider,
+                time: 0.0,
+            });
         }
     }
 
@@ -78,17 +95,23 @@ pub fn deserialize_values(
 }
 
 #[cfg(feature = "json")]
-fn close(result: &mut Vec<ValueProvider>, raw_values: Vec<&JsonValue>, open: usize, end: usize) {
+fn close(result: &mut Vec<JsonKeyframe>, raw_values: Vec<&JsonValue>, open: usize, end: usize) {
     if end <= open {
         return;
     }
 
-    let values: Vec<f32> = raw_values[open..end]
+    let mut values: Vec<f32> = raw_values[open..end]
         .iter()
         .filter_map(|v| v.as_f64().map(|i| i as f32))
         .collect();
 
+    let time = values.pop().unwrap_or(0.0);
+
     let values = value::BaseValue::from_vec(values);
 
-    result.push(ValueProvider::Static(r#static::StaticValues::new(values)));
+    let value_provider = ValueProvider::Static(r#static::StaticValues::new(values));
+    result.push(JsonKeyframe {
+        values: value_provider,
+        time,
+    });
 }
