@@ -1,45 +1,38 @@
-use serde_json::de;
+use std::borrow::Cow;
 
-use super::lerp;
-
-use super::UpdateableValues;
-use super::value::BaseValue;
+use super::{UpdateableValues, clamp_lerp};
 
 use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
 
-
 #[derive(Clone, Debug)]
 pub struct SmoothProvidersValues {
-    pub(crate) source: BaseValue,
+    pub(crate) source: Vec<f32>,
     pub(crate) mult: f32,
-    pub(crate) values: BaseValue,
+    pub(crate) values: Vec<f32>,
 }
 
 impl SmoothProvidersValues {
-    pub fn new(source: BaseValue, mult: f32) -> Self {
+    pub fn new(source: Vec<f32>, mult: f32) -> Self {
         Self {
             source: source.clone(),
             mult,
-            values: source * 0.0,
+            values: vec![0.0; source.len()],
         }
     }
 }
 
 impl AbstractValueProvider for SmoothProvidersValues {
-    fn values(&self, _context: &BaseProviderContext) -> BaseValue {
-        self.values.clone()
+    fn values<'a>(&'a self, _context: &BaseProviderContext) -> Cow<'a, [f32]> {
+        Cow::Borrowed(self.values.as_ref())
     }
 }
 
 impl UpdateableValues for SmoothProvidersValues {
-    fn update(&mut self) {
-        // Note: You'll need to implement your own time delta functionality
-        let delta = 0.016666667 * self.mult; // Example: 60 FPS
-
+    fn update(&mut self, delta: f32) {
         for i in 0..self.source.len() {
-            self.values[i] = lerp(self.values[i], self.source[i], delta);
+            self.values[i] = clamp_lerp(self.values[i], self.source[i], delta);
         }
     }
 }

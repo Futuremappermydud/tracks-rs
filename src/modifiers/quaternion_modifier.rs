@@ -1,71 +1,68 @@
 use std::cell::RefCell;
 
-use super::{Modifier, ModifierBase, operation::Operation};
+use super::{Modifier, ModifierBase, ModifierValues, operation::Operation};
 use crate::values::{
     AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext,
 };
 use glam::{EulerRot, Quat, Vec3};
 
+pub enum QuaternionValues {
+    StaticVec(Vec3),
+    StaticQuat(Quat),
+    Dynamic(Vec<ValueProvider>),
+}
+
 pub struct QuaternionModifier {
-    raw_point: Option<Quat>,
-    raw_vector_point: Option<Vec3>,
-    reusable_array: RefCell<Vec<f32>>,
-    values: Option<Vec<ValueProvider>>,
+    values: QuaternionValues,
     modifiers: Vec<Modifier>,
     operation: Operation,
 }
 
 impl QuaternionModifier {
-    pub fn new(
-        point: Option<Quat>,
-        vector_point: Option<Vec3>,
-        values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Modifier>,
-        operation: Operation,
-    ) -> Self {
+    pub fn new(point: QuaternionValues, modifiers: Vec<Modifier>, operation: Operation) -> Self {
         Self {
-            raw_point: point,
-            raw_vector_point: vector_point,
-            reusable_array: RefCell::new(vec![0.0; Self::VALUE_COUNT]),
-            values,
+            values: point,
             modifiers,
             operation,
         }
     }
 
     fn translate_euler(&self, values: &Vec<ValueProvider>, context: &BaseProviderContext) -> Vec3 {
-        let mut i = 0;
-        for value in values {
-            for v in value.values(context) {
-                self.reusable_array.borrow_mut()[i] = v;
-                i += 1;
-                if i >= Self::VALUE_COUNT {
-                    break;
-                }
-            }
-        }
-        Vec3::new(
-            self.reusable_array.borrow()[0],
-            self.reusable_array.borrow()[1],
-            self.reusable_array.borrow()[2],
-        )
+        let mut vec3 = Vec3::ZERO;
+
+        values
+            .iter()
+            .flat_map(|x| x.values(context))
+            .take(Self::VALUE_COUNT)
+            .enumerate()
+            .for_each(|(i, v)| vec3[i] = v);
+
+        vec3
     }
 
     pub fn get_vector_point(&self, context: &BaseProviderContext) -> Vec3 {
-        let original_point = self
-            .raw_vector_point
-            .unwrap_or_else(|| self.translate_euler(self.values.as_ref().unwrap(), context));
+        let original_point = match &self.values {
+            QuaternionValues::StaticQuat(s) => {
+                // returns radians
+                let (x, y, z) = s.clone().to_euler(EulerRot::ZXY);
+
+                Vec3::new(x.to_degrees(), y.to_degrees(), z.to_degrees())
+            }
+            QuaternionValues::StaticVec(s) => *s,
+            QuaternionValues::Dynamic(value_providers) => {
+                self.translate_euler(&value_providers, context)
+            }
+        };
         self.modifiers.iter().fold(original_point, |acc, x| {
-            if let Modifier::Quaternion(quat_point) = x {
-                match x.get_operation() {
-                    Operation::Add => acc + quat_point.get_vector_point(context),
-                    Operation::Sub => acc - quat_point.get_vector_point(context),
-                    Operation::Mul => acc * quat_point.get_vector_point(context),
-                    Operation::Div => acc / quat_point.get_vector_point(context),
-                    Operation::None => quat_point.get_vector_point(context),
-                }
-            } else {
+            let Modifier::Quaternion(quat_point) = x else {
                 panic!("Invalid modifier type");
+            };
+            match x.get_operation() {
+                Operation::Add => acc + quat_point.get_vector_point(context),
+                Operation::Sub => acc - quat_point.get_vector_point(context),
+                Operation::Mul => acc * quat_point.get_vector_point(context),
+                Operation::Div => acc / quat_point.get_vector_point(context),
+                Operation::None => quat_point.get_vector_point(context),
             }
         })
     }
@@ -90,7 +87,16 @@ impl ModifierBase for QuaternionModifier {
     }
 
     fn get_raw_point(&self) -> Quat {
-        self.raw_point.unwrap_or(Quat::IDENTITY)
+        match self.values {
+            QuaternionValues::StaticVec(s) => Quat::from_euler(
+                EulerRot::XYZ,
+                s.x.to_radians(),
+                s.y.to_radians(),
+                s.z.to_radians(),
+            ),
+            QuaternionValues::StaticQuat(s) => s,
+            _ => Quat::IDENTITY,
+        }
     }
 
     fn translate(&self, values: &[f32]) -> Quat {

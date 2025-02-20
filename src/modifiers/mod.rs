@@ -14,6 +14,12 @@ use crate::modifiers::operation::Operation;
 use crate::values::base_provider_context::BaseProviderContext;
 use crate::values::{AbstractValueProvider, ValueProvider};
 
+#[derive(Clone, Debug)]
+pub enum ModifierValues<T> {
+    Static(T),
+    Dynamic(Vec<ValueProvider>),
+}
+
 pub enum Modifier {
     Float(FloatModifier),
     Vector3(Vector3Modifier),
@@ -60,6 +66,22 @@ impl Modifier {
             Modifier::Vector3(modifier) => modifier.get_operation(),
             Modifier::Vector4(modifier) => modifier.get_operation(),
             Modifier::Quaternion(modifier) => modifier.get_operation(),
+        }
+    }
+}
+
+impl<T> ModifierValues<T> {
+    pub fn static_values(self) -> Option<T> {
+        match self {
+            ModifierValues::Static(s) => Some(s),
+            _ => None,
+        }
+    }
+
+    pub fn as_static_values(&self) -> Option<&T> {
+        match self {
+            ModifierValues::Static(s) => Some(s),
+            _ => None,
         }
     }
 }

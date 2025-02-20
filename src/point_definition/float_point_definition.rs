@@ -2,9 +2,16 @@ use glam::FloatExt;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{Modifier, float_modifier::FloatModifier, operation::Operation},
+    modifiers::{
+        Modifier,
+        float_modifier::{FloatModifier, FloatValues},
+        operation::Operation,
+    },
     point_data::{PointData, float_point_data::FloatPointData},
-    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
+    values::{
+        AbstractValueProvider, JsonPointValues, ValueProvider,
+        base_provider_context::BaseProviderContext,
+    },
 };
 
 use super::PointDefinition;
@@ -72,38 +79,84 @@ impl PointDefinition for FloatPointDefinition {
 
     fn create_point_data(
         &self,
-        values: Vec<ValueProvider>,
+        values: Vec<JsonPointValues>,
         _flags: Vec<String>,
         modifiers: Vec<Modifier>,
         easing: Functions,
         context: &BaseProviderContext,
     ) -> PointData {
         // If one value is present and it contains two floats, the first is the point value and the second is time.
-        // [x, t]
+
+        match values[..] {
+            // [x, y]
+            [JsonPointValues::Static(static_val)] => {
+                let time = static_val.pop().unwrap_or_default();
+                let val = static_val.get(0).copied();
+
+                let point_val = FloatValues::Static(val.unwrap_or_default());
+
+                return PointData::Float(FloatPointData::new(point_val, time, modifiers, easing));
+            }
+
+            _ => {
+
+                // validate and get time
+                let raw_values = values
+                    .iter()
+                    .map(|v| v.to_raw_values(context))
+                    .collect::<Vec<Vec<f32>>>();
+
+                let time = raw_values
+                    .last()
+                    .and_then(|v| v.last().copied())
+                    .unwrap_or(0.0);
+
+                let count: usize = raw_values.iter().map(|v| v.len()).sum();
+                if count != 2 {
+                    eprintln!("Float modifier point must have 2 numbers");
+                }
+
+                let providers = values
+                    .iter()
+                    .map(|v| v.to_provider())
+                    .collect::<Vec<_>>();
+
+                let value = FloatValues::Dynamic(providers);
+                
+                return PointData::Float(FloatPointData::new(
+                    value,
+                    time,
+                    modifiers,
+                    easing,
+                ));
+            }
+        }
+
+        // If one value is present and it contains two floats, the first is the point value and the second is time.
         let mut raw_point: Option<f32> = None;
         let time: f32;
-
-        // If there is only one value, it must be a static value.
-        // If it's a timed value, extract the time and the value.
+        // [val]
         let base_values = if values.len() == 1 {
-            // [x, t]
-            match &values[0] {
-                ValueProvider::TimedValue(static_val, t) => {
-                    raw_point = static_val.values(context).as_float();
-                    time = *t;
+            // [static]
+            if let ValueProvider::Static(static_val) = &values[0] {
+                // [x, y]
+                if static_val.values(context).len() == 2 {
+                    raw_point = Some(static_val.values(context)[0]);
+                    time = static_val.values(context)[1];
                     None
-                }
-                _ => {
+                } else {
+                    // [x]
                     time = 0.0;
                     Some(values)
                 }
+            } else {
+                time = 0.0;
+                Some(values)
             }
         } else {
-            // If there are multiple values, the last one is the time.
-            // [x, x, x, ..., t]
             let count: usize = values.iter().map(|v| v.values(context).len()).sum();
             if count != 2 {
-                eprintln!("Float modifier point must have only 2 numbers");
+                eprintln!("Float modifier point must have 2 numbers");
             }
             time = values
                 .last()

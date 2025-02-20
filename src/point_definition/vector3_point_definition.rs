@@ -71,34 +71,33 @@ impl PointDefinition for Vector3PointDefinition {
         operation: Operation,
         context: &BaseProviderContext,
     ) -> Modifier {
-        let mut raw_point: Option<Vec3> = None;
-        let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
-                if static_val.values(context).len() == 3 {
-                    raw_point = Some(Vec3::new(
-                        static_val.values(context)[0],
-                        static_val.values(context)[1],
-                        static_val.values(context)[2],
-                    ));
-                    None
+        let (raw_point, time, base_values) = match values.as_slice() {
+            [ValueProvider::Static(static_val)] => {
+                let vals = static_val.values(context);
+                if vals.len() == 4 {
+                    (Some(Vec3::new(vals[0], vals[1], vals[2])), vals[3], None)
                 } else {
-                    let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                    assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
-                    Some(values)
+                    (None, 0.0, Some(values))
                 }
-            } else {
-                let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
-                Some(values)
             }
-        } else {
-            let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
-            Some(values)
+            _ => {
+                let count: usize = values.iter().map(|v| v.values(context).len()).sum();
+                if count != 4 {
+                    eprintln!("Vector3 modifier point must have 4 numbers");
+                }
+                let time = values
+                    .last()
+                    .and_then(|v| v.values(context).last().copied())
+                    .unwrap_or(0.0);
+                (None, time, Some(values))
+            }
         };
+
         Modifier::Vector3(Vector3Modifier::new(
             raw_point,
             base_values,
+            flags.iter().any(|f| f == "splineCatmullRom"),
+            time,
             modifiers,
             operation,
         ))

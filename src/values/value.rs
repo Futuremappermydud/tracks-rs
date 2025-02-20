@@ -1,3 +1,5 @@
+use std::ops::Deref;
+use std::ops::DerefMut;
 use std::ops::Div;
 use std::ops::Index;
 use std::ops::IndexMut;
@@ -24,6 +26,14 @@ pub enum BaseValue {
     Quaternion(Quat),
 }
 
+#[derive(Clone, Debug, Copy)]
+pub enum BaseValueRef<'a> {
+    Float(&'a f32),
+    Vector3(&'a Vec3),
+    Vector4(&'a Vec4),
+    Quaternion(&'a Quat),
+}
+
 impl BaseValue {
     #[inline(always)]
     pub fn from_vec(value: Vec<f32>) -> BaseValue {
@@ -38,7 +48,6 @@ impl BaseValue {
             _ => panic!("Invalid value length"),
         }
     }
-
     pub fn as_float(&self) -> Option<f32> {
         match self {
             BaseValue::Float(v) => Some(*v),
@@ -82,6 +91,54 @@ impl BaseValue {
             BaseValue::Vector3(v) => v.as_ref(),
             BaseValue::Vector4(v) => v.as_ref(),
             BaseValue::Quaternion(v) => v.as_ref(),
+        }
+    }
+}
+
+impl<'a> BaseValueRef<'a> {
+    pub fn as_float(&self) -> Option<&f32> {
+        match self {
+            BaseValueRef::Float(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn as_vec3(&self) -> Option<&Vec3> {
+        match self {
+            BaseValueRef::Vector3(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn as_vec4(&self) -> Option<&Vec4> {
+        match self {
+            BaseValueRef::Vector4(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn as_quat(&self) -> Option<&Quat> {
+        match self {
+            BaseValueRef::Quaternion(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        match self {
+            BaseValueRef::Float(_) => 1,
+            BaseValueRef::Vector3(_) => 3,
+            BaseValueRef::Vector4(_) => 4,
+            BaseValueRef::Quaternion(_) => 4,
+        }
+    }
+
+    pub fn as_slice<'b>(&'b self) -> &'b [f32] {
+        match self {
+            BaseValueRef::Float(v) => std::slice::from_ref(v),
+            BaseValueRef::Vector3(v) => v.as_ref(),
+            BaseValueRef::Vector4(v) => v.as_ref(),
+            BaseValueRef::Quaternion(v) => v.as_ref(),
         }
     }
 }
@@ -184,5 +241,36 @@ impl IntoIterator for BaseValue {
             BaseValue::Vector4(v) => Box::new([v.x, v.y, v.z, v.w].into_iter()),
             BaseValue::Quaternion(v) => Box::new([v.x, v.y, v.z, v.w].into_iter()),
         }
+    }
+}
+
+impl<'a> From<&'a BaseValue> for BaseValueRef<'a> {
+    fn from(v: &'a BaseValue) -> Self {
+        match v {
+            BaseValue::Float(v) => BaseValueRef::Float(v),
+            BaseValue::Vector3(v) => BaseValueRef::Vector3(v),
+            BaseValue::Vector4(v) => BaseValueRef::Vector4(v),
+            BaseValue::Quaternion(v) => BaseValueRef::Quaternion(v),
+        }
+    }
+}
+impl<'a> From<&'a f32> for BaseValueRef<'a> {
+    fn from(v: &'a f32) -> Self {
+        BaseValueRef::Float(v)
+    }
+}
+impl<'a> From<&'a Vec3> for BaseValueRef<'a> {
+    fn from(v: &'a Vec3) -> Self {
+        BaseValueRef::Vector3(v)
+    }
+}
+impl<'a> From<&'a Vec4> for BaseValueRef<'a> {
+    fn from(v: &'a Vec4) -> Self {
+        BaseValueRef::Vector4(v)
+    }
+}
+impl<'a> From<&'a Quat> for BaseValueRef<'a> {
+    fn from(v: &'a Quat) -> Self {
+        BaseValueRef::Quaternion(v)
     }
 }

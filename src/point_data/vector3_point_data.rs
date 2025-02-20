@@ -1,7 +1,7 @@
 use crate::{
     easings::functions::Functions,
-    modifiers::{Modifier, ModifierBase, operation::Operation, vector3_modifier::Vector3Modifier},
-    values::{ValueProvider, base_provider_context::BaseProviderContext},
+    modifiers::{operation::Operation, vector3_modifier::{Vector3Modifier, Vector3Values}, Modifier, ModifierBase},
+    values::{base_provider_context::BaseProviderContext, ValueProvider},
 };
 use glam::Vec3;
 
@@ -16,15 +16,14 @@ pub struct Vector3PointData {
 
 impl Vector3PointData {
     pub fn new(
-        point: Option<Vec3>,
-        values: Option<Vec<ValueProvider>>,
+        point: Vector3Values,
         smooth: bool,
         time: f32,
         modifiers: Vec<Modifier>,
         easing: Functions,
     ) -> Self {
         Self {
-            base_modifier: Vector3Modifier::new(point, values, modifiers, Operation::None),
+            base_modifier: Vector3Modifier::new(point, modifiers, Operation::None),
             easing,
             smooth,
             time,

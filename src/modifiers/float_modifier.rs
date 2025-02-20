@@ -1,24 +1,20 @@
+use super::ModifierValues;
 use super::{Modifier, ModifierBase, operation::Operation};
 use crate::values::ValueProvider;
 use crate::values::base_provider_context::BaseProviderContext;
 
+pub type FloatValues = ModifierValues<f32>;
+
 pub struct FloatModifier {
-    raw_point: Option<f32>,
-    values: Option<Vec<ValueProvider>>,
+    values: FloatValues,
     modifiers: Vec<Modifier>,
     operation: Operation,
 }
 
 impl FloatModifier {
-    pub fn new(
-        point: Option<f32>,
-        values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Modifier>,
-        operation: Operation,
-    ) -> Self {
+    pub fn new(point: FloatValues, modifiers: Vec<Modifier>, operation: Operation) -> Self {
         Self {
-            raw_point: point,
-            values,
+            values: point,
             modifiers,
             operation,
         }
@@ -30,9 +26,10 @@ impl ModifierBase for FloatModifier {
     const VALUE_COUNT: usize = 1;
 
     fn get_point(&self, context: &BaseProviderContext) -> f32 {
-        let original_point = self
-            .raw_point
-            .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap(), context));
+        let original_point = match &self.values {
+            FloatValues::Static(s) => *s,
+            FloatValues::Dynamic(value_providers) => self.convert(&value_providers, context),
+        };
         self.modifiers
             .iter()
             .fold(original_point, |acc, x| match x.get_operation() {
@@ -45,7 +42,7 @@ impl ModifierBase for FloatModifier {
     }
 
     fn get_raw_point(&self) -> f32 {
-        self.raw_point.unwrap_or(0.0)
+        self.values.as_static_values().copied().unwrap_or_default()
     }
 
     fn translate(&self, values: &[f32]) -> f32 {

@@ -1,25 +1,21 @@
+use super::ModifierValues;
 use super::{Modifier, ModifierBase, operation::Operation};
 use crate::values::ValueProvider;
 use crate::values::base_provider_context::BaseProviderContext;
 use glam::Vec3;
 
+pub type Vector3Values = ModifierValues<Vec3>;
+
 pub struct Vector3Modifier {
-    raw_point: Option<Vec3>,
-    values: Option<Vec<ValueProvider>>,
+    values: Vector3Values,
     modifiers: Vec<Modifier>,
     operation: Operation,
 }
 
 impl Vector3Modifier {
-    pub fn new(
-        point: Option<Vec3>,
-        values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Modifier>,
-        operation: Operation,
-    ) -> Self {
+    pub fn new(point: Vector3Values, modifiers: Vec<Modifier>, operation: Operation) -> Self {
         Self {
-            raw_point: point,
-            values,
+            values: point,
             modifiers,
             operation,
         }
@@ -31,9 +27,10 @@ impl ModifierBase for Vector3Modifier {
     const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec3 {
-        let original_point = self
-            .raw_point
-            .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap(), context));
+        let original_point = match &self.values {
+            Vector3Values::Static(s) => *s,
+            Vector3Values::Dynamic(value_providers) => self.convert(&value_providers, context),
+        };
         self.modifiers
             .iter()
             .fold(original_point, |acc, x| match x.get_operation() {
@@ -46,7 +43,7 @@ impl ModifierBase for Vector3Modifier {
     }
 
     fn get_raw_point(&self) -> Vec3 {
-        self.raw_point.unwrap_or(Vec3::ZERO)
+        self.values.as_static_values().copied().unwrap_or_default()
     }
 
     fn translate(&self, values: &[f32]) -> Vec3 {

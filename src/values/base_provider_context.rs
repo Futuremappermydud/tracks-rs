@@ -1,284 +1,252 @@
-use std::cell::RefCell;
+use std::{borrow::Borrow, cell::RefCell, ops::Deref};
 
 use glam::{Quat, Vec3, Vec4};
 
-use super::value::BaseValue;
+use super::value::{BaseValue, BaseValueRef};
 
 pub struct BaseProviderContext {
     //Score
-    base_combo: RefCell<f32>,
-    multiplied_score: RefCell<f32>,
-    immediate_max_possible_multiplied_score: RefCell<f32>,
-    modified_score: RefCell<f32>,
-    immediate_max_possible_modified_score: RefCell<f32>,
-    relative_score: RefCell<f32>,
-    multiplier: RefCell<f32>,
-    energy: RefCell<f32>,
-    song_time: RefCell<f32>,
-    song_length: RefCell<f32>,
+    base_combo: f32,
+    multiplied_score: f32,
+    immediate_max_possible_multiplied_score: f32,
+    modified_score: f32,
+    immediate_max_possible_modified_score: f32,
+    relative_score: f32,
+    multiplier: f32,
+    energy: f32,
+    song_time: f32,
+    song_length: f32,
 
     //Colors
-    environment_color_0: RefCell<Vec4>,
-    environment_color_0_boost: RefCell<Vec4>,
-    environment_color_1: RefCell<Vec4>,
-    environment_color_1_boost: RefCell<Vec4>,
-    environment_color_w: RefCell<Vec4>,
-    environment_color_w_boost: RefCell<Vec4>,
-    note_color_0: RefCell<Vec4>,
-    note_color_1: RefCell<Vec4>,
-    obstacles_color: RefCell<Vec4>,
-    saber_color_a: RefCell<Vec4>,
-    saber_color_b: RefCell<Vec4>,
+    environment_color_0: Vec4,
+    environment_color_0_boost: Vec4,
+    environment_color_1: Vec4,
+    environment_color_1_boost: Vec4,
+    environment_color_w: Vec4,
+    environment_color_w_boost: Vec4,
+    note_color_0: Vec4,
+    note_color_1: Vec4,
+    obstacles_color: Vec4,
+    saber_color_a: Vec4,
+    saber_color_b: Vec4,
 
     //Transforms
-    head_local_position: RefCell<Vec3>,
-    head_local_rotation: RefCell<Quat>,
-    head_local_scale: RefCell<Vec3>,
-    head_position: RefCell<Vec3>,
-    head_rotation: RefCell<Quat>,
-    left_hand_local_position: RefCell<Vec3>,
-    left_hand_local_rotation: RefCell<Quat>,
-    left_hand_local_scale: RefCell<Vec3>,
-    left_hand_position: RefCell<Vec3>,
-    left_hand_rotation: RefCell<Quat>,
-    right_hand_local_position: RefCell<Vec3>,
-    right_hand_local_rotation: RefCell<Quat>,
-    right_hand_local_scale: RefCell<Vec3>,
-    right_hand_position: RefCell<Vec3>,
-    right_hand_rotation: RefCell<Quat>,
+    head_local_position: Vec3,
+    head_local_rotation: Quat,
+    head_local_scale: Vec3,
+    head_position: Vec3,
+    head_rotation: Quat,
+    left_hand_local_position: Vec3,
+    left_hand_local_rotation: Quat,
+    left_hand_local_scale: Vec3,
+    left_hand_position: Vec3,
+    left_hand_rotation: Quat,
+    right_hand_local_position: Vec3,
+    right_hand_local_rotation: Quat,
+    right_hand_local_scale: Vec3,
+    right_hand_position: Vec3,
+    right_hand_rotation: Quat,
 }
 
 impl BaseProviderContext {
     pub fn new() -> Self {
         Self {
-            base_combo: RefCell::new(0.0),
-            multiplied_score: RefCell::new(0.0),
-            immediate_max_possible_multiplied_score: RefCell::new(0.0),
-            modified_score: RefCell::new(0.0),
-            immediate_max_possible_modified_score: RefCell::new(0.0),
-            relative_score: RefCell::new(0.0),
-            multiplier: RefCell::new(0.0),
-            energy: RefCell::new(0.0),
-            song_time: RefCell::new(0.0),
-            song_length: RefCell::new(0.0),
-            environment_color_0: RefCell::new(Vec4::ZERO),
-            environment_color_0_boost: RefCell::new(Vec4::ZERO),
-            environment_color_1: RefCell::new(Vec4::ZERO),
-            environment_color_1_boost: RefCell::new(Vec4::ZERO),
-            environment_color_w: RefCell::new(Vec4::ZERO),
-            environment_color_w_boost: RefCell::new(Vec4::ZERO),
-            note_color_0: RefCell::new(Vec4::ZERO),
-            note_color_1: RefCell::new(Vec4::ZERO),
-            obstacles_color: RefCell::new(Vec4::ZERO),
-            saber_color_a: RefCell::new(Vec4::ZERO),
-            saber_color_b: RefCell::new(Vec4::ZERO),
-            head_local_position: RefCell::new(Vec3::ZERO),
-            head_local_rotation: RefCell::new(Quat::IDENTITY),
-            head_local_scale: RefCell::new(Vec3::ONE),
-            head_position: RefCell::new(Vec3::ZERO),
-            head_rotation: RefCell::new(Quat::IDENTITY),
-            left_hand_local_position: RefCell::new(Vec3::ZERO),
-            left_hand_local_rotation: RefCell::new(Quat::IDENTITY),
-            left_hand_local_scale: RefCell::new(Vec3::ONE),
-            left_hand_position: RefCell::new(Vec3::ZERO),
-            left_hand_rotation: RefCell::new(Quat::IDENTITY),
-            right_hand_local_position: RefCell::new(Vec3::ZERO),
-            right_hand_local_rotation: RefCell::new(Quat::IDENTITY),
-            right_hand_local_scale: RefCell::new(Vec3::ONE),
-            right_hand_position: RefCell::new(Vec3::ZERO),
-            right_hand_rotation: RefCell::new(Quat::IDENTITY),
+            base_combo: (0.0),
+            multiplied_score: (0.0),
+            immediate_max_possible_multiplied_score: (0.0),
+            modified_score: (0.0),
+            immediate_max_possible_modified_score: (0.0),
+            relative_score: (0.0),
+            multiplier: (0.0),
+            energy: (0.0),
+            song_time: (0.0),
+            song_length: (0.0),
+            environment_color_0: (Vec4::ZERO),
+            environment_color_0_boost: (Vec4::ZERO),
+            environment_color_1: (Vec4::ZERO),
+            environment_color_1_boost: (Vec4::ZERO),
+            environment_color_w: (Vec4::ZERO),
+            environment_color_w_boost: (Vec4::ZERO),
+            note_color_0: (Vec4::ZERO),
+            note_color_1: (Vec4::ZERO),
+            obstacles_color: (Vec4::ZERO),
+            saber_color_a: (Vec4::ZERO),
+            saber_color_b: (Vec4::ZERO),
+            head_local_position: (Vec3::ZERO),
+            head_local_rotation: (Quat::IDENTITY),
+            head_local_scale: (Vec3::ONE),
+            head_position: (Vec3::ZERO),
+            head_rotation: (Quat::IDENTITY),
+            left_hand_local_position: (Vec3::ZERO),
+            left_hand_local_rotation: (Quat::IDENTITY),
+            left_hand_local_scale: (Vec3::ONE),
+            left_hand_position: (Vec3::ZERO),
+            left_hand_rotation: (Quat::IDENTITY),
+            right_hand_local_position: (Vec3::ZERO),
+            right_hand_local_rotation: (Quat::IDENTITY),
+            right_hand_local_scale: (Vec3::ONE),
+            right_hand_position: (Vec3::ZERO),
+            right_hand_rotation: (Quat::IDENTITY),
         }
     }
 
-    pub fn get_values(&self, base: &str) -> BaseValue {
+    pub fn get_values<'a>(&'a self, base: &str) -> BaseValueRef<'a> {
         match base {
-            "baseMultipliedScore" => self.multiplied_score.borrow().clone().into(),
-            "baseImmediateMaxPossibleMultipliedScore" => self
-                .immediate_max_possible_multiplied_score
-                .borrow()
-                .clone()
-                .into(),
+            "baseMultipliedScore" => self.multiplied_score.borrow().into(),
+            "baseImmediateMaxPossibleMultipliedScore" => {
+                self.immediate_max_possible_multiplied_score.borrow().into()
+            }
 
-            "baseModifiedScore" => self.modified_score.borrow().clone().into(),
-            "baseImmediateMaxPossibleModifiedScore" => self
-                .immediate_max_possible_modified_score
-                .borrow()
-                .clone()
-                .into(),
-            "baseRelativeScore" => self.relative_score.borrow().clone().into(),
-            "baseMultiplier" => self.multiplier.borrow().clone().into(),
-            "baseEnergy" => self.energy.borrow().clone().into(),
-            "baseSongTime" => self.song_time.borrow().clone().into(),
-            "baseSongLength" => self.song_length.borrow().clone().into(),
+            "baseModifiedScore" => self.modified_score.borrow().into(),
+            "baseImmediateMaxPossibleModifiedScore" => {
+                self.immediate_max_possible_modified_score.borrow().into()
+            }
+            "baseRelativeScore" => self.relative_score.borrow().into(),
+            "baseMultiplier" => self.multiplier.borrow().into(),
+            "baseEnergy" => self.energy.borrow().into(),
+            "baseSongTime" => self.song_time.borrow().into(),
+            "baseSongLength" => self.song_length.borrow().into(),
 
-            "baseEnvironmentColor0" => self.environment_color_0.borrow().clone().into(),
-            "baseEnvironmentColor0Boost" => self.environment_color_0_boost.borrow().clone().into(),
-            "baseEnvironmentColor1" => self.environment_color_1.borrow().clone().into(),
-            "baseEnvironmentColor1Boost" => self.environment_color_1_boost.borrow().clone().into(),
-            "baseEnvironmentColorW" => self.environment_color_w.borrow().clone().into(),
-            "baseEnvironmentColorWBoost" => self.environment_color_w_boost.borrow().clone().into(),
-            "baseNote0Color" => self.note_color_0.borrow().clone().into(),
-            "baseNote1Color" => self.note_color_1.borrow().clone().into(),
-            "baseObstaclesColor" => self.obstacles_color.borrow().clone().into(),
-            "baseSaberAColor" => self.saber_color_a.borrow().clone().into(),
-            "baseSaberBColor" => self.saber_color_b.borrow().clone().into(),
+            "baseEnvironmentColor0" => self.environment_color_0.borrow().into(),
+            "baseEnvironmentColor0Boost" => self.environment_color_0_boost.borrow().into(),
+            "baseEnvironmentColor1" => self.environment_color_1.borrow().into(),
+            "baseEnvironmentColor1Boost" => self.environment_color_1_boost.borrow().into(),
+            "baseEnvironmentColorW" => self.environment_color_w.borrow().into(),
+            "baseEnvironmentColorWBoost" => self.environment_color_w_boost.borrow().into(),
+            "baseNote0Color" => self.note_color_0.borrow().into(),
+            "baseNote1Color" => self.note_color_1.borrow().into(),
+            "baseObstaclesColor" => self.obstacles_color.borrow().into(),
+            "baseSaberAColor" => self.saber_color_a.borrow().into(),
+            "baseSaberBColor" => self.saber_color_b.borrow().into(),
 
-            "baseHeadLocalPosition" => self.head_local_position.borrow().clone().into(),
-            "baseHeadLocalRotation" => self.head_local_rotation.borrow().clone().into(),
-            "baseHeadLocalScale" => self.head_local_scale.borrow().clone().into(),
-            "baseHeadPosition" => self.head_position.borrow().clone().into(),
-            "baseHeadRotation" => self.head_rotation.borrow().clone().into(),
-            "baseLeftHandLocalPosition" => self.left_hand_local_position.borrow().clone().into(),
-            "baseLeftHandLocalRotation" => self.left_hand_local_rotation.borrow().clone().into(),
-            "baseLeftHandLocalScale" => self.left_hand_local_scale.borrow().clone().into(),
-            "baseLeftHandPosition" => self.left_hand_position.borrow().clone().into(),
-            "baseLeftHandRotation" => self.left_hand_rotation.borrow().clone().into(),
-            "baseRightHandLocalPosition" => self.right_hand_local_position.borrow().clone().into(),
-            "baseRightHandLocalRotation" => self.right_hand_local_rotation.borrow().clone().into(),
-            "baseRightHandLocalScale" => self.right_hand_local_scale.borrow().clone().into(),
-            "baseRightHandPosition" => self.right_hand_position.borrow().clone().into(),
-            "baseRightHandRotation" => self.right_hand_rotation.borrow().clone().into(),
+            "baseHeadLocalPosition" => self.head_local_position.borrow().into(),
+            "baseHeadLocalRotation" => self.head_local_rotation.borrow().into(),
+            "baseHeadLocalScale" => self.head_local_scale.borrow().into(),
+            "baseHeadPosition" => self.head_position.borrow().into(),
+            "baseHeadRotation" => self.head_rotation.borrow().into(),
+            "baseLeftHandLocalPosition" => self.left_hand_local_position.borrow().into(),
+            "baseLeftHandLocalRotation" => self.left_hand_local_rotation.borrow().into(),
+            "baseLeftHandLocalScale" => self.left_hand_local_scale.borrow().into(),
+            "baseLeftHandPosition" => self.left_hand_position.borrow().into(),
+            "baseLeftHandRotation" => self.left_hand_rotation.borrow().into(),
+            "baseRightHandLocalPosition" => self.right_hand_local_position.borrow().into(),
+            "baseRightHandLocalRotation" => self.right_hand_local_rotation.borrow().into(),
+            "baseRightHandLocalScale" => self.right_hand_local_scale.borrow().into(),
+            "baseRightHandPosition" => self.right_hand_position.borrow().into(),
+            "baseRightHandRotation" => self.right_hand_rotation.borrow().into(),
             _ => panic!("Base provider not found {}", base),
         }
     }
 
-    pub fn set_values(&self, base: &str, values: BaseValue) {
+    pub fn set_values(&mut self, base: &str, values: BaseValue) {
         match base {
             "baseCombo" => {
-                self.base_combo.replace(values[0]);
+                self.base_combo = values[0];
             }
             "baseMultipliedScore" => {
-                self.multiplied_score.replace(values[0]);
+                self.multiplied_score = values[0];
             }
             "baseImmediateMaxPossibleMultipliedScore" => {
-                self.immediate_max_possible_multiplied_score
-                    .replace(values[0]);
+                self.immediate_max_possible_multiplied_score = values[0];
             }
             "baseModifiedScore" => {
-                self.modified_score.replace(values[0]);
+                self.modified_score = values[0];
             }
             "baseImmediateMaxPossibleModifiedScore" => {
-                self.immediate_max_possible_modified_score
-                    .replace(values[0]);
+                self.immediate_max_possible_modified_score = values[0];
             }
             "baseRelativeScore" => {
-                self.relative_score.replace(values[0]);
+                self.relative_score = values[0];
             }
             "baseMultiplier" => {
-                self.multiplier.replace(values[0]);
+                self.multiplier = values[0];
             }
             "baseEnergy" => {
-                self.energy.replace(values[0]);
+                self.energy = values[0];
             }
             "baseSongTime" => {
-                self.song_time.replace(values[0]);
+                self.song_time = values[0];
             }
             "baseSongLength" => {
-                self.song_length.replace(values[0]);
+                self.song_length = values[0];
             }
             "baseEnvironmentColor0" => {
-                self.environment_color_0
-                    .replace(values.as_vec4().unwrap());
+                self.environment_color_0 = values.as_vec4().unwrap();
             }
             "baseEnvironmentColor0Boost" => {
-                self.environment_color_0_boost
-                    .replace(values.as_vec4().unwrap());
+                self.environment_color_0_boost = values.as_vec4().unwrap();
             }
             "baseEnvironmentColor1" => {
-                self.environment_color_1
-                    .replace(values.as_vec4().unwrap());
+                self.environment_color_1 = values.as_vec4().unwrap();
             }
             "baseEnvironmentColor1Boost" => {
-                self.environment_color_1_boost
-                    .replace(values.as_vec4().unwrap());
+                self.environment_color_1_boost = values.as_vec4().unwrap();
             }
             "baseEnvironmentColorW" => {
-                self.environment_color_w
-                    .replace(values.as_vec4().unwrap());
+                self.environment_color_w = values.as_vec4().unwrap();
             }
             "baseEnvironmentColorWBoost" => {
-                self.environment_color_w_boost
-                    .replace(values.as_vec4().unwrap());
+                self.environment_color_w_boost = values.as_vec4().unwrap();
             }
             "baseNote0Color" => {
-                self.note_color_0
-                    .replace(values.as_vec4().unwrap());
+                self.note_color_0 = values.as_vec4().unwrap();
             }
             "baseNote1Color" => {
-                self.note_color_1
-                    .replace(values.as_vec4().unwrap());
+                self.note_color_1 = values.as_vec4().unwrap();
             }
             "baseObstaclesColor" => {
-                self.obstacles_color
-                    .replace(values.as_vec4().unwrap());
+                self.obstacles_color = values.as_vec4().unwrap();
             }
             "baseSaberAColor" => {
-                self.saber_color_a
-                    .replace(values.as_vec4().unwrap());
+                self.saber_color_a = values.as_vec4().unwrap();
             }
             "baseSaberBColor" => {
-                self.saber_color_b
-                    .replace(values.as_vec4().unwrap());
+                self.saber_color_b = values.as_vec4().unwrap();
             }
             "baseHeadLocalPosition" => {
-                self.head_local_position
-                    .replace(values.as_vec3().unwrap());
+                self.head_local_position = values.as_vec3().unwrap();
             }
             "baseHeadLocalRotation" => {
-                self.head_local_rotation
-                    .replace(values.as_quat().unwrap());
+                self.head_local_rotation = values.as_quat().unwrap();
             }
             "baseHeadLocalScale" => {
-                self.head_local_scale
-                    .replace(values.as_vec3().unwrap());
+                self.head_local_scale = values.as_vec3().unwrap();
             }
             "baseHeadPosition" => {
-                self.head_position
-                    .replace(values.as_vec3().unwrap());
+                self.head_position = values.as_vec3().unwrap();
             }
             "baseHeadRotation" => {
-                self.head_rotation
-                    .replace(values.as_quat().unwrap());
+                self.head_rotation = values.as_quat().unwrap();
             }
             "baseLeftHandLocalPosition" => {
-                self.left_hand_local_position
-                    .replace(values.as_vec3().unwrap());
+                self.left_hand_local_position = values.as_vec3().unwrap();
             }
             "baseLeftHandLocalRotation" => {
-                self.left_hand_local_rotation
-                    .replace(values.as_quat().unwrap());
+                self.left_hand_local_rotation = values.as_quat().unwrap();
             }
             "baseLeftHandLocalScale" => {
-                self.left_hand_local_scale
-                    .replace(values.as_vec3().unwrap());
+                self.left_hand_local_scale = values.as_vec3().unwrap();
             }
             "baseLeftHandPosition" => {
-                self.left_hand_position
-                    .replace(values.as_vec3().unwrap());
+                self.left_hand_position = values.as_vec3().unwrap();
             }
             "baseLeftHandRotation" => {
-                self.left_hand_rotation
-                    .replace(values.as_quat().unwrap());
+                self.left_hand_rotation = values.as_quat().unwrap();
             }
             "baseRightHandLocalPosition" => {
-                self.right_hand_local_position
-                    .replace(values.as_vec3().unwrap());
+                self.right_hand_local_position = values.as_vec3().unwrap();
             }
             "baseRightHandLocalRotation" => {
-                self.right_hand_local_rotation
-                    .replace(values.as_quat().unwrap());
+                self.right_hand_local_rotation = values.as_quat().unwrap();
             }
             "baseRightHandLocalScale" => {
-                self.right_hand_local_scale
-                    .replace(values.as_vec3().unwrap());
+                self.right_hand_local_scale = values.as_vec3().unwrap();
             }
             "baseRightHandPosition" => {
-                self.right_hand_position
-                    .replace(values.as_vec3().unwrap());
+                self.right_hand_position = values.as_vec3().unwrap();
             }
             "baseRightHandRotation" => {
-                self.right_hand_rotation
-                    .replace(values.as_quat().unwrap());
+                self.right_hand_rotation = values.as_quat().unwrap();
             }
             _ => panic!("Base provider not found"),
         }
