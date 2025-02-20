@@ -5,6 +5,7 @@ edition = "2024"
 
 [lib]
 crate-type = ["cdylib"]
+path = "src/lib.rs"
 
 [[bin]]
 name = "tracks-window"
