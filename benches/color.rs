@@ -12,7 +12,28 @@ use tracks_rs::{
 fn point_step(n: u64) {
     let context = BaseProviderContext::new();
     let definition = Vector4PointDefinition::new(
-        json!([[0.0, 1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 1.0, 1.0, 1.0, "easeInOutSine"]]),
+        json!([
+            [0.0, 1.0, 0.0, 0.0, 0.0],
+            [1.0, 0.0, 1.0, 1.0, 1.0, "easeInOutSine"]
+        ]),
+        &context,
+    );
+
+    // let step = 1.0 / n as f32;
+
+    let values: Vec<f64> = (0..=(n as usize)).map(|i| i as f64 / n as f64).collect();
+
+    values.into_iter().for_each(|x| {
+        black_box(definition.interpolate(x as f32, &context));
+    });
+}
+fn point_step_slow(n: u64) {
+    let context = tracks_rs::old::BaseProviderContext::new();
+    let definition = tracks_rs::old::Vector4PointDefinition::new(
+        json!([
+            [0.0, 1.0, 0.0, 0.0, 0.0],
+            [1.0, 0.0, 1.0, 1.0, 1.0, "easeInOutSine"]
+        ]),
         &context,
     );
 
@@ -25,10 +46,19 @@ fn point_step(n: u64) {
     });
 }
 
+fn benchmark_both(n: u64, c: &mut Criterion) {
+    let mut group = c.benchmark_group("vec4");
+
+    group.bench_function(format!("vec4_{n}"), |b| b.iter(|| point_step(n)));
+    group.bench_function(format!("vec4_slow_{n}"), |b| {
+        b.iter(|| point_step_slow(n))
+    });
+}
+
 fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("vec4_4", |b| b.iter(|| point_step(1000)));
-    c.bench_function("vec4_5", |b| b.iter(|| point_step(10000)));
-    c.bench_function("vec4_6", |b| b.iter(|| point_step(100000)));
+    benchmark_both(1000, c);
+    benchmark_both(10000, c);
+    benchmark_both(100000, c);
 }
 
 criterion_group!(benches, criterion_benchmark);

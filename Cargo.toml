@@ -28,6 +28,12 @@ harness = false
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 
+[dependencies.tracks_rs_old]
+# reference to the tracks-rs crate
+git = "https://github.com/Futuremappermydud/tracks-rs.git"
+branch = "main"
+package = "tracks_rs"
+
 
 [dependencies]
 glam = { version = "0.30", features = [
@@ -70,3 +76,6 @@ cbindgen = "0.28"
 [features]
 json = ["dep:serde_json"]
 default = ["json"]
+
+[patch.crates-io]
+pathfinder_simd = { git = "https://github.com/theoparis/pathfinder.git" }

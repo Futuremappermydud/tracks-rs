@@ -1097,8 +1097,7 @@ dependencies = [
 [[package]]
 name = "pathfinder_simd"
 version = "0.5.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cf07ef4804cfa9aea3b04a7bbdd5a40031dbb6b4f2cbaf2b011666c80c5b4f2"
+source = "git+https://github.com/theoparis/pathfinder.git#05f19143e21a96027de7cf2d60fa47ecd8899d21"
 dependencies = [
  "rustc_version",
 ]
@@ -1684,7 +1683,7 @@ dependencies = [
  "minifb",
  "plotters",
  "serde_json",
- "tracks_rs",
+ "tracks_rs 0.1.0",
 ]
 
 [[package]]
@@ -1695,6 +1694,29 @@ dependencies = [
  "cbindgen",
  "cfg-if",
  "criterion",
+ "ctor",
+ "glam",
+ "log",
+ "minifb",
+ "palette",
+ "paranoid-android",
+ "plotters",
+ "serde_json",
+ "thiserror 2.0.11",
+ "tracing",
+ "tracing-error",
+ "tracing-subscriber",
+ "tracks_rs 0.1.0 (git+https://github.com/Futuremappermydud/tracks-rs.git?branch=main)",
+]
+
+[[package]]
+name = "tracks_rs"
+version = "0.1.0"
+source = "git+https://github.com/Futuremappermydud/tracks-rs.git?branch=main#2a6708610b1ed56efe0eb7629c755353da8d796f"
+dependencies = [
+ "android_logger",
+ "cbindgen",
+ "cfg-if",
  "ctor",
  "glam",
  "log",

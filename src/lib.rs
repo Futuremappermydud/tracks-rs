@@ -15,6 +15,11 @@ pub mod point_data;
 pub mod point_definition;
 pub mod values;
 
+// #[cfg(test)]
+pub mod old {
+    pub use tracks_rs_old::*;
+}
+
 #[cfg(target_os = "android")]
 #[ctor::ctor]
 fn main() {
