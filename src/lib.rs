@@ -1,4 +1,5 @@
 #![feature(let_chains)]
+#![feature(slice_pattern)]
 
 use std::{backtrace::Backtrace, panic::PanicHookInfo};
 

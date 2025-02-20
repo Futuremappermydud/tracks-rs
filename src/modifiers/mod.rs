@@ -98,7 +98,7 @@ pub trait ModifierBase {
     fn fill_values(&self, ivals: &[ValueProvider], context: &BaseProviderContext) -> Vec<f32> {
         let mut values = Vec::with_capacity(Self::VALUE_COUNT);
         for value in ivals {
-            for v in value.values(context) {
+            for v in value.values(context).iter().copied() {
                 if values.len() < Self::VALUE_COUNT {
                     values.push(v);
                 } else {

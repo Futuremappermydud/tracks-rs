@@ -1,4 +1,5 @@
-use std::cell::RefCell;
+use core::slice::SlicePattern;
+use std::{borrow::Cow, cell::RefCell};
 
 use super::{Modifier, ModifierBase, ModifierValues, operation::Operation};
 use crate::values::{
@@ -27,12 +28,16 @@ impl QuaternionModifier {
         }
     }
 
-    fn translate_euler(&self, values: &Vec<ValueProvider>, context: &BaseProviderContext) -> Vec3 {
+    fn translate_euler<'a>(
+        &self,
+        values: &'a Vec<ValueProvider>,
+        context: &BaseProviderContext,
+    ) -> Vec3 {
         let mut vec3 = Vec3::ZERO;
 
         values
             .iter()
-            .flat_map(|x| x.values(context))
+            .flat_map(|x| x.values(context).iter().copied().collect::<Vec<_>>())
             .take(Self::VALUE_COUNT)
             .enumerate()
             .for_each(|(i, v)| vec3[i] = v);

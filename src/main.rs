@@ -1,5 +1,7 @@
 #![feature(let_chains)]
 #![feature(impl_trait_in_assoc_type)]
+#![feature(slice_pattern)]
+
 
 mod easings;
 mod ffi;
