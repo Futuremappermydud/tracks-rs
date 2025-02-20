@@ -1,15 +1,12 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'tracks-rs'",
+      "name": "Debug executable 'tracks-window'",
       "cargo": {
-        "args": ["build", "--bin=tracks-window", "--package=tracks-rs"],
+        "args": ["build", "--bin=tracks-window", "--package=tracks-window"],
         "filter": {
           "name": "tracks-window",
           "kind": "bin"
@@ -21,17 +18,45 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'tracks-rs'",
+      "name": "Debug unit tests in executable 'tracks-window'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
           "--bin=tracks-window",
-          "--package=tracks-rs"
+          "--package=tracks-window"
         ],
         "filter": {
           "name": "tracks-window",
           "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'tracks_rs'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=tracks_rs"],
+        "filter": {
+          "name": "tracks_rs",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug benchmark 'float'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bench=float", "--package=tracks_rs"],
+        "filter": {
+          "name": "float",
+          "kind": "bench"
         }
       },
       "args": [],

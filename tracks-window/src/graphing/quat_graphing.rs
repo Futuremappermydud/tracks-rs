@@ -12,7 +12,7 @@ use plotters::{
 };
 use serde_json::json;
 
-use crate::{
+use tracks_rs::{
     point_definition::{PointDefinition, quaternion_point_definition::QuaternionPointDefinition},
     values::base_provider_context::BaseProviderContext,
 };

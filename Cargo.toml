@@ -1,14 +1,22 @@
 [package]
-name = "tracks-rs"
+name = "tracks_rs"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
-crate-type = ["cdylib"]
+name = "tracks_rs"
 
-[[bin]]
-name = "tracks-window"
-path = "src/main.rs"
+[workspace]
+members = ["tracks-window"]
+
+
+[[bench]]
+name = "float"
+harness = false
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
 
 [dependencies]
 glam = { version = "0.30", features = [
@@ -25,8 +33,6 @@ ctor = "0.3.6"
 paranoid-android = "*"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-minifb = { version = "0.28", optional = true }
-plotters = { version = "0.3", optional = true }
 tracing-subscriber = { version = "0.3", features = [
     "fmt",
     "env-filter",
@@ -51,9 +57,5 @@ paranoid-android = { version = "*", optional = true }
 cbindgen = "0.28"
 
 [features]
-plot = ["dep:minifb", "dep:plotters"]
 json = ["dep:serde_json"]
-default = ["json", "plot"]
-
-[patch.crates-io]
-pathfinder_simd = { git = "https://github.com/theoparis/pathfinder.git" }
+default = ["json"]
