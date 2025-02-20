@@ -14,6 +14,17 @@ members = ["tracks-window"]
 name = "float"
 harness = false
 
+[[bench]]
+name = "vec3"
+harness = false
+[[bench]]
+name = "quat"
+harness = false
+
+[[bench]]
+name = "color"
+harness = false
+
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 
