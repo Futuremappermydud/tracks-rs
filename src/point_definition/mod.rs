@@ -193,7 +193,7 @@ pub trait PointDefinition {
     fn group_values(value: &JsonValue) -> Vec<(GroupType, Vec<&JsonValue>)> {
         use std::collections::HashMap;
 
-        let Some(array) = value.as_array() else {
+        let JsonValue::Array(array) = value else {
             return vec![];
         };
         let values: Vec<&JsonValue> = array.iter().collect();
@@ -201,7 +201,7 @@ pub trait PointDefinition {
         let mut result: HashMap<GroupType, Vec<&JsonValue>> = HashMap::new();
         for val in &values {
             // group values by their type in the array
-            let entry = match value {
+            let entry = match val {
                 JsonValue::String(s) if !s.starts_with("base") => GroupType::Flag,
                 JsonValue::Array(_) => GroupType::Modifier,
                 _ => GroupType::Value,
