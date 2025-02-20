@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use glam::{Quat, Vec3, Vec4};
 
-use super::value::Value;
+use super::value::BaseValue;
 
 pub struct BaseProviderContext {
     //Score
@@ -90,7 +90,7 @@ impl BaseProviderContext {
         }
     }
 
-    pub fn get_values(&self, base: &str) -> Value {
+    pub fn get_values(&self, base: &str) -> BaseValue {
         match base {
             "baseMultipliedScore" => self.multiplied_score.borrow().clone().into(),
             "baseImmediateMaxPossibleMultipliedScore" => self
@@ -111,102 +111,38 @@ impl BaseProviderContext {
             "baseSongTime" => self.song_time.borrow().clone().into(),
             "baseSongLength" => self.song_length.borrow().clone().into(),
 
-            "baseEnvironmentColor0" => self
-                .environment_color_0
-                .borrow()
-                .clone()
-                .into(),
-            "baseEnvironmentColor0Boost" => self
-                .environment_color_0_boost
-                .borrow()
-                .clone()
-                .into(),
-            "baseEnvironmentColor1" => self
-                .environment_color_1
-                .borrow()
-                .clone()
-                .into(),
-            "baseEnvironmentColor1Boost" => self
-                .environment_color_1_boost
-                .borrow()
-                .clone()
-                .into(),
-            "baseEnvironmentColorW" => self
-                .environment_color_w
-                .borrow()
-                .clone()
-                .into(),
-            "baseEnvironmentColorWBoost" => self
-                .environment_color_w_boost
-                .borrow()
-                .clone()
-                .into(),
+            "baseEnvironmentColor0" => self.environment_color_0.borrow().clone().into(),
+            "baseEnvironmentColor0Boost" => self.environment_color_0_boost.borrow().clone().into(),
+            "baseEnvironmentColor1" => self.environment_color_1.borrow().clone().into(),
+            "baseEnvironmentColor1Boost" => self.environment_color_1_boost.borrow().clone().into(),
+            "baseEnvironmentColorW" => self.environment_color_w.borrow().clone().into(),
+            "baseEnvironmentColorWBoost" => self.environment_color_w_boost.borrow().clone().into(),
             "baseNote0Color" => self.note_color_0.borrow().clone().into(),
             "baseNote1Color" => self.note_color_1.borrow().clone().into(),
             "baseObstaclesColor" => self.obstacles_color.borrow().clone().into(),
             "baseSaberAColor" => self.saber_color_a.borrow().clone().into(),
             "baseSaberBColor" => self.saber_color_b.borrow().clone().into(),
 
-            "baseHeadLocalPosition" => self
-                .head_local_position
-                .borrow()
-                .clone()
-                .into(),
-            "baseHeadLocalRotation" => self
-                .head_local_rotation
-                .borrow()
-                .clone()
-                .into(),
+            "baseHeadLocalPosition" => self.head_local_position.borrow().clone().into(),
+            "baseHeadLocalRotation" => self.head_local_rotation.borrow().clone().into(),
             "baseHeadLocalScale" => self.head_local_scale.borrow().clone().into(),
             "baseHeadPosition" => self.head_position.borrow().clone().into(),
             "baseHeadRotation" => self.head_rotation.borrow().clone().into(),
-            "baseLeftHandLocalPosition" => self
-                .left_hand_local_position
-                .borrow()
-                .clone()
-                .into(),
-            "baseLeftHandLocalRotation" => self
-                .left_hand_local_rotation
-                .borrow()
-                .clone()
-                .into(),
-            "baseLeftHandLocalScale" => self
-                .left_hand_local_scale
-                .borrow()
-                .clone()
-                .into(),
+            "baseLeftHandLocalPosition" => self.left_hand_local_position.borrow().clone().into(),
+            "baseLeftHandLocalRotation" => self.left_hand_local_rotation.borrow().clone().into(),
+            "baseLeftHandLocalScale" => self.left_hand_local_scale.borrow().clone().into(),
             "baseLeftHandPosition" => self.left_hand_position.borrow().clone().into(),
             "baseLeftHandRotation" => self.left_hand_rotation.borrow().clone().into(),
-            "baseRightHandLocalPosition" => self
-                .right_hand_local_position
-                .borrow()
-                .clone()
-                .into(),
-            "baseRightHandLocalRotation" => self
-                .right_hand_local_rotation
-                .borrow()
-                .clone()
-                .into(),
-            "baseRightHandLocalScale" => self
-                .right_hand_local_scale
-                .borrow()
-                .clone()
-                .into(),
-            "baseRightHandPosition" => self
-                .right_hand_position
-                .borrow()
-                .clone()
-                .into(),
-            "baseRightHandRotation" => self
-                .right_hand_rotation
-                .borrow()
-                .clone()
-                .into(),
+            "baseRightHandLocalPosition" => self.right_hand_local_position.borrow().clone().into(),
+            "baseRightHandLocalRotation" => self.right_hand_local_rotation.borrow().clone().into(),
+            "baseRightHandLocalScale" => self.right_hand_local_scale.borrow().clone().into(),
+            "baseRightHandPosition" => self.right_hand_position.borrow().clone().into(),
+            "baseRightHandRotation" => self.right_hand_rotation.borrow().clone().into(),
             _ => panic!("Base provider not found {}", base),
         }
     }
 
-    pub fn set_values(&self, base: &str, values: Value) {
+    pub fn set_values(&self, base: &str, values: BaseValue) {
         match base {
             "baseCombo" => {
                 self.base_combo.replace(values[0]);
@@ -242,7 +178,7 @@ impl BaseProviderContext {
             }
             "baseEnvironmentColor0" => {
                 self.environment_color_0
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseEnvironmentColor0Boost" => {
                 self.environment_color_0_boost
@@ -250,7 +186,7 @@ impl BaseProviderContext {
             }
             "baseEnvironmentColor1" => {
                 self.environment_color_1
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseEnvironmentColor1Boost" => {
                 self.environment_color_1_boost
@@ -258,7 +194,7 @@ impl BaseProviderContext {
             }
             "baseEnvironmentColorW" => {
                 self.environment_color_w
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseEnvironmentColorWBoost" => {
                 self.environment_color_w_boost
@@ -266,43 +202,43 @@ impl BaseProviderContext {
             }
             "baseNote0Color" => {
                 self.note_color_0
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseNote1Color" => {
                 self.note_color_1
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseObstaclesColor" => {
                 self.obstacles_color
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseSaberAColor" => {
                 self.saber_color_a
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseSaberBColor" => {
                 self.saber_color_b
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseHeadLocalPosition" => {
                 self.head_local_position
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseHeadLocalRotation" => {
                 self.head_local_rotation
-                    .replace(Quat::from_slice(values.as_slice()));
+                    .replace(values.as_quat().unwrap());
             }
             "baseHeadLocalScale" => {
                 self.head_local_scale
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseHeadPosition" => {
                 self.head_position
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseHeadRotation" => {
                 self.head_rotation
-                    .replace(Quat::from_slice(values.as_slice()));
+                    .replace(values.as_quat().unwrap());
             }
             "baseLeftHandLocalPosition" => {
                 self.left_hand_local_position
@@ -318,11 +254,11 @@ impl BaseProviderContext {
             }
             "baseLeftHandPosition" => {
                 self.left_hand_position
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseLeftHandRotation" => {
                 self.left_hand_rotation
-                    .replace(Quat::from_slice(values.as_slice()));
+                    .replace(values.as_quat().unwrap());
             }
             "baseRightHandLocalPosition" => {
                 self.right_hand_local_position
@@ -338,11 +274,11 @@ impl BaseProviderContext {
             }
             "baseRightHandPosition" => {
                 self.right_hand_position
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseRightHandRotation" => {
                 self.right_hand_rotation
-                    .replace(Quat::from_slice(values.as_slice()));
+                    .replace(values.as_quat().unwrap());
             }
             _ => panic!("Base provider not found"),
         }

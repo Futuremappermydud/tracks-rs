@@ -6,6 +6,7 @@ pub mod vector4_point_definition;
 use std::str::FromStr;
 
 use serde_json::Value as JsonValue;
+use serde_json::json;
 
 use crate::point_data::PointData;
 use crate::{
@@ -38,16 +39,16 @@ pub trait PointDefinition {
     ) -> Self::Value;
     fn create_modifier(
         &self,
-        values: Vec<PossibleValueProvider>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Self::Value>>>,
+        values: Vec<ValueProvider>,
+        modifiers: Vec<Box<Modifier>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<dyn ModifierBase<Value = Self::Value>>;
+    ) -> Box<Modifier>;
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Self::Value>>>,
+        modifiers: Vec<Box<Modifier>>,
         easing: Functions,
         context: &BaseProviderContext,
     ) -> Box<PointData>;
@@ -60,8 +61,8 @@ pub trait PointDefinition {
         &self,
         list: &JsonValue,
         context: &BaseProviderContext,
-    ) -> Box<dyn ModifierBase<Value = Self::Value>> {
-        let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
+    ) -> Box<Modifier> {
+        let mut modifiers: Option<Vec<Box<Modifier>>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<ValueProvider>> = None;
 
@@ -102,17 +103,19 @@ pub trait PointDefinition {
     // Shared parse implementation
     #[cfg(feature = "json")]
     fn parse(&mut self, value: &JsonValue, context: &BaseProviderContext) {
-        // Expect an array of raw points
-
-        use crate::values::ValueProvider;
-        if let Some(array) = value.as_array() {
+        let root: &JsonValue = if value.as_array().unwrap()[0].is_array() {
+            value
+        } else {
+            &json!([value])
+        };
+        if let Some(array) = root.as_array() {
             for raw_point in array {
                 if raw_point.is_null() {
                     continue;
                 }
 
                 let mut easing = Functions::EaseLinear;
-                let mut modifiers: Option<Vec<Box<dyn ModifierBase<Value = Self::Value>>>> = None;
+                let mut modifiers: Option<Vec<Box<Modifier>>> = None;
                 let mut flags: Option<Vec<String>> = None;
                 let mut vals: Option<Vec<ValueProvider>> = None;
 

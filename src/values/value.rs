@@ -1,127 +1,188 @@
+use std::ops::Div;
+use std::ops::Index;
+use std::ops::IndexMut;
+use std::ops::Mul;
+
 use glam::Quat;
 use glam::Vec3;
 
 use glam::Vec2;
 use glam::Vec4;
 
-use super::lerp;
+///
+/// Time based number
+///
+#[repr(transparent)]
+#[derive(Clone, Debug, Copy)]
+pub struct TimeValue(f32);
 
 #[derive(Clone, Debug, Copy)]
-pub enum Value {
+pub enum BaseValue {
     Float(f32),
-    Vector2(Vec2),
     Vector3(Vec3),
     Vector4(Vec4),
     Quaternion(Quat),
 }
 
-impl Value {
-    pub fn lerp(&self, end: &Value, t: f32) -> Value {
-        match (self, end) {
-            (Value::Float(start), Value::Float(end)) => Value::Float(lerp(*start, *end, t)),
-            (Value::Vector2(start), Value::Vector2(end)) => {
-                Value::Vector2(Vec2::lerp(*start, *end, t))
-            }
-            (Value::Vector3(start), Value::Vector3(end)) => {
-                Value::Vector3(Vec3::lerp(*start, *end, t))
-            }
-            (Value::Vector4(start), Value::Vector4(end)) => {
-                Value::Vector4(Vec4::lerp(*start, *end, t))
-            }
-            (Value::Quaternion(start), Value::Quaternion(end)) => {
-                Value::Quaternion(Quat::slerp(*start, *end, t))
-            }
-            _ => panic!("Invalid value types"),
-        }
-    }
-
+impl BaseValue {
     #[inline(always)]
-    pub fn from_vec(value: Vec<f32>) -> Value {
+    pub fn from_vec(value: Vec<f32>) -> BaseValue {
         Self::from_slice(value.as_slice())
     }
 
-    pub fn from_slice(value: &[f32]) -> Value {
+    pub fn from_slice(value: &[f32]) -> BaseValue {
         match value.len() {
-            1 => Value::Float(value[0]),
-            2 => Value::Vector2(Vec2::new(value[0], value[1])),
-            3 => Value::Vector3(Vec3::new(value[0], value[1], value[2])),
-            4 => Value::Vector4(Vec4::new(value[0], value[1], value[2], value[3])),
+            1 => BaseValue::Float(value[0]),
+            3 => BaseValue::Vector3(Vec3::new(value[0], value[1], value[2])),
+            4 => BaseValue::Vector4(Vec4::new(value[0], value[1], value[2], value[3])),
             _ => panic!("Invalid value length"),
         }
     }
 
     pub fn as_float(&self) -> Option<f32> {
         match self {
-            Value::Float(v) => Some(*v),
-            _ => None,
-        }
-    }
-
-    pub fn as_vec2(&self) -> Option<Vec2> {
-        match self {
-            Value::Vector2(v) => Some(*v),
+            BaseValue::Float(v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_vec3(&self) -> Option<Vec3> {
         match self {
-            Value::Vector3(v) => Some(*v),
+            BaseValue::Vector3(v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_vec4(&self) -> Option<Vec4> {
         match self {
-            Value::Vector4(v) => Some(*v),
+            BaseValue::Vector4(v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_quat(&self) -> Option<Quat> {
         match self {
-            Value::Quaternion(v) => Some(*v),
+            BaseValue::Quaternion(v) => Some(*v),
             _ => None,
         }
     }
-    
+
     pub fn len(&self) -> usize {
         match self {
-            Value::Float(_) => 1,
-            Value::Vector2(_) => 2,
-            Value::Vector3(_) => 3,
-            Value::Vector4(_) => 4,
-            Value::Quaternion(_) => 4,
+            BaseValue::Float(_) => 1,
+            BaseValue::Vector3(_) => 3,
+            BaseValue::Vector4(_) => 4,
+            BaseValue::Quaternion(_) => 4,
+        }
+    }
+
+    pub fn as_slice(&self) -> &[f32] {
+        match self {
+            BaseValue::Float(v) => std::slice::from_ref(v),
+            BaseValue::Vector3(v) => v.as_ref(),
+            BaseValue::Vector4(v) => v.as_ref(),
+            BaseValue::Quaternion(v) => v.as_ref(),
         }
     }
 }
 
-impl From<f32> for Value {
+impl From<f32> for BaseValue {
     fn from(v: f32) -> Self {
-        Value::Float(v)
+        BaseValue::Float(v)
     }
 }
 
-impl From<Vec2> for Value {
-    fn from(v: Vec2) -> Self {
-        Value::Vector2(v)
-    }
-}
-
-impl From<Vec3> for Value {
+impl From<Vec3> for BaseValue {
     fn from(v: Vec3) -> Self {
-        Value::Vector3(v)
+        BaseValue::Vector3(v)
     }
 }
 
-impl From<Vec4> for Value {
+impl From<Vec4> for BaseValue {
     fn from(v: Vec4) -> Self {
-        Value::Vector4(v)
+        BaseValue::Vector4(v)
     }
 }
 
-impl From<Quat> for Value {
+impl From<Quat> for BaseValue {
     fn from(v: Quat) -> Self {
-        Value::Quaternion(v)
+        BaseValue::Quaternion(v)
+    }
+}
+
+// scalar ops
+
+impl Mul<f32> for BaseValue {
+    type Output = BaseValue;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        match self {
+            BaseValue::Float(v) => BaseValue::Float(v * rhs),
+            BaseValue::Vector3(v) => BaseValue::Vector3(v * rhs),
+            BaseValue::Vector4(v) => BaseValue::Vector4(v * rhs),
+            BaseValue::Quaternion(v) => BaseValue::Quaternion(v * rhs),
+        }
+    }
+}
+
+impl Div<f32> for BaseValue {
+    type Output = BaseValue;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        match self {
+            BaseValue::Float(v) => BaseValue::Float(v / rhs),
+            BaseValue::Vector3(v) => BaseValue::Vector3(v / rhs),
+            BaseValue::Vector4(v) => BaseValue::Vector4(v / rhs),
+            BaseValue::Quaternion(v) => BaseValue::Quaternion(v / rhs),
+        }
+    }
+}
+
+impl Index<usize> for BaseValue {
+    type Output = f32;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match self {
+            BaseValue::Float(f) => f,
+            BaseValue::Vector3(v) => &v[index],
+            BaseValue::Vector4(v) => &v[index],
+            BaseValue::Quaternion(v) => match index {
+                0 => &v.x,
+                1 => &v.y,
+                2 => &v.z,
+                3 => &v.w,
+                _ => panic!("Invalid index for Quaternion"),
+            },
+        }
+    }
+}
+impl IndexMut<usize> for BaseValue {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match self {
+            BaseValue::Float(f) => f,
+            BaseValue::Vector3(v) => &mut v[index],
+            BaseValue::Vector4(v) => &mut v[index],
+            BaseValue::Quaternion(v) => match index {
+                0 => &mut v.x,
+                1 => &mut v.y,
+                2 => &mut v.z,
+                3 => &mut v.w,
+                _ => panic!("Invalid index for Quaternion"),
+            },
+        }
+    }
+}
+
+impl IntoIterator for BaseValue {
+    type Item = f32;
+    type IntoIter = Box<dyn Iterator<Item = f32>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            BaseValue::Float(v) => Box::new([v].into_iter()),
+            BaseValue::Vector3(v) => Box::new([v.x, v.y, v.z].into_iter()),
+            BaseValue::Vector4(v) => Box::new([v.x, v.y, v.z, v.w].into_iter()),
+            BaseValue::Quaternion(v) => Box::new([v.x, v.y, v.z, v.w].into_iter()),
+        }
     }
 }

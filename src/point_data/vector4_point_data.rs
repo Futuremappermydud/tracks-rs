@@ -1,5 +1,3 @@
-use std::any::Any;
-
 use crate::{
     easings::functions::Functions,
     modifiers::{Modifier, ModifierBase, operation::Operation, vector4_modifier::Vector4Modifier},
@@ -22,7 +20,7 @@ impl Vector4PointData {
         values: Option<Vec<ValueProvider>>,
         hsv_lerp: bool,
         time: f32,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Vec4>>>,
+        modifiers: Vec<Box<Modifier>>,
         easing: Functions,
     ) -> Self {
         Self {
@@ -36,6 +34,7 @@ impl Vector4PointData {
 
 impl ModifierBase for Vector4PointData {
     type Value = Vec4;
+    const VALUE_COUNT: usize = 4;
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec4 {
         self.base_modifier.get_point(context)

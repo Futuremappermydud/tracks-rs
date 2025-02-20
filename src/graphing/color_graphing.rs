@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use crate::{
     point_definition::{PointDefinition, vector4_point_definition::Vector4PointDefinition},
-    values::{base_provider_context::BaseProviderContext, value::Value},
+    values::{base_provider_context::BaseProviderContext, value::BaseValue},
 };
 use glam::vec4;
 use minifb::Window;
@@ -23,10 +23,7 @@ pub struct ColorContext {
 impl ColorContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
-        let definition = Vector4PointDefinition::new(
-            &json!([["baseNote0Color",1]]),
-            &context,
-        );
+        let definition = Vector4PointDefinition::new(&json!([["baseNote0Color", 1]]), &context);
         Self {
             definition,
             context: RefCell::new(context),

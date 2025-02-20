@@ -31,13 +31,13 @@ impl PointDefinition for QuaternionPointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
+        modifiers: Vec<Box<Modifier>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<dyn ModifierBase<Value = Quat>> {
+    ) -> Box<Modifier> {
         let mut raw_vector_point: Option<Vec3> = None;
         let base_values = if values.len() == 1 {
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
+            if let ValueProvider::Static(static_val) = &values[0] {
                 if static_val.values(context).len() == 3 {
                     raw_vector_point = Some(Vec3::new(
                         static_val.values(context)[0],
@@ -60,7 +60,7 @@ impl PointDefinition for QuaternionPointDefinition {
             assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
             Some(values)
         };
-        Box::new(QuaternionModifier::new(
+        Box::new(Modifier::Quaternion(QuaternionModifier::new(
             if raw_vector_point.is_none() {
                 None
             } else {
@@ -75,7 +75,7 @@ impl PointDefinition for QuaternionPointDefinition {
             base_values,
             modifiers,
             operation,
-        ))
+        )))
     }
 
     fn create_point_data(
@@ -89,7 +89,7 @@ impl PointDefinition for QuaternionPointDefinition {
         let mut raw_vector_point: Option<Vec3> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
-            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
+            if let ValueProvider::Static(static_val) = &values[0] {
                 if static_val.values(context).len() == 4 {
                     raw_vector_point = Some(Vec3::new(
                         static_val.values(context)[0],

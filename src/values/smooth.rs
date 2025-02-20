@@ -3,20 +3,20 @@ use serde_json::de;
 use super::lerp;
 
 use super::UpdateableValues;
-use super::value::Value;
+use super::value::BaseValue;
 
 use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
 
 pub struct SmoothProvidersValues {
-    pub(crate) source: Value,
+    pub(crate) source: BaseValue,
     pub(crate) mult: f32,
-    pub(crate) values: Value,
+    pub(crate) values: BaseValue,
 }
 
 impl SmoothProvidersValues {
-    pub fn new(source: Value, mult: f32) -> Self {
+    pub fn new(source: BaseValue, mult: f32) -> Self {
         Self {
             source: source.clone(),
             mult,
@@ -26,7 +26,7 @@ impl SmoothProvidersValues {
 }
 
 impl AbstractValueProvider for SmoothProvidersValues {
-    fn values(&self, _context: &BaseProviderContext) -> Value {
+    fn values(&self, _context: &BaseProviderContext) -> BaseValue {
         self.values.clone()
     }
 }
