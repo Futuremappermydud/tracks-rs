@@ -87,7 +87,7 @@ pub unsafe extern "C" fn tracks_make_float_point_definition(
 ) -> *const FloatPointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
     let value: JsonValue = serde_json::from_str(json_str).unwrap();
-    let point_definition = Box::new(FloatPointDefinition::new(&value, unsafe { &*context }));
+    let point_definition = Box::new(FloatPointDefinition::new(value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
 }
@@ -127,7 +127,7 @@ pub unsafe extern "C" fn tracks_make_vector3_point_definition(
 ) -> *const Vector3PointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
     let value: JsonValue = serde_json::from_str(json_str).unwrap();
-    let point_definition = Box::new(Vector3PointDefinition::new(&value, unsafe { &*context }));
+    let point_definition = Box::new(Vector3PointDefinition::new(value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
 }
@@ -174,7 +174,7 @@ pub unsafe extern "C" fn tracks_make_vector4_point_definition(
 ) -> *const Vector4PointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
     let value: JsonValue = serde_json::from_str(json_str).unwrap();
-    let point_definition = Box::new(Vector4PointDefinition::new(&value, unsafe { &*context }));
+    let point_definition = Box::new(Vector4PointDefinition::new(value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
 }
@@ -222,7 +222,7 @@ pub unsafe extern "C" fn tracks_make_quat_point_definition(
 ) -> *const QuaternionPointDefinition {
     let json_str = unsafe { CStr::from_ptr(json).to_str().unwrap() };
     let value: JsonValue = serde_json::from_str(json_str).unwrap();
-    let point_definition = Box::new(QuaternionPointDefinition::new(&value, unsafe { &*context }));
+    let point_definition = Box::new(QuaternionPointDefinition::new(value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
 }

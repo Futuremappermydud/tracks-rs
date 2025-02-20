@@ -2,7 +2,11 @@ use glam::Vec3;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{Modifier, operation::Operation, vector3_modifier::Vector3Modifier},
+    modifiers::{
+        Modifier,
+        operation::Operation,
+        vector3_modifier::{Vector3Modifier, Vector3Values},
+    },
     point_data::{PointData, vector3_point_data::Vector3PointData},
     values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
@@ -71,36 +75,22 @@ impl PointDefinition for Vector3PointDefinition {
         operation: Operation,
         context: &BaseProviderContext,
     ) -> Modifier {
-        let (raw_point, time, base_values) = match values.as_slice() {
-            [ValueProvider::Static(static_val)] => {
-                let vals = static_val.values(context);
-                if vals.len() == 4 {
-                    (Some(Vec3::new(vals[0], vals[1], vals[2])), vals[3], None)
-                } else {
-                    (None, 0.0, Some(values))
-                }
+        let value = match values.as_slice() {
+            [ValueProvider::Static(static_val)] if static_val.values.len() == 4 => {
+                let vals = &static_val.values;
+
+                Vector3Values::Static(Vec3::new(vals[0], vals[1], vals[2]))
             }
             _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                if count != 4 {
-                    eprintln!("Vector3 modifier point must have 4 numbers");
+                if count != 3 {
+                    eprintln!("Vector3 modifier point must have 3 numbers");
                 }
-                let time = values
-                    .last()
-                    .and_then(|v| v.values(context).last().copied())
-                    .unwrap_or(0.0);
-                (None, time, Some(values))
+                Vector3Values::Dynamic(values)
             }
         };
 
-        Modifier::Vector3(Vector3Modifier::new(
-            raw_point,
-            base_values,
-            flags.iter().any(|f| f == "splineCatmullRom"),
-            time,
-            modifiers,
-            operation,
-        ))
+        Modifier::Vector3(Vector3Modifier::new(value, modifiers, operation))
     }
 
     fn create_point_data(
@@ -111,40 +101,33 @@ impl PointDefinition for Vector3PointDefinition {
         easing: Functions,
         context: &BaseProviderContext,
     ) -> PointData {
-        let mut raw_point: Option<Vec3> = None;
-        let time: f32;
-        let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
-                if static_val.values(context).len() == 4 {
-                    raw_point = Some(Vec3::new(
-                        static_val.values(context)[0],
-                        static_val.values(context)[1],
-                        static_val.values(context)[2],
-                    ));
-                    time = static_val.values(context)[3];
-                    None
-                } else {
-                    time = 0.0;
-                    Some(values)
+        let (values, time) = match values.as_slice() {
+            [ValueProvider::Static(static_val)] if static_val.values(context).len() == 4 => {
+                let vals = static_val.values(context);
+
+                let time = vals[3];
+                (
+                    Vector3Values::Static(Vec3::new(vals[0], vals[1], vals[2])),
+                    time,
+                )
+            }
+            _ => {
+                let count: usize = values.iter().map(|v| v.values(context).len()).sum();
+                if count != 4 {
+                    eprintln!("Vector3 point must have 4 numbers");
                 }
-            } else {
-                time = 0.0;
-                Some(values)
+                let time = values
+                    .last()
+                    .and_then(|v| v.values(context).last().copied())
+                    .unwrap_or(0.0);
+                (
+                    Vector3Values::Dynamic(values),
+                    time,
+                )
             }
-        } else {
-            let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            if count != 4 {
-                eprintln!("Vector3 point must have 4 numbers");
-            }
-            time = values
-                .last()
-                .and_then(|v| v.values(context).last().copied())
-                .unwrap_or(0.0);
-            Some(values)
         };
         PointData::Vector3(Vector3PointData::new(
-            raw_point,
-            base_values,
+            values,
             flags.iter().any(|f| f == "splineCatmullRom"),
             time,
             modifiers,
@@ -160,7 +143,7 @@ impl PointDefinition for Vector3PointDefinition {
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec3 {
-        if let PointData::Vector3(vector3_point) = points[r].as_ref()
+        if let PointData::Vector3(vector3_point) = &points[r]
             && vector3_point.smooth
         {
             self.smooth_vector_lerp(points, l, r, time, context)
@@ -182,7 +165,7 @@ impl PointDefinition for Vector3PointDefinition {
 
 impl Vector3PointDefinition {
     #[cfg(feature = "json")]
-    pub fn new(value: &serde_json::Value, context: &BaseProviderContext) -> Self {
+    pub fn new(value: serde_json::Value, context: &BaseProviderContext) -> Self {
         let mut instance = Self { points: Vec::new() };
         instance.parse(value, context);
         instance

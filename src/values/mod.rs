@@ -104,7 +104,7 @@ impl JsonPointValues {
 pub fn deserialize_values(
     value: &[&JsonValue],
     _context: &BaseProviderContext,
-) -> Vec<JsonPointValues> {
+) -> Vec<ValueProvider> {
     let mut result = Vec::new();
     let mut start = 0;
 
@@ -114,7 +114,7 @@ pub fn deserialize_values(
             start = i + 1;
 
             let base = BaseProviderValues::new(s.clone());
-            result.push(JsonPointValues::BaseProvider(base));
+            result.push(ValueProvider::BaseProvider(base));
         }
     }
 
@@ -123,14 +123,16 @@ pub fn deserialize_values(
 }
 
 #[cfg(feature = "json")]
-fn close(result: &mut Vec<JsonPointValues>, raw_values: Vec<&JsonValue>, open: usize, end: usize) {
+fn close(result: &mut Vec<ValueProvider>, raw_values: Vec<&JsonValue>, open: usize, end: usize) {
+    use r#static::StaticValues;
+
     if end <= open {
         return;
     }
 
-    let mut values: Vec<f32> = raw_values[open..end]
+    let values: Vec<f32> = raw_values[open..end]
         .iter()
         .filter_map(|v| v.as_f64().map(|i| i as f32))
         .collect();
-    result.push(JsonPointValues::Static(values));
+    result.push(ValueProvider::Static(StaticValues { values }));
 }

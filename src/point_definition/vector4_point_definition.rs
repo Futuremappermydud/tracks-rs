@@ -1,9 +1,15 @@
+use std::os::macos::raw::stat;
+
 use glam::{FloatExt, Vec4};
 use palette::{Hsv, IntoColor, LinSrgb, RgbHue, rgb::Rgb};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{Modifier, operation::Operation, vector4_modifier::Vector4Modifier},
+    modifiers::{
+        Modifier,
+        operation::Operation,
+        vector4_modifier::{Vector4Modifier, Vector4Values},
+    },
     point_data::{PointData, vector4_point_data::Vector4PointData},
     values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
@@ -60,38 +66,25 @@ impl PointDefinition for Vector4PointDefinition {
         operation: Operation,
         context: &BaseProviderContext,
     ) -> Modifier {
-        let mut raw_point: Option<Vec4> = None;
-        let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
-                if static_val.values(context).len() == 4 {
-                    raw_point = Some(Vec4::new(
-                        static_val.values(context)[0],
-                        static_val.values(context)[1],
-                        static_val.values(context)[2],
-                        static_val.values(context)[3],
-                    ));
-                    None
-                } else {
-                    let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                    assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
-                    Some(values)
-                }
-            } else {
+        let values = match values.as_slice() {
+            [ValueProvider::Static(static_val)] if static_val.values.len() == 4 => {
+                let vec4 = Vec4::new(
+                    static_val.values(context)[0],
+                    static_val.values(context)[1],
+                    static_val.values(context)[2],
+                    static_val.values(context)[3],
+                );
+
+                Vector4Values::Static(vec4)
+            }
+            _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
                 assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
-                Some(values)
+                Vector4Values::Dynamic(values)
             }
-        } else {
-            let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
-            Some(values)
         };
-        Modifier::Vector4(Vector4Modifier::new(
-            raw_point,
-            base_values,
-            modifiers,
-            operation,
-        ))
+
+        Modifier::Vector4(Vector4Modifier::new(values, modifiers, operation))
     }
 
     fn create_point_data(
@@ -102,41 +95,29 @@ impl PointDefinition for Vector4PointDefinition {
         easing: Functions,
         context: &BaseProviderContext,
     ) -> PointData {
-        let mut raw_point: Option<Vec4> = None;
-        let time: f32;
-        let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
-                if static_val.values(context).len() == 5 {
-                    raw_point = Some(Vec4::new(
-                        static_val.values(context)[0],
-                        static_val.values(context)[1],
-                        static_val.values(context)[2],
-                        static_val.values(context)[3],
-                    ));
-                    time = static_val.values(context)[4];
-                    None
+        let (values, time) = match values.as_slice() {
+            [ValueProvider::Static(static_val)] if static_val.values(context).len() == 5 => {
+                let values = static_val.values(context);
+                let point = Vec4::new(values[0], values[1], values[2], values[3]);
+                (Vector4Values::Static(point), values[4])
+            }
+            _ => {
+                let values_len: usize = values.iter().map(|v| v.values(context).len()).sum();
+
+                let time = if values_len != 5 {
+                    values
+                        .last()
+                        .and_then(|v| v.values(context).last().copied())
+                        .unwrap_or(0.0)
                 } else {
-                    time = 0.0;
-                    Some(values)
-                }
-            } else {
-                time = 0.0;
-                Some(values)
+                    0.0
+                };
+                (Vector4Values::Dynamic(values), time)
             }
-        } else {
-            let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            if count != 5 {
-                eprintln!("Vector4 point must have 4 numbers");
-            }
-            time = values
-                .last()
-                .and_then(|v| v.values(context).last().copied())
-                .unwrap_or(0.0);
-            Some(values)
         };
+
         PointData::Vector4(Vector4PointData::new(
-            raw_point,
-            base_values,
+            values,
             flags.iter().any(|f| f == "lerpHSV"),
             time,
             modifiers,
@@ -155,7 +136,7 @@ impl PointDefinition for Vector4PointDefinition {
         let point_l = points[l].get_vector4(context);
         let point_r = points[r].get_vector4(context);
 
-        if let PointData::Vector4(vector4_point) = points[l].as_ref()
+        if let PointData::Vector4(vector4_point) = &points[l]
             && vector4_point.hsv_lerp
         {
             lerp_hsv_vec4(point_l, point_r, time)
@@ -175,7 +156,7 @@ impl PointDefinition for Vector4PointDefinition {
 
 impl Vector4PointDefinition {
     #[cfg(feature = "json")]
-    pub fn new(value: &serde_json::Value, context: &BaseProviderContext) -> Self {
+    pub fn new(value: serde_json::Value, context: &BaseProviderContext) -> Self {
         let mut instance = Self { points: Vec::new() };
         instance.parse(value, context);
         instance

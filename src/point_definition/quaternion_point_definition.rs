@@ -2,7 +2,11 @@ use glam::{EulerRot, Quat, Vec3};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{Modifier, operation::Operation, quaternion_modifier::QuaternionModifier},
+    modifiers::{
+        Modifier,
+        operation::Operation,
+        quaternion_modifier::{QuaternionModifier, QuaternionValues},
+    },
     point_data::{PointData, quaternion_point_data::QuaternionPointData},
     values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
@@ -35,47 +39,26 @@ impl PointDefinition for QuaternionPointDefinition {
         operation: Operation,
         context: &BaseProviderContext,
     ) -> Modifier {
-        let mut raw_vector_point: Option<Vec3> = None;
-        let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
-                if static_val.values(context).len() == 3 {
-                    raw_vector_point = Some(Vec3::new(
-                        static_val.values(context)[0],
-                        static_val.values(context)[1],
-                        static_val.values(context)[2],
-                    ));
-                    None
-                } else {
-                    let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                    assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
-                    Some(values)
-                }
-            } else {
+        let val = match values.as_slice() {
+            [ValueProvider::Static(static_val)] if static_val.values(context).len() == 3 => {
+                let values = static_val.values(context);
+                let raw_vector = Vec3::new(values[0], values[1], values[2]);
+                let quat = Quat::from_euler(
+                    EulerRot::XYZ,
+                    values[0].to_radians(),
+                    values[1].to_radians(),
+                    values[2].to_radians(),
+                );
+                QuaternionValues::StaticQuat(quat)
+            }
+            _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
                 assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
-                Some(values)
+                QuaternionValues::Dynamic(values)
             }
-        } else {
-            let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
-            Some(values)
         };
-        Modifier::Quaternion(QuaternionModifier::new(
-            if raw_vector_point.is_none() {
-                None
-            } else {
-                Some(Quat::from_euler(
-                    EulerRot::XYZ,
-                    raw_vector_point.unwrap().x.to_radians(),
-                    raw_vector_point.unwrap().y.to_radians(),
-                    raw_vector_point.unwrap().z.to_radians(),
-                ))
-            },
-            raw_vector_point,
-            base_values,
-            modifiers,
-            operation,
-        ))
+
+        Modifier::Quaternion(QuaternionModifier::new(val, modifiers, operation))
     }
 
     fn create_point_data(
@@ -86,51 +69,33 @@ impl PointDefinition for QuaternionPointDefinition {
         easing: Functions,
         context: &BaseProviderContext,
     ) -> PointData {
-        let mut raw_vector_point: Option<Vec3> = None;
-        let time: f32;
-        let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
-                if static_val.values(context).len() == 4 {
-                    raw_vector_point = Some(Vec3::new(
-                        static_val.values(context)[0],
-                        static_val.values(context)[1],
-                        static_val.values(context)[2],
-                    ));
-                    println!("raw_vector_point: {:?}", raw_vector_point);
-                    time = static_val.values(context)[3];
-                    None
-                } else {
-                    time = 0.0;
-                    Some(values)
-                }
-            } else {
-                time = 0.0;
-                Some(values)
-            }
-        } else {
-            let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-            if count != 4 {
-                eprintln!("Vector3 point must have 4 numbers");
-            }
-            time = values
-                .last()
-                .and_then(|v| v.values(context).last().copied())
-                .unwrap_or(0.0);
-            Some(values)
-        };
-        PointData::Quaternion(QuaternionPointData::new(
-            if raw_vector_point.is_none() {
-                None
-            } else {
-                println!("raw_vector_point: {:?}", raw_vector_point);
-                Some(Quat::from_euler(
+        let (base_values, time) = match values.as_slice() {
+            [ValueProvider::Static(static_val)] if static_val.values(context).len() == 4 => {
+                let values = static_val.values(context);
+                let raw_vector_point = Vec3::new(values[0], values[1], values[2]);
+                let quat = Quat::from_euler(
                     EulerRot::XYZ,
-                    raw_vector_point.unwrap().x.to_radians(),
-                    raw_vector_point.unwrap().y.to_radians(),
-                    raw_vector_point.unwrap().z.to_radians(),
-                ))
-            },
-            raw_vector_point,
+                    values[0].to_radians(),
+                    values[1].to_radians(),
+                    values[2].to_radians(),
+                );
+
+                (QuaternionValues::StaticQuat(quat), values[3])
+            }
+            _ => {
+                let count: usize = values.iter().map(|v| v.values(context).len()).sum();
+                if count != 4 {
+                    eprintln!("Vector3 point must have 4 numbers");
+                }
+                let time = values
+                    .last()
+                    .and_then(|v| v.values(context).last().copied())
+                    .unwrap_or(0.0);
+                (QuaternionValues::Dynamic(values), time)
+            }
+        };
+
+        PointData::Quaternion(QuaternionPointData::new(
             base_values,
             time,
             modifiers,
@@ -162,7 +127,7 @@ impl PointDefinition for QuaternionPointDefinition {
 
 impl QuaternionPointDefinition {
     #[cfg(feature = "json")]
-    pub fn new(value: &serde_json::Value, context: &BaseProviderContext) -> Self {
+    pub fn new(value: serde_json::Value, context: &BaseProviderContext) -> Self {
         let mut instance = Self { points: Vec::new() };
         instance.parse(value, context);
         instance
