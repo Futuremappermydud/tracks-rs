@@ -20,7 +20,7 @@ impl Vector3PointData {
         values: Option<Vec<ValueProvider>>,
         smooth: bool,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
     ) -> Self {
         Self {

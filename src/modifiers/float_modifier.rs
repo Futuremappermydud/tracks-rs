@@ -5,7 +5,7 @@ use crate::values::base_provider_context::BaseProviderContext;
 pub struct FloatModifier {
     raw_point: Option<f32>,
     values: Option<Vec<ValueProvider>>,
-    modifiers: Vec<Box<Modifier>>,
+    modifiers: Vec<Modifier>,
     operation: Operation,
 }
 
@@ -13,7 +13,7 @@ impl FloatModifier {
     pub fn new(
         point: Option<f32>,
         values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         operation: Operation,
     ) -> Self {
         Self {

@@ -20,7 +20,7 @@ impl Vector4PointData {
         values: Option<Vec<ValueProvider>>,
         hsv_lerp: bool,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
     ) -> Self {
         Self {

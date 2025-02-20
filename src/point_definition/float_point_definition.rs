@@ -10,7 +10,7 @@ use crate::{
 use super::PointDefinition;
 
 pub struct FloatPointDefinition {
-    points: Vec<Box<PointData>>,
+    points: Vec<PointData>,
 }
 
 impl PointDefinition for FloatPointDefinition {
@@ -24,17 +24,17 @@ impl PointDefinition for FloatPointDefinition {
         self.points.iter().any(|p| p.has_base_provider())
     }
 
-    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>> {
+    fn get_points_mut(&mut self) -> &mut Vec<PointData> {
         &mut self.points
     }
 
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier> {
+    ) -> Modifier {
         let mut raw_point: Option<f32> = None;
         let base_values = if values.len() == 1 {
             // Try to match the pattern: a single StaticValues with exactly one number.
@@ -62,22 +62,22 @@ impl PointDefinition for FloatPointDefinition {
             assert_eq!(count, 1, "Float modifier point must have 1 number");
             Some(values)
         };
-        Box::new(Modifier::Float(FloatModifier::new(
+        Modifier::Float(FloatModifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        )))
+        ))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         _flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<PointData> {
+    ) -> PointData {
         // If one value is present and it contains two floats, the first is the point value and the second is time.
         let mut raw_point: Option<f32> = None;
         let time: f32;
@@ -106,18 +106,18 @@ impl PointDefinition for FloatPointDefinition {
                 .unwrap_or(0.0);
             Some(values)
         };
-        Box::new(PointData::Float(FloatPointData::new(
+        PointData::Float(FloatPointData::new(
             raw_point,
             base_values,
             time,
             modifiers,
             easing,
-        )))
+        ))
     }
 
     fn interpolate_points(
         &self,
-        points: &[Box<PointData>],
+        points: &[PointData],
         l: usize,
         r: usize,
         time: f32,
@@ -129,11 +129,11 @@ impl PointDefinition for FloatPointDefinition {
         f32::lerp(point_l, point_r, time)
     }
 
-    fn get_points(&self) -> &Vec<Box<PointData>> {
+    fn get_points(&self) -> &Vec<PointData> {
         &self.points
     }
 
-    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> f32 {
+    fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> f32 {
         point.get_float(context)
     }
 }

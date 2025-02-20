@@ -31,7 +31,7 @@ pub trait PointDefinition {
     fn has_base_provider(&self) -> bool;
     fn interpolate_points(
         &self,
-        points: &[Box<PointData>],
+        points: &[PointData],
         l: usize,
         r: usize,
         time: f32,
@@ -40,29 +40,29 @@ pub trait PointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier>;
+    ) -> Modifier;
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<PointData>;
-    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>>;
-    fn get_points(&self) -> &Vec<Box<PointData>>;
-    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Self::Value;
+    ) -> PointData;
+    fn get_points_mut(&mut self) -> &mut Vec<PointData>;
+    fn get_points(&self) -> &Vec<PointData>;
+    fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> Self::Value;
 
     #[cfg(feature = "json")]
     fn deserialize_modifier(
         &self,
         list: &JsonValue,
         context: &BaseProviderContext,
-    ) -> Box<Modifier> {
-        let mut modifiers: Option<Vec<Box<Modifier>>> = None;
+    ) -> Modifier {
+        let mut modifiers: Option<Vec<Modifier>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<ValueProvider>> = None;
 
@@ -115,7 +115,7 @@ pub trait PointDefinition {
                 }
 
                 let mut easing = Functions::EaseLinear;
-                let mut modifiers: Option<Vec<Box<Modifier>>> = None;
+                let mut modifiers: Option<Vec<Modifier>> = None;
                 let mut flags: Option<Vec<String>> = None;
                 let mut vals: Option<Vec<ValueProvider>> = None;
 
@@ -173,7 +173,7 @@ pub trait PointDefinition {
     }
 
     // Binary search algorithm to find the relevant interval
-    fn search_index(&self, points: &[Box<PointData>], time: f32) -> (usize, usize) {
+    fn search_index(&self, points: &[PointData], time: f32) -> (usize, usize) {
         let mut l = 0;
         let mut r = points.len();
 

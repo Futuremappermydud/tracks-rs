@@ -11,7 +11,7 @@ use crate::{
 use super::PointDefinition;
 
 pub struct Vector4PointDefinition {
-    points: Vec<Box<PointData>>,
+    points: Vec<PointData>,
 }
 
 pub fn lerp_hsv_vec4(color1: Vec4, color2: Vec4, time: f32) -> Vec4 {
@@ -49,17 +49,17 @@ impl PointDefinition for Vector4PointDefinition {
         self.points.iter().any(|p| p.has_base_provider())
     }
 
-    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>> {
+    fn get_points_mut(&mut self) -> &mut Vec<PointData> {
         &mut self.points
     }
 
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier> {
+    ) -> Modifier {
         let mut raw_point: Option<Vec4> = None;
         let base_values = if values.len() == 1 {
             if let ValueProvider::Static(static_val) = &values[0] {
@@ -86,22 +86,22 @@ impl PointDefinition for Vector4PointDefinition {
             assert_eq!(count, 4, "Vector4 modifier point must have 4 numbers");
             Some(values)
         };
-        Box::new(Modifier::Vector4(Vector4Modifier::new(
+        Modifier::Vector4(Vector4Modifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        )))
+        ))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<PointData> {
+    ) -> PointData {
         let mut raw_point: Option<Vec4> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
@@ -134,19 +134,19 @@ impl PointDefinition for Vector4PointDefinition {
                 .unwrap_or(0.0);
             Some(values)
         };
-        Box::new(PointData::Vector4(Vector4PointData::new(
+        PointData::Vector4(Vector4PointData::new(
             raw_point,
             base_values,
             flags.iter().any(|f| f == "lerpHSV"),
             time,
             modifiers,
             easing,
-        )))
+        ))
     }
 
     fn interpolate_points(
         &self,
-        points: &[Box<PointData>],
+        points: &[PointData],
         l: usize,
         r: usize,
         time: f32,
@@ -164,11 +164,11 @@ impl PointDefinition for Vector4PointDefinition {
         }
     }
 
-    fn get_points(&self) -> &Vec<Box<PointData>> {
+    fn get_points(&self) -> &Vec<PointData> {
         &self.points
     }
 
-    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Vec4 {
+    fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> Vec4 {
         point.get_vector4(context)
     }
 }

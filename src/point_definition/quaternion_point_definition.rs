@@ -10,7 +10,7 @@ use crate::{
 use super::PointDefinition;
 
 pub struct QuaternionPointDefinition {
-    points: Vec<Box<PointData>>,
+    points: Vec<PointData>,
 }
 
 impl PointDefinition for QuaternionPointDefinition {
@@ -24,17 +24,17 @@ impl PointDefinition for QuaternionPointDefinition {
         self.points.iter().any(|p| p.has_base_provider())
     }
 
-    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>> {
+    fn get_points_mut(&mut self) -> &mut Vec<PointData> {
         &mut self.points
     }
 
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier> {
+    ) -> Modifier {
         let mut raw_vector_point: Option<Vec3> = None;
         let base_values = if values.len() == 1 {
             if let ValueProvider::Static(static_val) = &values[0] {
@@ -60,7 +60,7 @@ impl PointDefinition for QuaternionPointDefinition {
             assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
             Some(values)
         };
-        Box::new(Modifier::Quaternion(QuaternionModifier::new(
+        Modifier::Quaternion(QuaternionModifier::new(
             if raw_vector_point.is_none() {
                 None
             } else {
@@ -75,17 +75,17 @@ impl PointDefinition for QuaternionPointDefinition {
             base_values,
             modifiers,
             operation,
-        )))
+        ))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         _flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<PointData> {
+    ) -> PointData {
         let mut raw_vector_point: Option<Vec3> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
@@ -118,7 +118,7 @@ impl PointDefinition for QuaternionPointDefinition {
                 .unwrap_or(0.0);
             Some(values)
         };
-        Box::new(PointData::Quaternion(QuaternionPointData::new(
+        PointData::Quaternion(QuaternionPointData::new(
             if raw_vector_point.is_none() {
                 None
             } else {
@@ -135,12 +135,12 @@ impl PointDefinition for QuaternionPointDefinition {
             time,
             modifiers,
             easing,
-        )))
+        ))
     }
 
     fn interpolate_points(
         &self,
-        points: &[Box<PointData>],
+        points: &[PointData],
         l: usize,
         r: usize,
         time: f32,
@@ -151,11 +151,11 @@ impl PointDefinition for QuaternionPointDefinition {
         point_l.slerp(point_r, time)
     }
 
-    fn get_points(&self) -> &Vec<Box<PointData>> {
+    fn get_points(&self) -> &Vec<PointData> {
         &self.points
     }
 
-    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Quat {
+    fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> Quat {
         point.get_quaternion(context)
     }
 }

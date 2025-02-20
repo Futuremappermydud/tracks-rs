@@ -17,7 +17,7 @@ impl FloatPointData {
         point: Option<f32>,
         values: Option<Vec<ValueProvider>>,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
     ) -> Self {
         Self {

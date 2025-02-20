@@ -21,7 +21,7 @@ impl QuaternionPointData {
         vector_point: Option<Vec3>,
         values: Option<Vec<ValueProvider>>,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
     ) -> Self {
         Self {

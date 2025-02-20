@@ -10,13 +10,13 @@ use crate::{
 use super::PointDefinition;
 
 pub struct Vector3PointDefinition {
-    points: Vec<Box<PointData>>,
+    points: Vec<PointData>,
 }
 
 impl Vector3PointDefinition {
     fn smooth_vector_lerp(
         &self,
-        points: &[Box<PointData>],
+        points: &[PointData],
         l: usize,
         r: usize,
         time: f32,
@@ -60,17 +60,17 @@ impl PointDefinition for Vector3PointDefinition {
         self.points.iter().any(|p| p.has_base_provider())
     }
 
-    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>> {
+    fn get_points_mut(&mut self) -> &mut Vec<PointData> {
         &mut self.points
     }
 
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier> {
+    ) -> Modifier {
         let mut raw_point: Option<Vec3> = None;
         let base_values = if values.len() == 1 {
             if let ValueProvider::Static(static_val) = &values[0] {
@@ -96,22 +96,22 @@ impl PointDefinition for Vector3PointDefinition {
             assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
             Some(values)
         };
-        Box::new(Modifier::Vector3(Vector3Modifier::new(
+        Modifier::Vector3(Vector3Modifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        )))
+        ))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<PointData> {
+    ) -> PointData {
         let mut raw_point: Option<Vec3> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
@@ -143,19 +143,19 @@ impl PointDefinition for Vector3PointDefinition {
                 .unwrap_or(0.0);
             Some(values)
         };
-        Box::new(PointData::Vector3(Vector3PointData::new(
+        PointData::Vector3(Vector3PointData::new(
             raw_point,
             base_values,
             flags.iter().any(|f| f == "splineCatmullRom"),
             time,
             modifiers,
             easing,
-        )))
+        ))
     }
 
     fn interpolate_points(
         &self,
-        points: &[Box<PointData>],
+        points: &[PointData],
         l: usize,
         r: usize,
         time: f32,
@@ -172,11 +172,11 @@ impl PointDefinition for Vector3PointDefinition {
         }
     }
 
-    fn get_points(&self) -> &Vec<Box<PointData>> {
+    fn get_points(&self) -> &Vec<PointData> {
         &self.points
     }
 
-    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Vec3 {
+    fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> Vec3 {
         point.get_vector3(context)
     }
 }
