@@ -5,7 +5,7 @@ use crate::values::base_provider_context::BaseProviderContext;
 pub struct FloatModifier {
     raw_point: Option<f32>,
     values: Option<Vec<ValueProvider>>,
-    modifiers: Vec<Box<Modifier>>,
+    modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
     operation: Operation,
 }
 
@@ -13,7 +13,7 @@ impl FloatModifier {
     pub fn new(
         point: Option<f32>,
         values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         operation: Operation,
     ) -> Self {
         Self {
@@ -27,7 +27,6 @@ impl FloatModifier {
 
 impl ModifierBase for FloatModifier {
     type Value = f32;
-    const VALUE_COUNT: usize = 1;
 
     fn get_point(&self, context: &BaseProviderContext) -> f32 {
         let original_point = self
@@ -36,11 +35,11 @@ impl ModifierBase for FloatModifier {
         self.modifiers
             .iter()
             .fold(original_point, |acc, x| match x.get_operation() {
-                Operation::Add => acc + x.get_float(context),
-                Operation::Sub => acc - x.get_float(context),
-                Operation::Mul => acc * x.get_float(context),
-                Operation::Div => acc / x.get_float(context),
-                Operation::None => x.get_float(context),
+                Operation::Add => acc + x.get_point(context),
+                Operation::Sub => acc - x.get_point(context),
+                Operation::Mul => acc * x.get_point(context),
+                Operation::Div => acc / x.get_point(context),
+                Operation::None => x.get_point(context),
             })
     }
 
@@ -55,4 +54,8 @@ impl ModifierBase for FloatModifier {
     fn get_operation(&self) -> Operation {
         self.operation
     }
+}
+
+impl Modifier for FloatModifier {
+    const VALUE_COUNT: usize = 1;
 }

@@ -1,7 +1,8 @@
 use std::cell::RefCell;
 
 use glam::{Quat, Vec3, Vec4};
-use palette::num::IntoScalarArray;
+
+use super::value::Value;
 
 pub struct BaseProviderContext {
     //Score
@@ -66,7 +67,7 @@ impl BaseProviderContext {
             environment_color_1_boost: RefCell::new(Vec4::ZERO),
             environment_color_w: RefCell::new(Vec4::ZERO),
             environment_color_w_boost: RefCell::new(Vec4::ZERO),
-            note_color_0: RefCell::new(Vec4::new(0.89750737, 0.424761, 0.424761, 1.0)),
+            note_color_0: RefCell::new(Vec4::ZERO),
             note_color_1: RefCell::new(Vec4::ZERO),
             obstacles_color: RefCell::new(Vec4::ZERO),
             saber_color_a: RefCell::new(Vec4::ZERO),
@@ -89,142 +90,123 @@ impl BaseProviderContext {
         }
     }
 
-    pub fn get_values(&self, base: &str) -> Vec<f32> {
+    pub fn get_values(&self, base: &str) -> Value {
         match base {
-            "baseCombo" => self.base_combo.borrow().clone().into_array().to_vec(),
-            "baseMultipliedScore" => self.multiplied_score.borrow().clone().into_array().to_vec(),
+            "baseMultipliedScore" => self.multiplied_score.borrow().clone().into(),
             "baseImmediateMaxPossibleMultipliedScore" => self
                 .immediate_max_possible_multiplied_score
                 .borrow()
                 .clone()
-                .into_array()
-                .to_vec(),
+                .into(),
 
-            "baseModifiedScore" => self.modified_score.borrow().clone().into_array().to_vec(),
+            "baseModifiedScore" => self.modified_score.borrow().clone().into(),
             "baseImmediateMaxPossibleModifiedScore" => self
                 .immediate_max_possible_modified_score
                 .borrow()
                 .clone()
-                .into_array()
-                .to_vec(),
-            "baseRelativeScore" => self.relative_score.borrow().clone().into_array().to_vec(),
-            "baseMultiplier" => self.multiplier.borrow().clone().into_array().to_vec(),
-            "baseEnergy" => self.energy.borrow().clone().into_array().to_vec(),
-            "baseSongTime" => self.song_time.borrow().clone().into_array().to_vec(),
-            "baseSongLength" => self.song_length.borrow().clone().into_array().to_vec(),
+                .into(),
+            "baseRelativeScore" => self.relative_score.borrow().clone().into(),
+            "baseMultiplier" => self.multiplier.borrow().clone().into(),
+            "baseEnergy" => self.energy.borrow().clone().into(),
+            "baseSongTime" => self.song_time.borrow().clone().into(),
+            "baseSongLength" => self.song_length.borrow().clone().into(),
 
             "baseEnvironmentColor0" => self
                 .environment_color_0
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseEnvironmentColor0Boost" => self
                 .environment_color_0_boost
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseEnvironmentColor1" => self
                 .environment_color_1
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseEnvironmentColor1Boost" => self
                 .environment_color_1_boost
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseEnvironmentColorW" => self
                 .environment_color_w
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseEnvironmentColorWBoost" => self
                 .environment_color_w_boost
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
-            "baseNote0Color" => self.note_color_0.borrow().clone().to_array().to_vec(),
-            "baseNote1Color" => self.note_color_1.borrow().clone().to_array().to_vec(),
-            "baseObstaclesColor" => self.obstacles_color.borrow().clone().to_array().to_vec(),
-            "baseSaberAColor" => self.saber_color_a.borrow().clone().to_array().to_vec(),
-            "baseSaberBColor" => self.saber_color_b.borrow().clone().to_array().to_vec(),
+                .into(),
+            "baseNote0Color" => self.note_color_0.borrow().clone().into(),
+            "baseNote1Color" => self.note_color_1.borrow().clone().into(),
+            "baseObstaclesColor" => self.obstacles_color.borrow().clone().into(),
+            "baseSaberAColor" => self.saber_color_a.borrow().clone().into(),
+            "baseSaberBColor" => self.saber_color_b.borrow().clone().into(),
 
             "baseHeadLocalPosition" => self
                 .head_local_position
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseHeadLocalRotation" => self
                 .head_local_rotation
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
-            "baseHeadLocalScale" => self.head_local_scale.borrow().clone().to_array().to_vec(),
-            "baseHeadPosition" => self.head_position.borrow().clone().to_array().to_vec(),
-            "baseHeadRotation" => self.head_rotation.borrow().clone().to_array().to_vec(),
+                .into(),
+            "baseHeadLocalScale" => self.head_local_scale.borrow().clone().into(),
+            "baseHeadPosition" => self.head_position.borrow().clone().into(),
+            "baseHeadRotation" => self.head_rotation.borrow().clone().into(),
             "baseLeftHandLocalPosition" => self
                 .left_hand_local_position
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseLeftHandLocalRotation" => self
                 .left_hand_local_rotation
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseLeftHandLocalScale" => self
                 .left_hand_local_scale
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
-            "baseLeftHandPosition" => self.left_hand_position.borrow().clone().to_array().to_vec(),
-            "baseLeftHandRotation" => self.left_hand_rotation.borrow().clone().to_array().to_vec(),
+                .into(),
+            "baseLeftHandPosition" => self.left_hand_position.borrow().clone().into(),
+            "baseLeftHandRotation" => self.left_hand_rotation.borrow().clone().into(),
             "baseRightHandLocalPosition" => self
                 .right_hand_local_position
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseRightHandLocalRotation" => self
                 .right_hand_local_rotation
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseRightHandLocalScale" => self
                 .right_hand_local_scale
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseRightHandPosition" => self
                 .right_hand_position
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             "baseRightHandRotation" => self
                 .right_hand_rotation
                 .borrow()
                 .clone()
-                .to_array()
-                .to_vec(),
+                .into(),
             _ => panic!("Base provider not found {}", base),
         }
     }
 
-    pub fn set_values(&self, base: &str, values: Vec<f32>) {
+    pub fn set_values(&self, base: &str, values: Value) {
         match base {
             "baseCombo" => {
                 self.base_combo.replace(values[0]);
@@ -264,7 +246,7 @@ impl BaseProviderContext {
             }
             "baseEnvironmentColor0Boost" => {
                 self.environment_color_0_boost
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseEnvironmentColor1" => {
                 self.environment_color_1
@@ -272,7 +254,7 @@ impl BaseProviderContext {
             }
             "baseEnvironmentColor1Boost" => {
                 self.environment_color_1_boost
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseEnvironmentColorW" => {
                 self.environment_color_w
@@ -280,7 +262,7 @@ impl BaseProviderContext {
             }
             "baseEnvironmentColorWBoost" => {
                 self.environment_color_w_boost
-                    .replace(Vec4::from_slice(values.as_slice()));
+                    .replace(values.as_vec4().unwrap());
             }
             "baseNote0Color" => {
                 self.note_color_0
@@ -324,15 +306,15 @@ impl BaseProviderContext {
             }
             "baseLeftHandLocalPosition" => {
                 self.left_hand_local_position
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseLeftHandLocalRotation" => {
                 self.left_hand_local_rotation
-                    .replace(Quat::from_slice(values.as_slice()));
+                    .replace(values.as_quat().unwrap());
             }
             "baseLeftHandLocalScale" => {
                 self.left_hand_local_scale
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseLeftHandPosition" => {
                 self.left_hand_position
@@ -344,15 +326,15 @@ impl BaseProviderContext {
             }
             "baseRightHandLocalPosition" => {
                 self.right_hand_local_position
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseRightHandLocalRotation" => {
                 self.right_hand_local_rotation
-                    .replace(Quat::from_slice(values.as_slice()));
+                    .replace(values.as_quat().unwrap());
             }
             "baseRightHandLocalScale" => {
                 self.right_hand_local_scale
-                    .replace(Vec3::from_slice(values.as_slice()));
+                    .replace(values.as_vec3().unwrap());
             }
             "baseRightHandPosition" => {
                 self.right_hand_position

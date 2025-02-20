@@ -1,9 +1,11 @@
-use std::cell::RefCell;
+use std::{any::Any, cell::RefCell};
 
-use super::{Modifier, ModifierBase, operation::Operation};
-use crate::values::{
-    AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext,
+use super::{
+    operation::Operation,
+    Modifier,
+    ModifierBase,
 };
+use crate::values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider};
 use glam::{EulerRot, Quat, Vec3};
 
 pub struct QuaternionModifier {
@@ -11,7 +13,7 @@ pub struct QuaternionModifier {
     raw_vector_point: Option<Vec3>,
     reusable_array: RefCell<Vec<f32>>,
     values: Option<Vec<ValueProvider>>,
-    modifiers: Vec<Box<Modifier>>,
+    modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
     operation: Operation,
 }
 
@@ -20,7 +22,7 @@ impl QuaternionModifier {
         point: Option<Quat>,
         vector_point: Option<Vec3>,
         values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Quat>>>,
         operation: Operation,
     ) -> Self {
         Self {
@@ -56,24 +58,23 @@ impl QuaternionModifier {
             .raw_vector_point
             .unwrap_or_else(|| self.translate_euler(self.values.as_ref().unwrap(), context));
         self.modifiers.iter().fold(original_point, |acc, x| {
-            if let Modifier::Quaternion(quat_point) = x.as_ref() {
-                match x.get_operation() {
-                    Operation::Add => acc + quat_point.get_vector_point(context),
-                    Operation::Sub => acc - quat_point.get_vector_point(context),
-                    Operation::Mul => acc * quat_point.get_vector_point(context),
-                    Operation::Div => acc / quat_point.get_vector_point(context),
-                    Operation::None => quat_point.get_vector_point(context),
-                }
-            } else {
-                panic!("Invalid modifier type");
+          if let Modifier::Quaternion(quat_point) = x.as_ref() {
+              match x.get_operation() {
+                Operation::Add => acc + quat_point.get_vector_point(context),
+                Operation::Sub => acc - quat_point.get_vector_point(context),
+                Operation::Mul => acc * quat_point.get_vector_point(context),
+                Operation::Div => acc / quat_point.get_vector_point(context),
+                Operation::None => quat_point.get_vector_point(context),
             }
+          } else {
+            panic!("Invalid modifier type");
+          }
         })
     }
 }
 
 impl ModifierBase for QuaternionModifier {
     type Value = Quat;
-    const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Quat {
         if self.modifiers.len() > 0 {

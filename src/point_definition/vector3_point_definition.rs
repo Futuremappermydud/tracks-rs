@@ -67,13 +67,13 @@ impl PointDefinition for Vector3PointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier> {
+    ) -> Box<dyn ModifierBase<Value = Vec3>> {
         let mut raw_point: Option<Vec3> = None;
         let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
+            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
                 if static_val.values(context).len() == 3 {
                     raw_point = Some(Vec3::new(
                         static_val.values(context)[0],
@@ -96,26 +96,26 @@ impl PointDefinition for Vector3PointDefinition {
             assert_eq!(count, 3, "Vector3 modifier point must have 3 numbers");
             Some(values)
         };
-        Box::new(Modifier::Vector3(Vector3Modifier::new(
+        Box::new(Vector3Modifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        )))
+        ))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         easing: Functions,
         context: &BaseProviderContext,
     ) -> Box<PointData> {
         let mut raw_point: Option<Vec3> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
-            if let ValueProvider::Static(static_val) = &values[0] {
+            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
                 if static_val.values(context).len() == 4 {
                     raw_point = Some(Vec3::new(
                         static_val.values(context)[0],

@@ -4,12 +4,6 @@ pub mod quaternion_modifier;
 pub mod vector3_modifier;
 pub mod vector4_modifier;
 
-use float_modifier::FloatModifier;
-use glam::{Quat, Vec3, Vec4};
-use quaternion_modifier::QuaternionModifier;
-use vector3_modifier::Vector3Modifier;
-use vector4_modifier::Vector4Modifier;
-
 use crate::modifiers::operation::Operation;
 use crate::values::base_provider_context::BaseProviderContext;
 use crate::values::{AbstractValueProvider, ValueProvider};
@@ -66,12 +60,14 @@ impl Modifier {
 
 pub trait ModifierBase {
     type Value;
-    const VALUE_COUNT: usize;
-
     fn get_point(&self, context: &BaseProviderContext) -> Self::Value;
     fn get_raw_point(&self) -> Self::Value;
     fn translate(&self, values: &[f32]) -> Self::Value;
     fn get_operation(&self) -> Operation;
+}
+
+pub trait Modifier: ModifierBase {
+    const VALUE_COUNT: usize;
 
     fn fill_values(&self, ivals: &[ValueProvider], context: &BaseProviderContext) -> Vec<f32> {
         let mut values = Vec::with_capacity(Self::VALUE_COUNT);

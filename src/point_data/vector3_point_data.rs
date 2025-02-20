@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use crate::{
     easings::functions::Functions,
     modifiers::{Modifier, ModifierBase, operation::Operation, vector3_modifier::Vector3Modifier},
@@ -17,10 +19,10 @@ pub struct Vector3PointData {
 impl Vector3PointData {
     pub fn new(
         point: Option<Vec3>,
-        values: Option<Vec<ValueProvider>>,
+        values: Option<Vec<BaseProviderValues>>,
         smooth: bool,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = Vec3>>>,
         easing: Functions,
     ) -> Self {
         Self {
@@ -34,7 +36,6 @@ impl Vector3PointData {
 
 impl ModifierBase for Vector3PointData {
     type Value = Vec3;
-    const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec3 {
         self.base_modifier.get_point(context)
@@ -51,6 +52,8 @@ impl ModifierBase for Vector3PointData {
     fn get_operation(&self) -> Operation {
         self.base_modifier.get_operation()
     }
+
+  
 }
 
 impl BasePointData<Vec3> for Vector3PointData {
@@ -69,4 +72,6 @@ impl BasePointData<Vec3> for Vector3PointData {
     fn get_point(&self, context: &BaseProviderContext) -> Vec3 {
         <Self as ModifierBase>::get_point(self, context)
     }
+
+
 }

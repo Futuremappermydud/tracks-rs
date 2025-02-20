@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use crate::{
     easings::functions::Functions,
     modifiers::{Modifier, ModifierBase, float_modifier::FloatModifier, operation::Operation},
@@ -17,7 +19,7 @@ impl FloatPointData {
         point: Option<f32>,
         values: Option<Vec<ValueProvider>>,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         easing: Functions,
     ) -> Self {
         Self {
@@ -30,7 +32,6 @@ impl FloatPointData {
 
 impl ModifierBase for FloatPointData {
     type Value = f32;
-    const VALUE_COUNT: usize = 1;
 
     fn get_point(&self, context: &BaseProviderContext) -> f32 {
         self.base_modifier.get_point(context)

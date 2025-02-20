@@ -31,14 +31,14 @@ impl PointDefinition for FloatPointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier> {
+    ) -> Box<dyn ModifierBase<Value = f32>> {
         let mut raw_point: Option<f32> = None;
         let base_values = if values.len() == 1 {
             // Try to match the pattern: a single StaticValues with exactly one number.
-            if let ValueProvider::Static(static_val) = &values[0] {
+            if let Some(static_val) = values[0].as_ref().as_any().downcast_ref::<StaticValues>() {
                 if static_val.values(context).len() == 1 {
                     // Pattern match successful; set the value.
                     raw_point = Some(static_val.values(context)[0]);
@@ -62,19 +62,19 @@ impl PointDefinition for FloatPointDefinition {
             assert_eq!(count, 1, "Float modifier point must have 1 number");
             Some(values)
         };
-        Box::new(Modifier::Float(FloatModifier::new(
+        Box::new(FloatModifier::new(
             raw_point,
             base_values,
             modifiers,
             operation,
-        )))
+        ))
     }
 
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         _flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Box<dyn ModifierBase<Value = f32>>>,
         easing: Functions,
         context: &BaseProviderContext,
     ) -> Box<PointData> {
