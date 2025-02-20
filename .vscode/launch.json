@@ -11,7 +11,7 @@
       "cargo": {
         "args": ["build", "--bin=tracks-window", "--package=tracks-rs"],
         "filter": {
-          "name": "tracks-rs",
+          "name": "tracks-window",
           "kind": "bin"
         }
       },
@@ -30,7 +30,7 @@
           "--package=tracks-rs"
         ],
         "filter": {
-          "name": "tracks-rs",
+          "name": "tracks-window",
           "kind": "bin"
         }
       },
