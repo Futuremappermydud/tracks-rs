@@ -15,7 +15,7 @@ use crate::{
     values::{ValueProvider, base_provider_context::BaseProviderContext, deserialize_values},
 };
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum GroupType {
     Value,
     Flag,
@@ -57,11 +57,7 @@ pub trait PointDefinition {
     fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> Self::Value;
 
     #[cfg(feature = "json")]
-    fn deserialize_modifier(
-        &self,
-        list: &JsonValue,
-        context: &BaseProviderContext,
-    ) -> Modifier {
+    fn deserialize_modifier(&self, list: &JsonValue, context: &BaseProviderContext) -> Modifier {
         let mut modifiers: Option<Vec<Modifier>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<ValueProvider>> = None;
@@ -194,33 +190,28 @@ pub trait PointDefinition {
     // In a more complete implementation, you'd examine the JSON structure.
     #[cfg(feature = "json")]
     fn group_values(value: &JsonValue) -> Vec<(GroupType, Vec<&JsonValue>)> {
-        let mut result = Vec::new();
-        if let Some(array) = value.as_array() {
-            let values: Vec<&JsonValue> = array.iter().collect();
-            let mut value_group = Vec::new();
-            let mut flag_group = Vec::new();
-            let mut modifier_group = Vec::new();
+        use std::collections::HashMap;
 
-            for val in &values {
-                if val.is_array() {
-                    modifier_group.push(*val);
-                } else if val.is_string() && !val.as_str().unwrap().starts_with("base") {
-                    flag_group.push(*val);
-                } else {
-                    value_group.push(*val);
+        let Some(array) = value.as_array() else {
+            return vec![];
+        };
+        let values: Vec<&JsonValue> = array.iter().collect();
+
+        let mut result: HashMap<GroupType, Vec<&JsonValue>> = HashMap::new();
+        for val in &values {
+            // group values by their type in the array
+            let entry = match value {
+                JsonValue::String(s) if !s.starts_with("base") => {
+                    GroupType::Flag
                 }
-            }
-
-            if !value_group.is_empty() {
-                result.push((GroupType::Value, value_group));
-            }
-            if !flag_group.is_empty() {
-                result.push((GroupType::Flag, flag_group));
-            }
-            if !modifier_group.is_empty() {
-                result.push((GroupType::Modifier, modifier_group));
-            }
+                JsonValue::Array(_) => GroupType::Modifier,
+                _ => GroupType::Value,
+            };
+            result.entry(entry).or_default().push(val);
         }
+
+        let result: Vec<(GroupType, Vec<&JsonValue>)> = result.into_iter().collect();
+
         result
     }
 
