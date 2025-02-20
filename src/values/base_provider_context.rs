@@ -92,6 +92,8 @@ impl BaseProviderContext {
 
     pub fn get_values<'a>(&'a self, base: &str) -> BaseValueRef<'a> {
         match base {
+            "baseCombo" => self.base_combo.borrow().into(),
+
             "baseMultipliedScore" => self.multiplied_score.borrow().into(),
             "baseImmediateMaxPossibleMultipliedScore" => {
                 self.immediate_max_possible_multiplied_score.borrow().into()
