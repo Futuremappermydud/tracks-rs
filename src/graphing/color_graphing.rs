@@ -23,7 +23,7 @@ pub struct ColorContext {
 impl ColorContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
-        let definition = Vector4PointDefinition::new(&json!([["baseNote0Color", 1]]), &context);
+        let definition = Vector4PointDefinition::new(json!([["baseNote0Color", 1]]), &context);
         Self {
             definition,
             context: RefCell::new(context),

@@ -26,7 +26,7 @@ impl QuatContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = QuaternionPointDefinition::new(
-            &json!([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 1.0]]),
+            json!([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 1.0]]),
             &context,
         );
         Self {
