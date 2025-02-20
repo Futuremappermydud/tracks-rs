@@ -9,11 +9,7 @@
       "request": "launch",
       "name": "Debug executable 'tracks-rs'",
       "cargo": {
-        "args": [
-          "build",
-          "--bin=tracks-rs",
-          "--package=tracks-rs"
-        ],
+        "args": ["build", "--bin=tracks-window", "--package=tracks-rs"],
         "filter": {
           "name": "tracks-rs",
           "kind": "bin"
@@ -30,7 +26,7 @@
         "args": [
           "test",
           "--no-run",
-          "--bin=tracks-rs",
+          "--bin=tracks-window",
           "--package=tracks-rs"
         ],
         "filter": {
