@@ -22,46 +22,46 @@ pub enum Modifier {
 }
 
 impl Modifier {
-  pub fn get_float(&self, context: &BaseProviderContext) -> f32 {
-    if let Modifier::Float(modifier) = self {
-      modifier.get_point(context)
-    } else {
-      panic!("Invalid modifier type");
+    pub fn get_float(&self, context: &BaseProviderContext) -> f32 {
+        if let Modifier::Float(modifier) = self {
+            modifier.get_point(context)
+        } else {
+            panic!("Invalid modifier type");
+        }
     }
-  }
 
-  pub fn get_vector3(&self, context: &BaseProviderContext) -> Vec3 {
-    if let Modifier::Vector3(modifier) = self {
-      modifier.get_point(context)
-    } else {
-      panic!("Invalid modifier type");
+    pub fn get_vector3(&self, context: &BaseProviderContext) -> Vec3 {
+        if let Modifier::Vector3(modifier) = self {
+            modifier.get_point(context)
+        } else {
+            panic!("Invalid modifier type");
+        }
     }
-  }
 
-  pub fn get_vector4(&self, context: &BaseProviderContext) -> Vec4 {
-    if let Modifier::Vector4(modifier) = self {
-      modifier.get_point(context)
-    } else {
-      panic!("Invalid modifier type");
+    pub fn get_vector4(&self, context: &BaseProviderContext) -> Vec4 {
+        if let Modifier::Vector4(modifier) = self {
+            modifier.get_point(context)
+        } else {
+            panic!("Invalid modifier type");
+        }
     }
-  } 
 
-  pub fn get_quaternion(&self, context: &BaseProviderContext) -> Quat {
-    if let Modifier::Quaternion(modifier) = self {
-      modifier.get_point(context)
-    } else {
-      panic!("Invalid modifier type");
+    pub fn get_quaternion(&self, context: &BaseProviderContext) -> Quat {
+        if let Modifier::Quaternion(modifier) = self {
+            modifier.get_point(context)
+        } else {
+            panic!("Invalid modifier type");
+        }
     }
-  }
 
-  pub fn get_operation(&self) -> Operation {
-    match self {
-      Modifier::Float(modifier) => modifier.get_operation(),
-      Modifier::Vector3(modifier) => modifier.get_operation(),
-      Modifier::Vector4(modifier) => modifier.get_operation(),
-      Modifier::Quaternion(modifier) => modifier.get_operation(),
+    pub fn get_operation(&self) -> Operation {
+        match self {
+            Modifier::Float(modifier) => modifier.get_operation(),
+            Modifier::Vector3(modifier) => modifier.get_operation(),
+            Modifier::Vector4(modifier) => modifier.get_operation(),
+            Modifier::Quaternion(modifier) => modifier.get_operation(),
+        }
     }
-  }
 }
 
 pub trait ModifierBase {

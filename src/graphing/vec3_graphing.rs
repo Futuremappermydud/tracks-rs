@@ -80,7 +80,11 @@ pub fn draw_vec3(
             .context
             .borrow_mut()
             .set_values("baseCombo", vec![(epoch.sin() as f32 + 1.0) * 0.5]);
-        let mut chart: plotters::prelude::ChartContext<'_, BitMapBackend<'_, BGRXPixel>, Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>> = chart.clone().restore(&root);
+        let mut chart: plotters::prelude::ChartContext<
+            '_,
+            BitMapBackend<'_, BGRXPixel>,
+            Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>,
+        > = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
 
         chart.with_projection(|mut pb| {

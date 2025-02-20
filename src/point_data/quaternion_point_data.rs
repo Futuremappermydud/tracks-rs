@@ -1,7 +1,9 @@
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, quaternion_modifier::QuaternionModifier, Modifier, ModifierBase},
-    values::{base_provider_context::BaseProviderContext, ValueProvider},
+    modifiers::{
+        Modifier, ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
+    },
+    values::{ValueProvider, base_provider_context::BaseProviderContext},
 };
 use glam::{Quat, Vec3};
 

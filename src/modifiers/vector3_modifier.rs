@@ -1,10 +1,6 @@
-use super::{
-    operation::Operation,
-    Modifier,
-    ModifierBase,
-};
-use crate::values::base_provider_context::BaseProviderContext;
+use super::{Modifier, ModifierBase, operation::Operation};
 use crate::values::ValueProvider;
+use crate::values::base_provider_context::BaseProviderContext;
 use glam::Vec3;
 
 pub struct Vector3Modifier {

@@ -1,4 +1,4 @@
-use super::{UpdateableValues};
+use super::UpdateableValues;
 
 use crate::values::base_provider_context::BaseProviderContext;
 

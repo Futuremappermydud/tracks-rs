@@ -3,9 +3,9 @@ use palette::{Hsv, IntoColor, LinSrgb, RgbHue, rgb::Rgb};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, vector4_modifier::Vector4Modifier, Modifier},
-    point_data::{vector4_point_data::Vector4PointData, PointData},
-    values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider},
+    modifiers::{Modifier, operation::Operation, vector4_modifier::Vector4Modifier},
+    point_data::{PointData, vector4_point_data::Vector4PointData},
+    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;
@@ -152,11 +152,12 @@ impl PointDefinition for Vector4PointDefinition {
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec4 {
-
         let point_l = points[l].get_vector4(context);
         let point_r = points[r].get_vector4(context);
 
-        if let PointData::Vector4(vector4_point) = points[l].as_ref() && vector4_point.hsv_lerp {
+        if let PointData::Vector4(vector4_point) = points[l].as_ref()
+            && vector4_point.hsv_lerp
+        {
             lerp_hsv_vec4(point_l, point_r, time)
         } else {
             point_l.lerp(point_r, time)
@@ -165,7 +166,7 @@ impl PointDefinition for Vector4PointDefinition {
 
     fn get_points(&self) -> &Vec<Box<PointData>> {
         &self.points
-      }
+    }
 
     fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Vec4 {
         point.get_vector4(context)

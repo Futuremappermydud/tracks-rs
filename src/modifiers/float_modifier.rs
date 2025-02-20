@@ -1,8 +1,4 @@
-use super::{
-    operation::Operation,
-    Modifier,
-    ModifierBase
-};
+use super::{Modifier, ModifierBase, operation::Operation};
 use crate::values::ValueProvider;
 use crate::values::base_provider_context::BaseProviderContext;
 

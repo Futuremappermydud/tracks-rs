@@ -23,7 +23,7 @@ impl ColorContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = Vector4PointDefinition::new(
-            &json!(["baseNote0Color",[ 0.4, 0.4, 0.4, 1,"opMul"]]),
+            &json!([["baseNote0Color",1]]),
             &context,
         );
         Self {

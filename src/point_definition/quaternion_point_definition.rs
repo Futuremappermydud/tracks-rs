@@ -2,9 +2,9 @@ use glam::{EulerRot, Quat, Vec3};
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, quaternion_modifier::QuaternionModifier, Modifier},
-    point_data::{quaternion_point_data::QuaternionPointData, PointData},
-    values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider},
+    modifiers::{Modifier, operation::Operation, quaternion_modifier::QuaternionModifier},
+    point_data::{PointData, quaternion_point_data::QuaternionPointData},
+    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;

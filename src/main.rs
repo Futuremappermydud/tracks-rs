@@ -10,10 +10,14 @@ mod point_data;
 mod point_definition;
 mod values;
 
-
+#[cfg(not(target_os = "android"))]
 fn main() {
     //graphing::graph("2d");
-    graphing::graph("3d");
-    //graphing::graph("color");
+    //graphing::graph("3d");
+    graphing::graph("color");
     //graphing::graph("quat");
+}
+
+#[cfg(target_os = "android")]
+fn main() {
 }

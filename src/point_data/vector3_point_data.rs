@@ -1,7 +1,7 @@
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, vector3_modifier::Vector3Modifier, Modifier, ModifierBase},
-    values::{base_provider_context::BaseProviderContext, ValueProvider},
+    modifiers::{Modifier, ModifierBase, operation::Operation, vector3_modifier::Vector3Modifier},
+    values::{ValueProvider, base_provider_context::BaseProviderContext},
 };
 use glam::Vec3;
 

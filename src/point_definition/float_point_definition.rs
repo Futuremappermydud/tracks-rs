@@ -2,9 +2,9 @@ use glam::FloatExt;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{float_modifier::FloatModifier, operation::Operation, Modifier, ModifierBase},
-    point_data::{float_point_data::FloatPointData, BasePointData, PointData},
-    values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider},
+    modifiers::{Modifier, float_modifier::FloatModifier, operation::Operation},
+    point_data::{PointData, float_point_data::FloatPointData},
+    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;
@@ -82,8 +82,8 @@ impl PointDefinition for FloatPointDefinition {
         let mut raw_point: Option<f32> = None;
         let time: f32;
         let base_values = if values.len() == 1 {
-          if let ValueProvider::Static(static_val) = &values[0] {
-            if static_val.values(context).len() == 2 {
+            if let ValueProvider::Static(static_val) = &values[0] {
+                if static_val.values(context).len() == 2 {
                     raw_point = Some(static_val.values(context)[0]);
                     time = static_val.values(context)[1];
                     None

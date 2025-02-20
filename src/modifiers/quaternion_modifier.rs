@@ -1,11 +1,9 @@
 use std::cell::RefCell;
 
-use super::{
-    operation::Operation,
-    Modifier,
-    ModifierBase,
+use super::{Modifier, ModifierBase, operation::Operation};
+use crate::values::{
+    AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext,
 };
-use crate::values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider};
 use glam::{EulerRot, Quat, Vec3};
 
 pub struct QuaternionModifier {
@@ -58,17 +56,17 @@ impl QuaternionModifier {
             .raw_vector_point
             .unwrap_or_else(|| self.translate_euler(self.values.as_ref().unwrap(), context));
         self.modifiers.iter().fold(original_point, |acc, x| {
-          if let Modifier::Quaternion(quat_point) = x.as_ref() {
-              match x.get_operation() {
-                Operation::Add => acc + quat_point.get_vector_point(context),
-                Operation::Sub => acc - quat_point.get_vector_point(context),
-                Operation::Mul => acc * quat_point.get_vector_point(context),
-                Operation::Div => acc / quat_point.get_vector_point(context),
-                Operation::None => quat_point.get_vector_point(context),
+            if let Modifier::Quaternion(quat_point) = x.as_ref() {
+                match x.get_operation() {
+                    Operation::Add => acc + quat_point.get_vector_point(context),
+                    Operation::Sub => acc - quat_point.get_vector_point(context),
+                    Operation::Mul => acc * quat_point.get_vector_point(context),
+                    Operation::Div => acc / quat_point.get_vector_point(context),
+                    Operation::None => quat_point.get_vector_point(context),
+                }
+            } else {
+                panic!("Invalid modifier type");
             }
-          } else {
-            panic!("Invalid modifier type");
-          }
         })
     }
 }
@@ -107,7 +105,4 @@ impl ModifierBase for QuaternionModifier {
     fn get_operation(&self) -> Operation {
         self.operation
     }
-    
-
- 
 }

@@ -36,7 +36,7 @@ impl UpdateableValues for SmoothProvidersValues {
         let delta = 0.016666667 * self.mult; // Example: 60 FPS
 
         for i in 0..self.source.len() {
-          self.values[i] = lerp(self.values[i], self.source[i], delta);
+            self.values[i] = lerp(self.values[i], self.source[i], delta);
         }
     }
 }

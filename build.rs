@@ -7,7 +7,7 @@ fn main() {
 
     println!("crate_dir: {}", crate_dir);
 
-    /*cbindgen::Builder::new()
+    cbindgen::Builder::new()
         .with_crate(crate_dir)
         .with_language(cbindgen::Language::C)
         .with_namespaces(&["Tracks"])
@@ -15,5 +15,5 @@ fn main() {
         .with_pragma_once(true)
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file("./shared/bindings.h");*/
+        .write_to_file("./shared/bindings.h");
 }

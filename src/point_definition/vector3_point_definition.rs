@@ -2,9 +2,9 @@ use glam::Vec3;
 
 use crate::{
     easings::functions::Functions,
-    modifiers::{operation::Operation, vector3_modifier::Vector3Modifier, Modifier},
-    point_data::{vector3_point_data::Vector3PointData, PointData},
-    values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider},
+    modifiers::{Modifier, operation::Operation, vector3_modifier::Vector3Modifier},
+    point_data::{PointData, vector3_point_data::Vector3PointData},
+    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;
@@ -161,7 +161,9 @@ impl PointDefinition for Vector3PointDefinition {
         time: f32,
         context: &BaseProviderContext,
     ) -> Vec3 {
-        if let PointData::Vector3(vector3_point) = points[r].as_ref() && vector3_point.smooth {
+        if let PointData::Vector3(vector3_point) = points[r].as_ref()
+            && vector3_point.smooth
+        {
             self.smooth_vector_lerp(points, l, r, time, context)
         } else {
             let point_l = points[l].get_vector3(context);

@@ -13,11 +13,14 @@ pub mod modifiers;
 pub mod point_data;
 pub mod point_definition;
 pub mod values;
+use ctor::ctor;
 
 #[cfg(target_os = "android")]
 #[ctor]
 fn main() {
-    paranoid_android::init(tag);
+    use tracing::info;
+
+    paranoid_android::init("tracks");
     std::panic::set_hook(panic_hook(true, true));
 
     info!("setup HI");

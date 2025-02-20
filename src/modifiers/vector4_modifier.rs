@@ -1,10 +1,6 @@
-use super::{
-    operation::Operation,
-    ModifierBase,
-    Modifier,
-};
-use crate::values::base_provider_context::BaseProviderContext;
+use super::{Modifier, ModifierBase, operation::Operation};
 use crate::values::ValueProvider;
+use crate::values::base_provider_context::BaseProviderContext;
 use glam::Vec4;
 
 pub struct Vector4Modifier {
@@ -38,12 +34,13 @@ impl ModifierBase for Vector4Modifier {
         let original_point = self
             .raw_point
             .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap(), context));
-        let result = self.modifiers
+        let result = self
+            .modifiers
             .iter()
             .fold(original_point, |acc, x| match x.get_operation() {
                 Operation::Add => acc + x.get_vector4(context),
                 Operation::Sub => acc - x.get_vector4(context),
-                Operation::Mul => acc * x.get_vector4(context), 
+                Operation::Mul => acc * x.get_vector4(context),
                 Operation::Div => acc / x.get_vector4(context),
                 Operation::None => x.get_vector4(context),
             });

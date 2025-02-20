@@ -1,7 +1,7 @@
 use crate::{
     easings::functions::Functions,
-    modifiers::{float_modifier::FloatModifier, operation::Operation, Modifier, ModifierBase},
-    values::{base_provider_context::BaseProviderContext, ValueProvider},
+    modifiers::{Modifier, ModifierBase, float_modifier::FloatModifier, operation::Operation},
+    values::{ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::BasePointData;

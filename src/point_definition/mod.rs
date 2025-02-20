@@ -8,15 +8,11 @@ use std::str::FromStr;
 use serde_json::Value as JsonValue;
 use serde_json::json;
 
-use crate::point_data::float_point_data::FloatPointData;
 use crate::point_data::PointData;
 use crate::{
     easings::functions::Functions,
-    modifiers::{Modifier, ModifierBase, operation::Operation},
-    point_data::BasePointData,
-    values::{
-        ValueProvider, base_provider_context::BaseProviderContext, deserialize_values,
-    },
+    modifiers::{Modifier, operation::Operation},
+    values::{ValueProvider, base_provider_context::BaseProviderContext, deserialize_values},
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -177,11 +173,7 @@ pub trait PointDefinition {
     }
 
     // Binary search algorithm to find the relevant interval
-    fn search_index(
-        &self,
-        points: &[Box<PointData>],
-        time: f32,
-    ) -> (usize, usize) {
+    fn search_index(&self, points: &[Box<PointData>], time: f32) -> (usize, usize) {
         let mut l = 0;
         let mut r = points.len();
 
@@ -231,7 +223,7 @@ pub trait PointDefinition {
         }
         result
     }
-    
+
     // The main interpolation method. Returns a tuple (interpolated value, is_last_point)
     fn interpolate(&self, time: f32, context: &BaseProviderContext) -> (Self::Value, bool) {
         let points = self.get_points();
