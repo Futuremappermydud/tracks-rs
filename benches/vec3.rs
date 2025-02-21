@@ -26,18 +26,25 @@ fn point_step(n: u64) {
 }
 
 fn point_step_slow(n: u64) {
-    let context = tracks_rs::old::BaseProviderContext::new();
-    let definition = tracks_rs::old::Vector3PointDefinition::new(
-        json!([[0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 1.0, "easeInOutSine"]]),
-        &context,
-    );
+    let context = track_rs_old::values::base_provider_context::BaseProviderContext::new();
+    let definition =
+        track_rs_old::point_definition::vector3_point_definition::Vector3PointDefinition::new(
+            &json!([[0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 1.0, "easeInOutSine"]]),
+            &context,
+        );
 
     // let step = 1.0 / n as f32;
 
     let values: Vec<f64> = (0..=(n as usize)).map(|i| i as f64 / n as f64).collect();
 
     values.into_iter().for_each(|x| {
-        black_box(definition.interpolate(x as f32, &context));
+        black_box(
+            track_rs_old::point_definition::PointDefinition::interpolate(
+                &definition,
+                x as f32,
+                &context,
+            ),
+        );
     });
 }
 

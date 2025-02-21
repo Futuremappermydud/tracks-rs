@@ -1689,7 +1689,7 @@ dependencies = [
 [[package]]
 name = "tracks_rs"
 version = "0.1.0"
-source = "git+https://github.com/Futuremappermydud/tracks-rs.git?branch=main#2a6708610b1ed56efe0eb7629c755353da8d796f"
+source = "git+https://github.com/Futuremappermydud/tracks-rs.git?branch=old-benchmark#de984c5e7558bb2b2ad70700e6ef42791b24afd9"
 dependencies = [
  "android_logger",
  "cbindgen",
@@ -1697,10 +1697,8 @@ dependencies = [
  "ctor",
  "glam",
  "log",
- "minifb",
  "palette",
  "paranoid-android",
- "plotters",
  "serde_json",
  "thiserror 2.0.11",
  "tracing",

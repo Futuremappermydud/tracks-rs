@@ -28,11 +28,7 @@ harness = false
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 
-[dependencies.tracks_rs]
-# reference to the tracks-rs crate
-git = "https://github.com/Futuremappermydud/tracks-rs.git"
-branch = "main"
-# package = "tracks_rs"
+track_rs_old = { git = "https://github.com/Futuremappermydud/tracks-rs.git", branch = "old-benchmark", package = "tracks_rs" } # reference to the tracks-rs crate
 
 
 [dependencies]

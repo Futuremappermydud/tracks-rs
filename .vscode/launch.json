@@ -53,7 +53,7 @@
       "request": "launch",
       "name": "Debug benchmark 'float'",
       "cargo": {
-        "args": ["test", "--no-run", "--bench=float", "--package=tracks_rs"],
+        "args": ["test", "--no-run", "--bench=float", "--package=tracks_rs@0.2.0"],
         "filter": {
           "name": "float",
           "kind": "bench"
