@@ -1,3 +1,4 @@
+#[cfg(feature = "ffi")]
 extern crate cbindgen;
 
 fn main() {

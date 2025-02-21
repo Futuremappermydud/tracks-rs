@@ -1689,7 +1689,7 @@ dependencies = [
 [[package]]
 name = "tracks_rs"
 version = "0.1.0"
-source = "git+https://github.com/Futuremappermydud/tracks-rs.git?branch=old-benchmark#de984c5e7558bb2b2ad70700e6ef42791b24afd9"
+source = "git+https://github.com/Futuremappermydud/tracks-rs.git?branch=old-benchmark#477fa9373f8fb5a1302ac110c841feeb2b80685f"
 dependencies = [
  "android_logger",
  "cbindgen",
