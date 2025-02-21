@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use super::{UpdateableValues, value::BaseValue};
 
-use crate::values::base_provider_context::BaseProviderContext;
+use crate::{modifiers::quaternion_modifier::TRACKS_EULER_ROT, values::base_provider_context::BaseProviderContext};
 
 use super::AbstractValueProvider;
 
@@ -39,7 +39,7 @@ impl UpdateableValues for QuaternionProviderValues {
             self.source[2],
             self.source[3],
         );
-        let euler = self.rotation.to_euler(glam::EulerRot::ZXY);
+        let euler = self.rotation.to_euler(TRACKS_EULER_ROT);
 
         self.values = [
             euler.0.to_degrees(),

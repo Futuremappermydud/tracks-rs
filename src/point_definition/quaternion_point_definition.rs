@@ -3,12 +3,10 @@ use glam::{EulerRot, Quat, Vec3, vec3};
 use crate::{
     easings::functions::Functions,
     modifiers::{
-        Modifier,
-        operation::Operation,
-        quaternion_modifier::{QuaternionModifier, QuaternionValues},
+        operation::Operation, quaternion_modifier::{QuaternionModifier, QuaternionValues, TRACKS_EULER_ROT}, Modifier
     },
-    point_data::{PointData, quaternion_point_data::QuaternionPointData},
-    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
+    point_data::{quaternion_point_data::QuaternionPointData, PointData},
+    values::{base_provider_context::BaseProviderContext, AbstractValueProvider, ValueProvider},
 };
 
 use super::PointDefinition;
@@ -43,7 +41,13 @@ impl PointDefinition for QuaternionPointDefinition {
             [ValueProvider::Static(static_val)] if static_val.values(context).len() == 3 => {
                 let values = static_val.values(context);
                 let raw_vector = vec3(values[0], values[1], values[2]);
-                QuaternionValues::StaticVec(raw_vector)
+                let quat = Quat::from_euler(
+                    TRACKS_EULER_ROT,
+                    values[0].to_radians(),
+                    values[1].to_radians(),
+                    values[2].to_radians(),
+                );
+                QuaternionValues::Static(raw_vector, quat)
             }
             _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
@@ -67,8 +71,14 @@ impl PointDefinition for QuaternionPointDefinition {
             [ValueProvider::Static(static_val)] if static_val.values(context).len() == 4 => {
                 let values = static_val.values(context);
                 let raw_vector_point = Vec3::new(values[0], values[1], values[2]);
+                let quat = Quat::from_euler(
+                    TRACKS_EULER_ROT,
+                    values[0].to_radians(),
+                    values[1].to_radians(),
+                    values[2].to_radians(),
+                );
 
-                (QuaternionValues::StaticVec(raw_vector_point), values[3])
+                (QuaternionValues::Static(raw_vector_point, quat), values[3])
             }
             _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();

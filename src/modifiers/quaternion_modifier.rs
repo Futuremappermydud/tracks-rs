@@ -7,8 +7,13 @@ use crate::values::{
 };
 use glam::{EulerRot, Quat, Vec3};
 
+/// Is it ZXY or XYZ???
+/// Is it just XYZ because it's the default?
+pub const TRACKS_EULER_ROT: EulerRot = EulerRot::XYZ;
+
 pub enum QuaternionValues {
-    StaticVec(Vec3),
+    // equivalents but different repr
+    Static(Vec3, Quat),
     Dynamic(Vec<ValueProvider>),
 }
 
@@ -27,11 +32,7 @@ impl QuaternionModifier {
         }
     }
 
-    fn translate_euler(
-        &self,
-        values: &[ValueProvider],
-        context: &BaseProviderContext,
-    ) -> Vec3 {
+    fn translate_euler(values: &[ValueProvider], context: &BaseProviderContext) -> Vec3 {
         let mut vec3 = Vec3::ZERO;
 
         values
@@ -46,9 +47,9 @@ impl QuaternionModifier {
 
     pub fn get_vector_point(&self, context: &BaseProviderContext) -> Vec3 {
         let original_point = match &self.values {
-            QuaternionValues::StaticVec(s) => *s,
+            QuaternionValues::Static(s, _) => *s,
             QuaternionValues::Dynamic(value_providers) => {
-                self.translate_euler(value_providers, context)
+                Self::translate_euler(value_providers, context)
             }
         };
         self.modifiers.iter().fold(original_point, |acc, x| {
@@ -71,12 +72,13 @@ impl ModifierBase for QuaternionModifier {
     const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Quat {
-        if !self.modifiers.is_empty() {
+        if self.modifiers.is_empty() {
             return self.get_raw_point();
         }
+        // modifiers applied to the point
         let vector_point = self.get_vector_point(context);
         Quat::from_euler(
-            EulerRot::XYZ,
+            TRACKS_EULER_ROT,
             vector_point.x.to_radians(),
             vector_point.y.to_radians(),
             vector_point.z.to_radians(),
@@ -85,19 +87,14 @@ impl ModifierBase for QuaternionModifier {
 
     fn get_raw_point(&self) -> Quat {
         match self.values {
-            QuaternionValues::StaticVec(s) => Quat::from_euler(
-                EulerRot::XYZ,
-                s.x.to_radians(),
-                s.y.to_radians(),
-                s.z.to_radians(),
-            ),
+            QuaternionValues::Static(_, q) => q,
             _ => Quat::IDENTITY,
         }
     }
 
     fn translate(&self, values: &[f32]) -> Quat {
         Quat::from_euler(
-            EulerRot::ZXY,
+            TRACKS_EULER_ROT,
             values[0].to_radians(),
             values[1].to_radians(),
             values[2].to_radians(),
