@@ -9,7 +9,6 @@ use glam::{EulerRot, Quat, Vec3};
 
 pub enum QuaternionValues {
     StaticVec(Vec3),
-    StaticQuat(Quat),
     Dynamic(Vec<ValueProvider>),
 }
 
@@ -28,9 +27,9 @@ impl QuaternionModifier {
         }
     }
 
-    fn translate_euler<'a>(
+    fn translate_euler(
         &self,
-        values: &'a Vec<ValueProvider>,
+        values: &[ValueProvider],
         context: &BaseProviderContext,
     ) -> Vec3 {
         let mut vec3 = Vec3::ZERO;
@@ -47,15 +46,9 @@ impl QuaternionModifier {
 
     pub fn get_vector_point(&self, context: &BaseProviderContext) -> Vec3 {
         let original_point = match &self.values {
-            QuaternionValues::StaticQuat(s) => {
-                // returns radians
-                let (x, y, z) = s.clone().to_euler(EulerRot::ZXY);
-
-                Vec3::new(x.to_degrees(), y.to_degrees(), z.to_degrees())
-            }
             QuaternionValues::StaticVec(s) => *s,
             QuaternionValues::Dynamic(value_providers) => {
-                self.translate_euler(&value_providers, context)
+                self.translate_euler(value_providers, context)
             }
         };
         self.modifiers.iter().fold(original_point, |acc, x| {
@@ -78,17 +71,16 @@ impl ModifierBase for QuaternionModifier {
     const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Quat {
-        if self.modifiers.len() > 0 {
-            self.get_raw_point()
-        } else {
-            let vector_point = self.get_vector_point(context);
-            Quat::from_euler(
-                EulerRot::XYZ,
-                vector_point.x.to_radians(),
-                vector_point.y.to_radians(),
-                vector_point.z.to_radians(),
-            )
+        if !self.modifiers.is_empty() {
+            return self.get_raw_point();
         }
+        let vector_point = self.get_vector_point(context);
+        Quat::from_euler(
+            EulerRot::XYZ,
+            vector_point.x.to_radians(),
+            vector_point.y.to_radians(),
+            vector_point.z.to_radians(),
+        )
     }
 
     fn get_raw_point(&self) -> Quat {
@@ -99,7 +91,6 @@ impl ModifierBase for QuaternionModifier {
                 s.y.to_radians(),
                 s.z.to_radians(),
             ),
-            QuaternionValues::StaticQuat(s) => s,
             _ => Quat::IDENTITY,
         }
     }

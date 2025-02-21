@@ -1,4 +1,4 @@
-use glam::{EulerRot, Quat, Vec3};
+use glam::{EulerRot, Quat, Vec3, vec3};
 
 use crate::{
     easings::functions::Functions,
@@ -42,14 +42,8 @@ impl PointDefinition for QuaternionPointDefinition {
         let val = match values.as_slice() {
             [ValueProvider::Static(static_val)] if static_val.values(context).len() == 3 => {
                 let values = static_val.values(context);
-                let raw_vector = Vec3::new(values[0], values[1], values[2]);
-                let quat = Quat::from_euler(
-                    EulerRot::XYZ,
-                    values[0].to_radians(),
-                    values[1].to_radians(),
-                    values[2].to_radians(),
-                );
-                QuaternionValues::StaticQuat(quat)
+                let raw_vector = vec3(values[0], values[1], values[2]);
+                QuaternionValues::StaticVec(raw_vector)
             }
             _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
@@ -73,14 +67,8 @@ impl PointDefinition for QuaternionPointDefinition {
             [ValueProvider::Static(static_val)] if static_val.values(context).len() == 4 => {
                 let values = static_val.values(context);
                 let raw_vector_point = Vec3::new(values[0], values[1], values[2]);
-                let quat = Quat::from_euler(
-                    EulerRot::XYZ,
-                    values[0].to_radians(),
-                    values[1].to_radians(),
-                    values[2].to_radians(),
-                );
 
-                (QuaternionValues::StaticQuat(quat), values[3])
+                (QuaternionValues::StaticVec(raw_vector_point), values[3])
             }
             _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
