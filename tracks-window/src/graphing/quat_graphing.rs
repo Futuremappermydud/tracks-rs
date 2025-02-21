@@ -13,8 +13,7 @@ use plotters::{
 use serde_json::json;
 
 use tracks_rs::{
-    point_definition::{PointDefinition, quaternion_point_definition::QuaternionPointDefinition},
-    values::base_provider_context::BaseProviderContext,
+    modifiers::quaternion_modifier::TRACKS_EULER_ROT, point_definition::{quaternion_point_definition::QuaternionPointDefinition, PointDefinition}, values::base_provider_context::BaseProviderContext
 };
 
 pub struct QuatContext {
@@ -100,7 +99,7 @@ pub fn draw_quat(
                     .definition
                     .interpolate(x as f32, &context.context.borrow())
                     .0;
-                let to: [f32; 3] = point.to_euler(EulerRot::ZXY).into();
+                let to: [f32; 3] = point.to_euler(TRACKS_EULER_ROT).into();
 
                 chart
                     .draw_series(LineSeries::new(
