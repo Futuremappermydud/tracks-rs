@@ -67,11 +67,11 @@ log = "0.4"
 paranoid-android = { version = "*", optional = true }
 
 [build-dependencies]
-cbindgen = "0.28"
+cbindgen = { version = "0.28", optional = true }
 
 [features]
 json = ["dep:serde_json"]
-ffi = []
+ffi = ["dep:cbindgen"]
 default = ["json"]
 
 [patch.crates-io]
