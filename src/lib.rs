@@ -9,6 +9,8 @@ use tracing::error;
 use tracing_error::SpanTrace;
 
 pub mod easings;
+
+#[cfg(feature = "ffi")]
 pub mod ffi;
 pub mod modifiers;
 pub mod point_data;

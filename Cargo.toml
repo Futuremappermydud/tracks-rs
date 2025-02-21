@@ -71,6 +71,7 @@ cbindgen = "0.28"
 
 [features]
 json = ["dep:serde_json"]
+ffi = []
 default = ["json"]
 
 [patch.crates-io]
