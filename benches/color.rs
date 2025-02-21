@@ -1,4 +1,4 @@
-use criterion::{Criterion, criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use serde_json::json;
 use std::hint::black_box;
 use tracks_rs::{
@@ -56,8 +56,8 @@ fn point_step_slow(n: u64) {
 fn benchmark_both(n: u64, c: &mut Criterion) {
     let mut group = c.benchmark_group("vec4");
 
-    group.bench_function(format!("vec4_{n}"), |b| b.iter(|| point_step(n)));
-    group.bench_function(format!("vec4_slow_{n}"), |b| b.iter(|| point_step_slow(n)));
+    group.bench_with_input(BenchmarkId::new("vec4", n), &n, |b, n| b.iter(|| point_step(*n)));
+    group.bench_with_input(BenchmarkId::new("vec4_slow", n), &n, |b, n| b.iter(|| point_step_slow(*n)));
 }
 
 fn criterion_benchmark(c: &mut Criterion) {

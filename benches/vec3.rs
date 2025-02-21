@@ -51,8 +51,8 @@ fn point_step_slow(n: u64) {
 fn benchmark_both(n: u64, c: &mut Criterion) {
     let mut group = c.benchmark_group("vec3");
 
-    group.bench_function(format!("vec3_{n}"), |b| b.iter(|| point_step(n)));
-    group.bench_function(format!("vec3_slow_{n}"), |b| b.iter(|| point_step_slow(n)));
+    group.bench_with_input(criterion::BenchmarkId::new("vec3", n), &n, |b, n| b.iter(|| point_step(*n)));
+    group.bench_with_input(criterion::BenchmarkId::new("vec3_slow", n), &n, |b, n| b.iter(|| point_step_slow(*n)));
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
