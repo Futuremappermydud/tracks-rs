@@ -4,12 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
-crate-type = ["cdylib"]
 path = "src/lib.rs"
-
-[[bin]]
-name = "tracks-window"
-path = "src/main.rs"
 
 [dependencies]
 glam = { version = "0.30", features = [
@@ -26,8 +21,6 @@ ctor = "0.3.6"
 paranoid-android = "*"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-minifb = { version = "0.28", optional = true }
-plotters = { version = "0.3", optional = true }
 tracing-subscriber = { version = "0.3", features = [
     "fmt",
     "env-filter",
@@ -35,8 +28,6 @@ tracing-subscriber = { version = "0.3", features = [
 ], default-features = false }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-minifb = { version = "0.28", optional = true }
-plotters = { version = "0.3", optional = true }
 tracing-subscriber = { version = "0.3", features = [
     "fmt",
     "env-filter",
@@ -44,8 +35,6 @@ tracing-subscriber = { version = "0.3", features = [
 ], default-features = false }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-minifb = { version = "0.28", optional = true }
-plotters = { version = "0.3", optional = true }
 tracing-subscriber = { version = "0.3", features = [
     "fmt",
     "env-filter",
@@ -62,6 +51,5 @@ paranoid-android = { version = "*", optional = true }
 cbindgen = "0.28"
 
 [features]
-plot = ["dep:minifb", "dep:plotters"]
 json = ["dep:serde_json"]
-default = ["json", "plot"]
+default = ["json"]
