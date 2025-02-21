@@ -76,7 +76,7 @@ impl ModifierBase for QuaternionModifier {
     const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Quat {
-        if self.modifiers.len() > 0 {
+        if self.modifiers.len() == 0 {
             self.get_raw_point()
         } else {
             let vector_point = self.get_vector_point(context);
