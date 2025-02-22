@@ -59,6 +59,8 @@ typedef struct QuaternionInterpolationResult {
   bool is_last;
 } QuaternionInterpolationResult;
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

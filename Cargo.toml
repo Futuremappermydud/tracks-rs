@@ -5,6 +5,7 @@ edition = "2024"
 
 [lib]
 name = "tracks_rs"
+crate-type = ["cdylib", "staticlib", "lib"]
 
 [workspace]
 members = ["tracks-window"]
