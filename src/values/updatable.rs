@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use super::{UpdateableValues, value::BaseValue};
+use super::UpdateableValues;
 
 use crate::values::base_provider_context::BaseProviderContext;
 

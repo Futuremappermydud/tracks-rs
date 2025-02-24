@@ -9,7 +9,6 @@ use serde_json::Value as JsonValue;
 use serde_json::json;
 
 use crate::point_data::PointData;
-use crate::values::JsonPointValues;
 use crate::{
     easings::functions::Functions,
     modifiers::{Modifier, operation::Operation},

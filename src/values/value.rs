@@ -1,5 +1,3 @@
-use std::ops::Deref;
-use std::ops::DerefMut;
 use std::ops::Div;
 use std::ops::Index;
 use std::ops::IndexMut;
@@ -8,7 +6,6 @@ use std::ops::Mul;
 use glam::Quat;
 use glam::Vec3;
 
-use glam::Vec2;
 use glam::Vec4;
 
 ///

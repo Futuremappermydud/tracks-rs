@@ -3,7 +3,7 @@ use serde_json::json;
 use std::hint::black_box;
 use tracks_rs::{
     point_definition::{
-        PointDefinition, float_point_definition::FloatPointDefinition,
+        PointDefinition,
         vector3_point_definition::Vector3PointDefinition,
     },
     values::base_provider_context::BaseProviderContext,

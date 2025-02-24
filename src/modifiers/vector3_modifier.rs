@@ -1,6 +1,5 @@
 use super::ModifierValues;
 use super::{Modifier, ModifierBase, operation::Operation};
-use crate::values::ValueProvider;
 use crate::values::base_provider_context::BaseProviderContext;
 use glam::Vec3;
 

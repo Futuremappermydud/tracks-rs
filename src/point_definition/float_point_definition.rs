@@ -9,7 +9,7 @@ use crate::{
     },
     point_data::{PointData, float_point_data::FloatPointData},
     values::{
-        AbstractValueProvider, JsonPointValues, ValueProvider,
+        AbstractValueProvider, ValueProvider,
         base_provider_context::BaseProviderContext,
     },
 };

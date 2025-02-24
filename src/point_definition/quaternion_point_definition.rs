@@ -1,4 +1,4 @@
-use glam::{EulerRot, Quat, Vec3, vec3};
+use glam::{Quat, Vec3, vec3};
 
 use crate::{
     easings::functions::Functions,

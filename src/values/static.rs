@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use crate::values::base_provider_context::BaseProviderContext;
 
-use super::{AbstractValueProvider, value::BaseValue};
+use super::AbstractValueProvider;
 
 #[derive(Clone, Debug)]
 pub struct StaticValues {

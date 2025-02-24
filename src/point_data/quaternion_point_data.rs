@@ -5,9 +5,9 @@ use crate::{
         operation::Operation,
         quaternion_modifier::{QuaternionModifier, QuaternionValues},
     },
-    values::{ValueProvider, base_provider_context::BaseProviderContext},
+    values::base_provider_context::BaseProviderContext,
 };
-use glam::{Quat, Vec3};
+use glam::Quat;
 
 use super::BasePointData;
 

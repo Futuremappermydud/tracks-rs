@@ -1,7 +1,5 @@
-use core::slice::SlicePattern;
-use std::{borrow::Cow, cell::RefCell};
 
-use super::{Modifier, ModifierBase, ModifierValues, operation::Operation};
+use super::{Modifier, ModifierBase, operation::Operation};
 use crate::values::{
     AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext,
 };
