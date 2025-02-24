@@ -1,9 +1,12 @@
+use std::borrow::Cow;
+
 use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
 
 #[derive(Clone, Debug)]
 pub struct StaticValues {
+    // TODO: SWITCH TO SMALL VEC
     pub(crate) values: Vec<f32>,
 }
 
@@ -14,7 +17,7 @@ impl StaticValues {
 }
 
 impl AbstractValueProvider for StaticValues {
-    fn values(&self, _context: &BaseProviderContext) -> Vec<f32> {
-        self.values.clone()
+    fn values<'a>(&'a self, _context: &BaseProviderContext) -> Cow<'a, [f32]> {
+        std::borrow::Cow::Borrowed(&self.values)
     }
 }

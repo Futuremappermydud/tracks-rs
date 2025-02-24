@@ -13,7 +13,7 @@ use plotters::{
 };
 use serde_json::json;
 
-use crate::{
+use tracks_rs::{
     point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition},
     values::base_provider_context::BaseProviderContext,
 };
@@ -27,7 +27,7 @@ impl Vec3Context {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = Vector3PointDefinition::new(
-            &json!([
+            json!([
                 [3.0, 0.0, "baseCombo", 0.0],
                 [1.0, 0.0, 0.0, 0.5, "splineCatmullRom", "easeInSine"],
                 [1.0, 2.0, 3.0, 1.0, "splineCatmullRom", "easeOutSine"]
@@ -79,7 +79,7 @@ pub fn draw_vec3(
         context
             .context
             .borrow_mut()
-            .set_values("baseCombo", vec![(epoch.sin() as f32 + 1.0) * 0.5]);
+            .set_values("baseCombo", ((epoch.sin() as f32 + 1.0) * 0.5).into());
         let mut chart: plotters::prelude::ChartContext<
             '_,
             BitMapBackend<'_, BGRXPixel>,

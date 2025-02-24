@@ -15,7 +15,7 @@ use crate::{
     values::{ValueProvider, base_provider_context::BaseProviderContext, deserialize_values},
 };
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum GroupType {
     Value,
     Flag,
@@ -31,7 +31,7 @@ pub trait PointDefinition {
     fn has_base_provider(&self) -> bool;
     fn interpolate_points(
         &self,
-        points: &[Box<PointData>],
+        points: &[PointData],
         l: usize,
         r: usize,
         time: f32,
@@ -40,29 +40,25 @@ pub trait PointDefinition {
     fn create_modifier(
         &self,
         values: Vec<ValueProvider>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         operation: Operation,
         context: &BaseProviderContext,
-    ) -> Box<Modifier>;
+    ) -> Modifier;
     fn create_point_data(
         &self,
         values: Vec<ValueProvider>,
         flags: Vec<String>,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
         context: &BaseProviderContext,
-    ) -> Box<PointData>;
-    fn get_points_mut(&mut self) -> &mut Vec<Box<PointData>>;
-    fn get_points(&self) -> &Vec<Box<PointData>>;
-    fn get_point(&self, point: &Box<PointData>, context: &BaseProviderContext) -> Self::Value;
+    ) -> PointData;
+    fn get_points_mut(&mut self) -> &mut Vec<PointData>;
+    fn get_points(&self) -> &Vec<PointData>;
+    fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> Self::Value;
 
     #[cfg(feature = "json")]
-    fn deserialize_modifier(
-        &self,
-        list: &JsonValue,
-        context: &BaseProviderContext,
-    ) -> Box<Modifier> {
-        let mut modifiers: Option<Vec<Box<Modifier>>> = None;
+    fn deserialize_modifier(&self, list: &JsonValue, context: &BaseProviderContext) -> Modifier {
+        let mut modifiers: Option<Vec<Modifier>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<ValueProvider>> = None;
 
@@ -102,78 +98,78 @@ pub trait PointDefinition {
 
     // Shared parse implementation
     #[cfg(feature = "json")]
-    fn parse(&mut self, value: &JsonValue, context: &BaseProviderContext) {
-        let root: &JsonValue = if value.as_array().unwrap()[0].is_array() {
-            value
-        } else {
-            &json!([value])
+    fn parse(&mut self, value: JsonValue, context: &BaseProviderContext) {
+        let root: JsonValue = match value {
+            JsonValue::Array(_) => value,
+            _ => json!([value]),
         };
-        if let Some(array) = root.as_array() {
-            for raw_point in array {
-                if raw_point.is_null() {
-                    continue;
-                }
 
-                let mut easing = Functions::EaseLinear;
-                let mut modifiers: Option<Vec<Box<Modifier>>> = None;
-                let mut flags: Option<Vec<String>> = None;
-                let mut vals: Option<Vec<ValueProvider>> = None;
+        let Some(array) = root.as_array() else { return };
 
-                // Group the values and flags. (Assuming each raw_point has a structure similar to the C++ JSON)
-                for group in Self::group_values(raw_point) {
-                    match group.0 {
-                        GroupType::Value => {
-                            vals = Some(deserialize_values(&group.1, context));
-                        }
-                        GroupType::Modifier => {
-                            modifiers = Some(
-                                group
-                                    .1
-                                    .iter()
-                                    .map(|m| self.deserialize_modifier(m, context))
-                                    .collect(),
-                            );
-                        }
-                        GroupType::Flag => {
-                            // Convert the group values (group.1) into a Vec<String>
-                            let flags_vec: Vec<String> = group
+        for raw_point in array {
+            if raw_point.is_null() {
+                continue;
+            }
+
+            let mut easing = Functions::EaseLinear;
+            let mut modifiers: Option<Vec<Modifier>> = None;
+            let mut flags: Option<Vec<String>> = None;
+            let mut vals: Option<Vec<ValueProvider>> = None;
+
+            // Group the values and flags. (Assuming each raw_point has a structure similar to the C++ JSON)
+            for group in Self::group_values(raw_point) {
+                match group.0 {
+                    GroupType::Value => {
+                        vals = Some(deserialize_values(&group.1, context));
+                    }
+                    GroupType::Modifier => {
+                        modifiers = Some(
+                            group
                                 .1
                                 .iter()
-                                .filter_map(|v| v.as_str().map(String::from))
-                                .collect();
+                                .map(|m| self.deserialize_modifier(m, context))
+                                .collect(),
+                        );
+                    }
+                    GroupType::Flag => {
+                        // Convert the group values (group.1) into a Vec<String>
+                        let flags_vec: Vec<String> = group
+                            .1
+                            .iter()
+                            .filter_map(|v| v.as_str().map(String::from))
+                            .collect();
 
-                            // Set the flags collected from the group.
-                            flags = Some(flags_vec);
+                        // Set the flags collected from the group.
+                        flags = Some(flags_vec);
 
-                            // Find the first flag starting with "ease" just like in the C# code.
-                            if let Some(ref flags_inner) = flags
-                                && let Some(easing_string) =
-                                    flags_inner.iter().find(|flag| flag.starts_with("ease"))
-                            {
-                                easing = Functions::from_str(easing_string)
-                                    .unwrap_or(Functions::EaseLinear);
-                            }
+                        // Find the first flag starting with "ease" just like in the C# code.
+                        if let Some(ref flags_inner) = flags
+                            && let Some(easing_string) =
+                                flags_inner.iter().find(|flag| flag.starts_with("ease"))
+                        {
+                            easing =
+                                Functions::from_str(easing_string).unwrap_or(Functions::EaseLinear);
                         }
                     }
                 }
-
-                // Create point data only if we have values
-                if let Some(vs) = vals {
-                    let point_data = self.create_point_data(
-                        vs,
-                        flags.unwrap_or_default(),
-                        modifiers.unwrap_or_default(),
-                        easing,
-                        context,
-                    );
-                    self.get_points_mut().push(point_data);
-                }
             }
+
+            // Create point data only if we have values
+            let Some(vs) = vals else { continue };
+
+            let point_data = self.create_point_data(
+                vs,
+                flags.unwrap_or_default(),
+                modifiers.unwrap_or_default(),
+                easing,
+                context,
+            );
+            self.get_points_mut().push(point_data);
         }
     }
 
     // Binary search algorithm to find the relevant interval
-    fn search_index(&self, points: &[Box<PointData>], time: f32) -> (usize, usize) {
+    fn search_index(&self, points: &[PointData], time: f32) -> (usize, usize) {
         let mut l = 0;
         let mut r = points.len();
 
@@ -194,33 +190,26 @@ pub trait PointDefinition {
     // In a more complete implementation, you'd examine the JSON structure.
     #[cfg(feature = "json")]
     fn group_values(value: &JsonValue) -> Vec<(GroupType, Vec<&JsonValue>)> {
-        let mut result = Vec::new();
-        if let Some(array) = value.as_array() {
-            let values: Vec<&JsonValue> = array.iter().collect();
-            let mut value_group = Vec::new();
-            let mut flag_group = Vec::new();
-            let mut modifier_group = Vec::new();
+        use std::collections::HashMap;
 
-            for val in &values {
-                if val.is_array() {
-                    modifier_group.push(*val);
-                } else if val.is_string() && !val.as_str().unwrap().starts_with("base") {
-                    flag_group.push(*val);
-                } else {
-                    value_group.push(*val);
-                }
-            }
+        let JsonValue::Array(array) = value else {
+            return vec![];
+        };
+        let values: Vec<&JsonValue> = array.iter().collect();
 
-            if !value_group.is_empty() {
-                result.push((GroupType::Value, value_group));
-            }
-            if !flag_group.is_empty() {
-                result.push((GroupType::Flag, flag_group));
-            }
-            if !modifier_group.is_empty() {
-                result.push((GroupType::Modifier, modifier_group));
-            }
+        let mut result: HashMap<GroupType, Vec<&JsonValue>> = HashMap::new();
+        for val in &values {
+            // group values by their type in the array
+            let entry = match val {
+                JsonValue::String(s) if !s.starts_with("base") => GroupType::Flag,
+                JsonValue::Array(_) => GroupType::Modifier,
+                _ => GroupType::Value,
+            };
+            result.entry(entry).or_default().push(val);
         }
+
+        let result: Vec<(GroupType, Vec<&JsonValue>)> = result.into_iter().collect();
+
         result
     }
 

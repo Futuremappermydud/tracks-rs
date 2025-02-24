@@ -1,8 +1,10 @@
+use std::borrow::Cow;
+
 use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct BaseProviderValues {
     pub(crate) base: String,
 }
@@ -14,9 +16,9 @@ impl BaseProviderValues {
 }
 
 impl AbstractValueProvider for BaseProviderValues {
-    fn values(&self, context: &BaseProviderContext) -> Vec<f32> {
+    fn values<'a>(&'a self, context: &BaseProviderContext) -> Cow<'a, [f32]> {
         let base = self.base.split(".").collect::<Vec<&str>>();
         let value = context.get_values(&base[0]);
-        value
+        value.as_slice().to_vec().into()
     }
 }

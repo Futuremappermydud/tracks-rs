@@ -14,6 +14,12 @@ use crate::modifiers::operation::Operation;
 use crate::values::base_provider_context::BaseProviderContext;
 use crate::values::{AbstractValueProvider, ValueProvider};
 
+#[derive(Clone, Debug)]
+pub enum ModifierValues<T> {
+    Static(T),
+    Dynamic(Vec<ValueProvider>),
+}
+
 pub enum Modifier {
     Float(FloatModifier),
     Vector3(Vector3Modifier),
@@ -64,6 +70,22 @@ impl Modifier {
     }
 }
 
+impl<T> ModifierValues<T> {
+    pub fn static_values(self) -> Option<T> {
+        match self {
+            ModifierValues::Static(s) => Some(s),
+            _ => None,
+        }
+    }
+
+    pub fn as_static_values(&self) -> Option<&T> {
+        match self {
+            ModifierValues::Static(s) => Some(s),
+            _ => None,
+        }
+    }
+}
+
 pub trait ModifierBase {
     type Value;
     const VALUE_COUNT: usize;
@@ -76,7 +98,7 @@ pub trait ModifierBase {
     fn fill_values(&self, ivals: &[ValueProvider], context: &BaseProviderContext) -> Vec<f32> {
         let mut values = Vec::with_capacity(Self::VALUE_COUNT);
         for value in ivals {
-            for v in value.values(context) {
+            for v in value.values(context).iter().copied() {
                 if values.len() < Self::VALUE_COUNT {
                     values.push(v);
                 } else {

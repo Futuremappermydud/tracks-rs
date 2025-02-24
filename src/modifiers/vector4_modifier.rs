@@ -1,25 +1,20 @@
+use super::ModifierValues;
 use super::{Modifier, ModifierBase, operation::Operation};
-use crate::values::ValueProvider;
 use crate::values::base_provider_context::BaseProviderContext;
 use glam::Vec4;
 
+pub type Vector4Values = ModifierValues<Vec4>;
+
 pub struct Vector4Modifier {
-    raw_point: Option<Vec4>,
-    values: Option<Vec<ValueProvider>>,
-    modifiers: Vec<Box<Modifier>>,
+    values: Vector4Values,
+    modifiers: Vec<Modifier>,
     operation: Operation,
 }
 
 impl Vector4Modifier {
-    pub fn new(
-        point: Option<Vec4>,
-        values: Option<Vec<ValueProvider>>,
-        modifiers: Vec<Box<Modifier>>,
-        operation: Operation,
-    ) -> Self {
+    pub fn new(point: Vector4Values, modifiers: Vec<Modifier>, operation: Operation) -> Self {
         Self {
-            raw_point: point,
-            values,
+            values: point,
             modifiers,
             operation,
         }
@@ -31,9 +26,10 @@ impl ModifierBase for Vector4Modifier {
     const VALUE_COUNT: usize = 4;
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec4 {
-        let original_point = self
-            .raw_point
-            .unwrap_or_else(|| self.convert(self.values.as_ref().unwrap(), context));
+        let original_point = match &self.values {
+            Vector4Values::Static(s) => *s,
+            Vector4Values::Dynamic(value_providers) => self.convert(&value_providers, context),
+        };
         let result = self
             .modifiers
             .iter()
@@ -48,7 +44,10 @@ impl ModifierBase for Vector4Modifier {
     }
 
     fn get_raw_point(&self) -> Vec4 {
-        self.raw_point.unwrap_or(Vec4::ZERO)
+        match self.values {
+            Vector4Values::Static(s) => s,
+            _ => Vec4::ZERO,
+        }
     }
 
     fn translate(&self, values: &[f32]) -> Vec4 {

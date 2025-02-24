@@ -1,9 +1,6 @@
 use std::cell::RefCell;
 
-use crate::{
-    point_definition::{PointDefinition, vector4_point_definition::Vector4PointDefinition},
-    values::base_provider_context::BaseProviderContext,
-};
+use glam::vec4;
 use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
@@ -13,6 +10,10 @@ use plotters::{
     style::{BLACK, Color, RED, RGBAColor, WHITE},
 };
 use serde_json::json;
+use tracks_rs::{
+    point_definition::{PointDefinition, vector4_point_definition::Vector4PointDefinition},
+    values::base_provider_context::BaseProviderContext,
+};
 
 pub struct ColorContext {
     pub definition: Vector4PointDefinition,
@@ -22,10 +23,7 @@ pub struct ColorContext {
 impl ColorContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
-        let definition = Vector4PointDefinition::new(
-            &json!([["baseNote0Color",1]]),
-            &context,
-        );
+        let definition = Vector4PointDefinition::new(json!([["baseNote0Color", 1]]), &context);
         Self {
             definition,
             context: RefCell::new(context),
@@ -63,6 +61,11 @@ pub fn draw_color(
     {
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
+
+        context
+            .context
+            .borrow_mut()
+            .set_values("baseNote0Color", vec4(1.0, 0.0, 0.0, 1.0).into());
 
         chart
             .configure_mesh()

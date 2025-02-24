@@ -1,7 +1,11 @@
 use crate::{
     easings::functions::Functions,
-    modifiers::{Modifier, ModifierBase, operation::Operation, vector4_modifier::Vector4Modifier},
-    values::{ValueProvider, base_provider_context::BaseProviderContext},
+    modifiers::{
+        Modifier, ModifierBase,
+        operation::Operation,
+        vector4_modifier::{Vector4Modifier, Vector4Values},
+    },
+    values::base_provider_context::BaseProviderContext,
 };
 use glam::Vec4;
 
@@ -16,15 +20,14 @@ pub struct Vector4PointData {
 
 impl Vector4PointData {
     pub fn new(
-        point: Option<Vec4>,
-        values: Option<Vec<ValueProvider>>,
+        point: Vector4Values,
         hsv_lerp: bool,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
     ) -> Self {
         Self {
-            base_modifier: Vector4Modifier::new(point, values, modifiers, Operation::None),
+            base_modifier: Vector4Modifier::new(point, modifiers, Operation::None),
             easing,
             hsv_lerp,
             time,

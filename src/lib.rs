@@ -1,4 +1,7 @@
 #![feature(let_chains)]
+#![feature(impl_trait_in_assoc_type)]
+#![feature(slice_pattern)]
+#![feature(new_range_api)]
 
 use std::{backtrace::Backtrace, panic::PanicHookInfo};
 
@@ -6,17 +9,16 @@ use tracing::error;
 use tracing_error::SpanTrace;
 
 pub mod easings;
+
+#[cfg(feature = "ffi")]
 pub mod ffi;
-#[cfg(not(target_os = "android"))]
-pub mod graphing;
 pub mod modifiers;
 pub mod point_data;
 pub mod point_definition;
 pub mod values;
-use ctor::ctor;
 
 #[cfg(target_os = "android")]
-#[ctor]
+#[ctor::ctor]
 fn main() {
     use tracing::info;
 

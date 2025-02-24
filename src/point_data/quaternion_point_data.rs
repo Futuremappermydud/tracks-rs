@@ -1,11 +1,13 @@
 use crate::{
     easings::functions::Functions,
     modifiers::{
-        Modifier, ModifierBase, operation::Operation, quaternion_modifier::QuaternionModifier,
+        Modifier, ModifierBase,
+        operation::Operation,
+        quaternion_modifier::{QuaternionModifier, QuaternionValues},
     },
-    values::{ValueProvider, base_provider_context::BaseProviderContext},
+    values::base_provider_context::BaseProviderContext,
 };
-use glam::{Quat, Vec3};
+use glam::Quat;
 
 use super::BasePointData;
 
@@ -17,21 +19,13 @@ pub struct QuaternionPointData {
 
 impl QuaternionPointData {
     pub fn new(
-        point: Option<Quat>,
-        vector_point: Option<Vec3>,
-        values: Option<Vec<ValueProvider>>,
+        point: QuaternionValues,
         time: f32,
-        modifiers: Vec<Box<Modifier>>,
+        modifiers: Vec<Modifier>,
         easing: Functions,
     ) -> Self {
         Self {
-            base_modifier: QuaternionModifier::new(
-                point,
-                vector_point,
-                values,
-                modifiers,
-                Operation::None,
-            ),
+            base_modifier: QuaternionModifier::new(point, modifiers, Operation::None),
             easing,
             time,
         }

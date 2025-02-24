@@ -9,6 +9,16 @@
 namespace Tracks {
 #endif  // __cplusplus
 
+/**
+ * JSON FFI
+ */
+typedef enum JsonValueType {
+  Number,
+  Null,
+  String,
+  Array,
+} JsonValueType;
+
 typedef struct BaseProviderContext BaseProviderContext;
 
 typedef struct FloatPointDefinition FloatPointDefinition;
@@ -18,6 +28,22 @@ typedef struct QuaternionPointDefinition QuaternionPointDefinition;
 typedef struct Vector3PointDefinition Vector3PointDefinition;
 
 typedef struct Vector4PointDefinition Vector4PointDefinition;
+
+typedef struct JsonArray {
+  const struct FFIJsonValue *elements;
+  uintptr_t length;
+} JsonArray;
+
+typedef union JsonValueData {
+  double number_value;
+  const char *string_value;
+  const struct JsonArray *array;
+} JsonValueData;
+
+typedef struct FFIJsonValue {
+  enum JsonValueType value_type;
+  union JsonValueData data;
+} FFIJsonValue;
 
 typedef struct FloatInterpolationResult {
   float value;
@@ -59,9 +85,19 @@ typedef struct QuaternionInterpolationResult {
   bool is_last;
 } QuaternionInterpolationResult;
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
+
+struct FFIJsonValue tracks_create_json_number(double value);
+
+struct FFIJsonValue tracks_create_json_string(const char *value);
+
+struct FFIJsonValue tracks_create_json_array(const struct FFIJsonValue *elements, uintptr_t length);
+
+void tracks_free_json_value(struct FFIJsonValue *json_value);
 
 /**
  * CONTEXT
@@ -76,7 +112,7 @@ void tracks_set_base_provider(struct BaseProviderContext *context,
 /**
  *FLOAT POINT DEFINITION
  */
-const struct FloatPointDefinition *tracks_make_float_point_definition(const char *json,
+const struct FloatPointDefinition *tracks_make_float_point_definition(const struct FFIJsonValue *json,
                                                                       struct BaseProviderContext *context);
 
 struct FloatInterpolationResult tracks_interpolate_float(const struct FloatPointDefinition *point_definition,
@@ -90,7 +126,7 @@ bool tracks_float_has_base_provider(const struct FloatPointDefinition *point_def
 /**
  *VECTOR3 POINT DEFINITION
  */
-const struct Vector3PointDefinition *tracks_make_vector3_point_definition(const char *json,
+const struct Vector3PointDefinition *tracks_make_vector3_point_definition(const struct FFIJsonValue *json,
                                                                           struct BaseProviderContext *context);
 
 struct Vector3InterpolationResult tracks_interpolate_vector3(const struct Vector3PointDefinition *point_definition,
@@ -104,7 +140,7 @@ bool tracks_vector3_has_base_provider(const struct Vector3PointDefinition *point
 /**
  *VECTOR4 POINT DEFINITION
  */
-const struct Vector4PointDefinition *tracks_make_vector4_point_definition(const char *json,
+const struct Vector4PointDefinition *tracks_make_vector4_point_definition(const struct FFIJsonValue *json,
                                                                           struct BaseProviderContext *context);
 
 struct Vector4InterpolationResult tracks_interpolate_vector4(const struct Vector4PointDefinition *point_definition,
@@ -118,7 +154,7 @@ bool tracks_vector4_has_base_provider(const struct Vector4PointDefinition *point
 /**
  *QUATERNION POINT DEFINITION
  */
-const struct QuaternionPointDefinition *tracks_make_quat_point_definition(const char *json,
+const struct QuaternionPointDefinition *tracks_make_quat_point_definition(const struct FFIJsonValue *json,
                                                                           struct BaseProviderContext *context);
 
 struct QuaternionInterpolationResult tracks_interpolate_quat(const struct QuaternionPointDefinition *point_definition,

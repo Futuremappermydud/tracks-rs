@@ -1,15 +1,35 @@
 [package]
 name = "tracks_rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 [lib]
-crate-type = ["cdylib"]
-path = "src/lib.rs"
+name = "tracks_rs"
+crate-type = ["cdylib", "staticlib", "lib"]
 
-[[bin]]
-name = "tracks-window"
-path = "src/main.rs"
+[workspace]
+members = ["tracks-window"]
+
+
+[[bench]]
+name = "float"
+harness = false
+
+[[bench]]
+name = "vec3"
+harness = false
+[[bench]]
+name = "quat"
+harness = false
+
+[[bench]]
+name = "color"
+harness = false
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+track_rs_old = { git = "https://github.com/Futuremappermydud/tracks-rs.git", branch = "old-benchmark", package = "tracks_rs" } # reference to the tracks-rs crate
 
 [dependencies]
 glam = { version = "0.30", features = [
@@ -26,6 +46,13 @@ ctor = "0.3.6"
 paranoid-android = "*"
 
 [target.'cfg(target_os = "windows")'.dependencies]
+tracing-subscriber = { version = "0.3", features = [
+    "fmt",
+    "env-filter",
+    "smallvec",
+], default-features = false }
+
+[target.'cfg(target_os = "macos")'.dependencies]
 minifb = { version = "0.28", optional = true }
 plotters = { version = "0.3", optional = true }
 tracing-subscriber = { version = "0.3", features = [
@@ -59,9 +86,12 @@ log = "0.4"
 paranoid-android = { version = "*", optional = true }
 
 [build-dependencies]
-cbindgen = "0.28"
+cbindgen = { version = "0.28", optional = true }
 
 [features]
-plot = ["dep:minifb", "dep:plotters"]
 json = ["dep:serde_json"]
-default = ["json", "plot"]
+ffi = ["dep:cbindgen"]
+default = ["json"]
+
+[patch.crates-io]
+pathfinder_simd = { git = "https://github.com/theoparis/pathfinder.git" }

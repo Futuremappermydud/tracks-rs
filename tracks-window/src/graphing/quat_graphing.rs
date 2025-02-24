@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 
-use glam::{EulerRot, quat};
 use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
@@ -12,7 +11,8 @@ use plotters::{
 };
 use serde_json::json;
 
-use crate::{
+use tracks_rs::{
+    modifiers::quaternion_modifier::TRACKS_EULER_ROT,
     point_definition::{PointDefinition, quaternion_point_definition::QuaternionPointDefinition},
     values::base_provider_context::BaseProviderContext,
 };
@@ -26,7 +26,7 @@ impl QuatContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
         let definition = QuaternionPointDefinition::new(
-            &json!([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 1.0]]),
+            json!([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 1.0]]),
             &context,
         );
         Self {
@@ -74,7 +74,7 @@ pub fn draw_quat(
         context
             .context
             .borrow_mut()
-            .set_values("baseCombo", vec![(epoch.sin() as f32 + 1.0) * 0.5]);
+            .set_values("baseCombo", ((epoch.sin() as f32 + 1.0) * 0.5).into());
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
 
@@ -100,7 +100,7 @@ pub fn draw_quat(
                     .definition
                     .interpolate(x as f32, &context.context.borrow())
                     .0;
-                let to: [f32; 3] = point.to_euler(EulerRot::ZXY).into();
+                let to: [f32; 3] = point.to_euler(TRACKS_EULER_ROT).into();
 
                 chart
                     .draw_series(LineSeries::new(
