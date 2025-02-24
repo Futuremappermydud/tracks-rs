@@ -75,18 +75,18 @@ pub fn graph(context: &str) {
     let mut window = Window::new("Tracks", W, H, WindowOptions::default()).unwrap();
     let mut buf = BufferWrapper(vec![0u32; W * H]);
 
-    let mut binding_2d: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
-    let mut binding_3d: Option<
+    let mut _binding_2d: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
+    let mut _binding_3d: Option<
         ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
     > = None;
-    let mut binding_color: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
-    let mut binding_quaternion: Option<
+    let mut _binding_color: Option<ChartState<Cartesian2d<RangedCoordf64, RangedCoordf64>>> = None;
+    let mut _binding_quaternion: Option<
         ChartState<Cartesian3d<RangedCoordf64, RangedCoordf64, RangedCoordf64>>,
     > = None;
-    let mut float_context: Option<FloatContext> = None;
-    let mut vec3_context: Option<Vec3Context> = None;
-    let mut color_context: Option<ColorContext> = None;
-    let mut quaternion_context: Option<QuatContext> = None;
+    let mut _float_context: Option<FloatContext> = None;
+    let mut _vec3_context: Option<Vec3Context> = None;
+    let mut _color_context: Option<ColorContext> = None;
+    let mut _quaternion_context: Option<QuatContext> = None;
 
     let cs: GraphContext = {
         let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
@@ -101,35 +101,38 @@ pub fn graph(context: &str) {
         match context {
             "2d" => {
                 let (new_binding, new_context) = float_graphing::graph_2d(root);
-                binding_2d = Some(new_binding);
-                float_context = Some(new_context);
+                _binding_2d = Some(new_binding);
+                _float_context = Some(new_context);
                 GraphContext::Float2D(
-                    binding_2d.as_ref().unwrap(),
-                    float_context.as_ref().unwrap(),
+                  _binding_2d.as_ref().unwrap(),
+                    _float_context.as_ref().unwrap(),
                 )
             }
             "3d" => {
                 let (new_binding, new_context) = vec3_graphing::graph_vec3(root);
-                binding_3d = Some(new_binding);
-                vec3_context = Some(new_context);
-                GraphContext::Vector3D(binding_3d.as_ref().unwrap(), vec3_context.as_ref().unwrap())
+                _binding_3d = Some(new_binding);
+                _vec3_context = Some(new_context);
+                GraphContext::Vector3D(
+                    _binding_3d.as_ref().unwrap(),
+                    _vec3_context.as_ref().unwrap(),
+                )
             }
             "color" => {
                 let (new_binding, new_context) = color_graphing::graph_color(root);
-                binding_color = Some(new_binding);
-                color_context = Some(new_context);
+                _binding_color = Some(new_binding);
+                _color_context = Some(new_context);
                 GraphContext::Color(
-                    binding_color.as_ref().unwrap(),
-                    color_context.as_ref().unwrap(),
+                    _binding_color.as_ref().unwrap(),
+                    _color_context.as_ref().unwrap(),
                 )
             }
             "quat" => {
                 let (new_binding, new_context) = quat_graphing::graph_quat(root);
-                binding_quaternion = Some(new_binding);
-                quaternion_context = Some(new_context);
+                _binding_quaternion = Some(new_binding);
+                _quaternion_context = Some(new_context);
                 GraphContext::Quaternion(
-                    binding_quaternion.as_ref().unwrap(),
-                    quaternion_context.as_ref().unwrap(),
+                    _binding_quaternion.as_ref().unwrap(),
+                    _quaternion_context.as_ref().unwrap(),
                 )
             }
             _ => panic!("Invalid context"),

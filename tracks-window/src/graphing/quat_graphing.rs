@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 
-use glam::{EulerRot, quat};
 use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
