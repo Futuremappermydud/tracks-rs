@@ -31,7 +31,6 @@ criterion = { version = "0.5", features = ["html_reports"] }
 
 track_rs_old = { git = "https://github.com/Futuremappermydud/tracks-rs.git", branch = "old-benchmark", package = "tracks_rs" } # reference to the tracks-rs crate
 
-
 [dependencies]
 glam = { version = "0.30", features = [
     "core-simd",
@@ -61,6 +60,25 @@ tracing-subscriber = { version = "0.3", features = [
     "env-filter",
     "smallvec",
 ], default-features = false }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+minifb = { version = "0.28", optional = true }
+plotters = { version = "0.3", optional = true }
+tracing-subscriber = { version = "0.3", features = [
+    "fmt",
+    "env-filter",
+    "smallvec",
+], default-features = false }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+minifb = { version = "0.28", optional = true }
+plotters = { version = "0.3", optional = true }
+tracing-subscriber = { version = "0.3", features = [
+    "fmt",
+    "env-filter",
+    "smallvec",
+], default-features = false }
+
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_logger = "0.14"
