@@ -1,9 +1,5 @@
 use std::cell::RefCell;
 
-use tracks_rs::{
-    point_definition::{PointDefinition, vector4_point_definition::Vector4PointDefinition},
-    values::{base_provider_context::BaseProviderContext, value::BaseValue},
-};
 use glam::vec4;
 use minifb::Window;
 use plotters::{
@@ -14,6 +10,10 @@ use plotters::{
     style::{BLACK, Color, RED, RGBAColor, WHITE},
 };
 use serde_json::json;
+use tracks_rs::{
+    point_definition::{PointDefinition, vector4_point_definition::Vector4PointDefinition},
+    values::{base_provider_context::BaseProviderContext, value::BaseValue},
+};
 
 pub struct ColorContext {
     pub definition: Vector4PointDefinition,

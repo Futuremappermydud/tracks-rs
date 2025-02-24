@@ -1,7 +1,11 @@
 use crate::{
     easings::functions::Functions,
-    modifiers::{float_modifier::{FloatModifier, FloatValues}, operation::Operation, vector3_modifier::Vector3Values, Modifier, ModifierBase},
-    values::{base_provider_context::BaseProviderContext, ValueProvider},
+    modifiers::{
+        Modifier, ModifierBase,
+        float_modifier::{FloatModifier, FloatValues},
+        operation::Operation,
+    },
+    values::base_provider_context::BaseProviderContext,
 };
 
 use super::BasePointData;
@@ -13,12 +17,7 @@ pub struct FloatPointData {
 }
 
 impl FloatPointData {
-    pub fn new(
-        point: FloatValues,
-        time: f32,
-        modifiers: Vec<Modifier>,
-        easing: Functions,
-    ) -> Self {
+    pub fn new(point: FloatValues, time: f32, modifiers: Vec<Modifier>, easing: Functions) -> Self {
         Self {
             base_modifier: FloatModifier::new(point, modifiers, Operation::None),
             easing,

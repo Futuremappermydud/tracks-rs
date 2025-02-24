@@ -157,7 +157,7 @@ pub trait PointDefinition {
 
             // Create point data only if we have values
             let Some(vs) = vals else { continue };
-            
+
             let point_data = self.create_point_data(
                 vs,
                 flags.unwrap_or_default(),

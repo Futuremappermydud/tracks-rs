@@ -1,9 +1,11 @@
 use crate::{
     easings::functions::Functions,
     modifiers::{
-        operation::Operation, quaternion_modifier::{QuaternionModifier, QuaternionValues}, Modifier, ModifierBase
+        Modifier, ModifierBase,
+        operation::Operation,
+        quaternion_modifier::{QuaternionModifier, QuaternionValues},
     },
-    values::{base_provider_context::BaseProviderContext, ValueProvider},
+    values::{ValueProvider, base_provider_context::BaseProviderContext},
 };
 use glam::{Quat, Vec3};
 
@@ -23,11 +25,7 @@ impl QuaternionPointData {
         easing: Functions,
     ) -> Self {
         Self {
-            base_modifier: QuaternionModifier::new(
-                point,
-                modifiers,
-                Operation::None,
-            ),
+            base_modifier: QuaternionModifier::new(point, modifiers, Operation::None),
             easing,
             time,
         }

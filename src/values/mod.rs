@@ -1,13 +1,7 @@
 use crate::values::base_provider_context::BaseProviderContext;
 use base::BaseProviderValues;
-use glam::{DVec2, DVec3, DVec4};
 use serde_json::Value as JsonValue;
-use std::{
-    any::Any,
-    borrow::Cow,
-    ops::{Add, Div, Index, IndexMut, Mul},
-    sync::Arc,
-};
+use std::borrow::Cow;
 use value::BaseValue;
 
 pub mod base;

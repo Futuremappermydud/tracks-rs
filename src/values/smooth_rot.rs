@@ -1,12 +1,15 @@
 use std::borrow::Cow;
 
-use super::{UpdateableValues, value::BaseValue};
+use super::UpdateableValues;
 
-use crate::{modifiers::quaternion_modifier::TRACKS_EULER_ROT, values::base_provider_context::BaseProviderContext};
+use crate::{
+    modifiers::quaternion_modifier::TRACKS_EULER_ROT,
+    values::base_provider_context::BaseProviderContext,
+};
 
 use super::AbstractValueProvider;
 
-use glam::{Quat, Vec3, vec3};
+use glam::Quat;
 
 #[derive(Clone, Debug)]
 pub struct SmoothRotationProvidersValues {

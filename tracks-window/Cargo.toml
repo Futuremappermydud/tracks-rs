@@ -8,7 +8,7 @@ name = "tracks-window"
 path = "src/main.rs"
 
 [dependencies]
-tracks_rs = { path = "../" }
+tracks_rs = { path = "../", features = ["ffi"] }
 
 minifb = { version = "0.28" }
 plotters = { version = "0.3" }

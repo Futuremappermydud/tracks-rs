@@ -13,7 +13,9 @@ use plotters::{
 use serde_json::json;
 
 use tracks_rs::{
-    modifiers::quaternion_modifier::TRACKS_EULER_ROT, point_definition::{quaternion_point_definition::QuaternionPointDefinition, PointDefinition}, values::base_provider_context::BaseProviderContext
+    modifiers::quaternion_modifier::TRACKS_EULER_ROT,
+    point_definition::{PointDefinition, quaternion_point_definition::QuaternionPointDefinition},
+    values::base_provider_context::BaseProviderContext,
 };
 
 pub struct QuatContext {

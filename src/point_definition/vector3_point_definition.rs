@@ -120,10 +120,7 @@ impl PointDefinition for Vector3PointDefinition {
                     .last()
                     .and_then(|v| v.values(context).last().copied())
                     .unwrap_or(0.0);
-                (
-                    Vector3Values::Dynamic(values),
-                    time,
-                )
+                (Vector3Values::Dynamic(values), time)
             }
         };
         PointData::Vector3(Vector3PointData::new(
