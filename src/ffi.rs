@@ -6,6 +6,7 @@ use crate::values::base_provider_context::BaseProviderContext;
 use crate::values::value::BaseValue;
 use std::ffi::{CStr, c_char};
 use std::slice;
+use tracing::info;
 
 #[repr(C)]
 pub struct WrapVec3 {
@@ -196,13 +197,14 @@ pub unsafe extern "C" fn tracks_set_base_provider(
     base: *const c_char,
     values: *mut f32,
     count: usize,
+    quat: bool,
 ) {
     let base_str = unsafe { CStr::from_ptr(base).to_str().unwrap() };
     let context = unsafe { &mut *context };
     context.set_values(base_str, unsafe {
         let v = slice::from_raw_parts(values, count);
-        BaseValue::from_slice(v)
-    });
+        BaseValue::from_slice(v, quat)
+    }); 
 }
 
 ///FLOAT POINT DEFINITION
@@ -213,9 +215,6 @@ pub unsafe extern "C" fn tracks_make_float_point_definition(
 ) -> *const FloatPointDefinition {
     println!("json: {:?}", json);
     let value = unsafe { convert_json_value_to_serde(json) };
-    //serialize the value to a string
-    let value_str = serde_json::to_string(&value).unwrap();
-    println!("value_str: {:?}", value_str);
     let point_definition = Box::new(FloatPointDefinition::new(value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr

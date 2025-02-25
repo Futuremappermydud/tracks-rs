@@ -33,14 +33,15 @@ pub enum BaseValueRef<'a> {
 
 impl BaseValue {
     #[inline(always)]
-    pub fn from_vec(value: Vec<f32>) -> BaseValue {
-        Self::from_slice(value.as_slice())
+    pub fn from_vec(value: Vec<f32>, quat: bool) -> BaseValue {
+        Self::from_slice(value.as_slice(), quat)
     }
 
-    pub fn from_slice(value: &[f32]) -> BaseValue {
+    pub fn from_slice(value: &[f32], quat: bool) -> BaseValue {
         match value.len() {
             1 => BaseValue::Float(value[0]),
             3 => BaseValue::Vector3(Vec3::new(value[0], value[1], value[2])),
+            4 if quat => BaseValue::Quaternion(Quat::from_slice(value)),
             4 => BaseValue::Vector4(Vec4::new(value[0], value[1], value[2], value[3])),
             _ => panic!("Invalid value length"),
         }

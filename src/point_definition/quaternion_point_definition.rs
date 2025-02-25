@@ -83,14 +83,15 @@ impl PointDefinition for QuaternionPointDefinition {
                 (QuaternionValues::Static(raw_vector_point, quat), values[3])
             }
             _ => {
-                let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                if count != 4 {
-                    eprintln!("Vector3 point must have 4 numbers");
-                }
-                let time = values
-                    .last()
-                    .and_then(|v| v.values(context).last().copied())
-                    .unwrap_or(0.0);
+                let values_len: usize = values.iter().map(|v| v.values(context).len()).sum();
+                let time = if values_len == 4 {
+                    values
+                        .last()
+                        .and_then(|v| v.values(context).last().copied())
+                        .unwrap_or(0.0)
+                } else {
+                    0.0
+                };
                 (QuaternionValues::Dynamic(values), time)
             }
         };

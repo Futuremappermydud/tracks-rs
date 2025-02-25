@@ -104,7 +104,7 @@ pub fn graph(context: &str) {
                 _binding_2d = Some(new_binding);
                 _float_context = Some(new_context);
                 GraphContext::Float2D(
-                  _binding_2d.as_ref().unwrap(),
+                    _binding_2d.as_ref().unwrap(),
                     _float_context.as_ref().unwrap(),
                 )
             }

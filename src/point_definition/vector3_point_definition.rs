@@ -103,23 +103,22 @@ impl PointDefinition for Vector3PointDefinition {
     ) -> PointData {
         let (values, time) = match values.as_slice() {
             [ValueProvider::Static(static_val)] if static_val.values(context).len() == 4 => {
-                let vals = static_val.values(context);
-
-                let time = vals[3];
-                (
-                    Vector3Values::Static(Vec3::new(vals[0], vals[1], vals[2])),
-                    time,
-                )
+                let values = static_val.values(context);
+                let point = Vec3::new(values[0], values[1], values[2]);
+                (Vector3Values::Static(point), values[3])
             }
             _ => {
-                let count: usize = values.iter().map(|v| v.values(context).len()).sum();
-                if count != 4 {
-                    eprintln!("Vector3 point must have 4 numbers");
-                }
-                let time = values
-                    .last()
-                    .and_then(|v| v.values(context).last().copied())
-                    .unwrap_or(0.0);
+                let values_len: usize = values.iter().map(|v| v.values(context).len()).sum();
+
+                let time = if values_len == 4 {
+                    values
+                        .last()
+                        .and_then(|v| v.values(context).last().copied())
+                        .unwrap_or(0.0)
+                } else {
+                    0.0
+                };
+
                 (Vector3Values::Dynamic(values), time)
             }
         };

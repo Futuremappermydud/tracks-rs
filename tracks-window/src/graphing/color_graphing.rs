@@ -22,8 +22,13 @@ pub struct ColorContext {
 
 impl ColorContext {
     pub fn new() -> Self {
-        let context = BaseProviderContext::new();
-        let definition = Vector4PointDefinition::new(json!([["baseNote0Color", 1]]), &context);
+        let mut context = BaseProviderContext::new();
+
+        context.set_values("baseNote0Color", vec4(1.0, 0.0, 0.0, 1.0).into());
+        let definition = Vector4PointDefinition::new(
+            json!(["baseNote0Color", [0.4, 0.4, 0.4, 1, "opMul"]]),
+            &context,
+        );
         Self {
             definition,
             context: RefCell::new(context),
@@ -61,11 +66,6 @@ pub fn draw_color(
     {
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
-
-        context
-            .context
-            .borrow_mut()
-            .set_values("baseNote0Color", vec4(1.0, 0.0, 0.0, 1.0).into());
 
         chart
             .configure_mesh()

@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 
+use glam::Vec3;
 use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
@@ -12,7 +13,6 @@ use plotters::{
 use serde_json::json;
 
 use tracks_rs::{
-    modifiers::quaternion_modifier::TRACKS_EULER_ROT,
     point_definition::{PointDefinition, quaternion_point_definition::QuaternionPointDefinition},
     values::base_provider_context::BaseProviderContext,
 };
@@ -25,10 +25,8 @@ pub struct QuatContext {
 impl QuatContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
-        let definition = QuaternionPointDefinition::new(
-            json!([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 1.0]]),
-            &context,
-        );
+        let definition =
+            QuaternionPointDefinition::new(json!([[0, 90, 0, 0], [0, 0, 90, 1]]), &context);
         Self {
             definition,
             context: RefCell::new(context),
@@ -43,7 +41,6 @@ pub fn graph_quat(
     QuatContext,
 ) {
     let mut chart = ChartBuilder::on(&root)
-        .caption("3D Plot Test", ("sans", 20))
         .build_cartesian_3d(0.0..3.0, 0.0..3.0, 0.0..3.0)
         .unwrap();
 
@@ -71,17 +68,17 @@ pub fn draw_quat(
     _window: &Window,
 ) {
     {
-        context
-            .context
-            .borrow_mut()
-            .set_values("baseCombo", ((epoch.sin() as f32 + 1.0) * 0.5).into());
+        context.context.borrow_mut().set_values(
+            "baseCombo",
+            ((epoch.sin() as f32 + 1.0) * 0.5 * 45.0).into(),
+        );
         let mut chart = chart.clone().restore(&root);
         chart.plotting_area().fill(&WHITE).unwrap();
 
         chart.with_projection(|mut pb| {
-            pb.yaw = epoch / 10.0;
+            pb.yaw = epoch / 2.0;
             pb.pitch = 0.5;
-            pb.scale = 0.9;
+            pb.scale = 0.7;
             pb.into_matrix()
         });
 
@@ -95,18 +92,24 @@ pub fn draw_quat(
         let _ = (0.0..1.0)
             .step(0.01)
             .values()
-            .map(|x| {
+            .map(|x: f64| {
                 let point = context
                     .definition
                     .interpolate(x as f32, &context.context.borrow())
-                    .0;
-                let to: [f32; 3] = point.to_euler(TRACKS_EULER_ROT).into();
+                    .0
+                    .normalize();
+                let to: Vec3 = point.inverse().mul_vec3(Vec3 {
+                    x: x as f32,
+                    y: 0.0,
+                    z: 0.0,
+                });
+                let angles: [f64; 3] = to.normalize().to_array().map(|x| (x as f64));
 
                 chart
                     .draw_series(LineSeries::new(
                         [
-                            (x, 0.0, 0.0),
-                            (x + to[0] as f64, to[1] as f64, to[2] as f64),
+                            (x as f64, 0.0, 0.0),
+                            (x as f64 + angles[0], angles[1], angles[2]),
                         ],
                         RGBAColor {
                             0: (255.0 * x) as u8,

@@ -102,7 +102,7 @@ impl PointDefinition for Vector4PointDefinition {
             _ => {
                 let values_len: usize = values.iter().map(|v| v.values(context).len()).sum();
 
-                let time = if values_len != 5 {
+                let time = if values_len == 5 {
                     values
                         .last()
                         .and_then(|v| v.values(context).last().copied())
@@ -110,6 +110,7 @@ impl PointDefinition for Vector4PointDefinition {
                 } else {
                     0.0
                 };
+
                 (Vector4Values::Dynamic(values), time)
             }
         };

@@ -69,33 +69,26 @@ impl PointDefinition for FloatPointDefinition {
 
         let (value, time) = match &values[..] {
             // [x, y]
-            [ValueProvider::Static(static_val)] => {
-                let mut static_val = static_val.values.clone();
-
-                let time = static_val.pop().unwrap_or_default();
-                let val = static_val.get(0).copied();
-
-                let point_val = FloatValues::Static(val.unwrap_or_default());
-                (point_val, time)
+            [ValueProvider::Static(static_val)] if static_val.values(context).len() == 2 => {
+                let values = static_val.values(context);
+                let point = values[0];
+                (FloatValues::Static(point), values[1])
             }
 
             _ => {
                 // validate and get time
-                let raw_values = values.iter().map(|v| v.values(context)).collect::<Vec<_>>();
+                let values_len: usize = values.iter().map(|v| v.values(context).len()).sum();
 
-                let time = raw_values
-                    .last()
-                    .and_then(|v| v.last().copied())
-                    .unwrap_or(0.0);
+                let time = if values_len == 2 {
+                    values
+                        .last()
+                        .and_then(|v| v.values(context).last().copied())
+                        .unwrap_or(0.0)
+                } else {
+                    0.0
+                };
 
-                let count: usize = raw_values.iter().map(|v| v.len()).sum();
-                if count != 2 {
-                    eprintln!("Float modifier point must have 2 numbers");
-                }
-
-                let value = FloatValues::Dynamic(values);
-
-                (value, time)
+                (FloatValues::Dynamic(values), time)
             }
         };
 

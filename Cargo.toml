@@ -61,15 +61,6 @@ tracing-subscriber = { version = "0.3", features = [
     "smallvec",
 ], default-features = false }
 
-[target.'cfg(target_os = "macos")'.dependencies]
-minifb = { version = "0.28", optional = true }
-plotters = { version = "0.3", optional = true }
-tracing-subscriber = { version = "0.3", features = [
-    "fmt",
-    "env-filter",
-    "smallvec",
-], default-features = false }
-
 [target.'cfg(target_os = "linux")'.dependencies]
 minifb = { version = "0.28", optional = true }
 plotters = { version = "0.3", optional = true }

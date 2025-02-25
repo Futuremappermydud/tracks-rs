@@ -107,7 +107,8 @@ struct BaseProviderContext *tracks_make_base_provider_context(void);
 void tracks_set_base_provider(struct BaseProviderContext *context,
                               const char *base,
                               float *values,
-                              uintptr_t count);
+                              uintptr_t count,
+                              bool quat);
 
 /**
  *FLOAT POINT DEFINITION

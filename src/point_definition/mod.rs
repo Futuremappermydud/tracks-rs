@@ -99,7 +99,7 @@ pub trait PointDefinition {
     // Shared parse implementation
     #[cfg(feature = "json")]
     fn parse(&mut self, value: JsonValue, context: &BaseProviderContext) {
-        let root: JsonValue = match value {
+        let root: JsonValue = match value.as_array().unwrap()[0] {
             JsonValue::Array(_) => value,
             _ => json!([value]),
         };
