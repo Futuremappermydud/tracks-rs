@@ -82,7 +82,7 @@ cbindgen = { version = "0.28", optional = true }
 [features]
 json = ["dep:serde_json"]
 ffi = ["dep:cbindgen"]
-default = ["json"]
+default = ["json", "ffi"]
 
 [patch.crates-io]
 pathfinder_simd = { git = "https://github.com/theoparis/pathfinder.git" }

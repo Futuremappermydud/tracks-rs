@@ -18,7 +18,7 @@ impl BaseProviderValues {
 impl AbstractValueProvider for BaseProviderValues {
     fn values<'a>(&'a self, context: &BaseProviderContext) -> Cow<'a, [f32]> {
         let base = self.base.split(".").collect::<Vec<&str>>();
-        let value = context.get_values(&base[0]);
+        let value = context.get_values(base[0]);
         value.as_slice().to_vec().into()
     }
 }

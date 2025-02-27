@@ -4,6 +4,8 @@ use serde_json::Value as JsonValue;
 use std::borrow::Cow;
 
 pub mod base;
+#[cfg(feature = "ffi")]
+pub mod base_ffi;
 pub mod base_provider_context;
 pub mod quat;
 pub mod smooth;

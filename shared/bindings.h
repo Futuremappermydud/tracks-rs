@@ -19,6 +19,8 @@ typedef enum JsonValueType {
   Array,
 } JsonValueType;
 
+typedef struct BaseFFIProviderValues BaseFFIProviderValues;
+
 typedef struct BaseProviderContext BaseProviderContext;
 
 typedef struct FloatPointDefinition FloatPointDefinition;
@@ -44,6 +46,13 @@ typedef struct FFIJsonValue {
   enum JsonValueType value_type;
   union JsonValueData data;
 } FFIJsonValue;
+
+typedef struct WrappedValues {
+  const float *values;
+  uintptr_t length;
+} WrappedValues;
+
+typedef struct WrappedValues (*BaseFFIProvider)(const struct BaseProviderContext*, void*);
 
 typedef struct FloatInterpolationResult {
   float value;
@@ -98,6 +107,11 @@ struct FFIJsonValue tracks_create_json_string(const char *value);
 struct FFIJsonValue tracks_create_json_array(const struct FFIJsonValue *elements, uintptr_t length);
 
 void tracks_free_json_value(struct FFIJsonValue *json_value);
+
+struct BaseFFIProviderValues *tracks_make_base_ffi_provider(const BaseFFIProvider *func,
+                                                            void *user_value);
+
+void tracks_dipose_base_ffi_provider(struct BaseFFIProviderValues *func);
 
 /**
  * CONTEXT

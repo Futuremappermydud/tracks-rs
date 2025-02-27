@@ -2,6 +2,8 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(slice_pattern)]
 #![feature(new_range_api)]
+#![feature(type_alias_impl_trait)]
+#![feature(trait_alias)]
 
 use std::{backtrace::Backtrace, panic::PanicHookInfo};
 

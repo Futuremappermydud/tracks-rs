@@ -2,13 +2,16 @@ use crate::point_definition::float_point_definition::FloatPointDefinition;
 use crate::point_definition::quaternion_point_definition::QuaternionPointDefinition;
 use crate::point_definition::vector4_point_definition::Vector4PointDefinition;
 use crate::point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition};
+use crate::values::base_ffi::{BaseFFIProvider, BaseFFIProviderValues};
 use crate::values::base_provider_context::BaseProviderContext;
 use crate::values::value::BaseValue;
 use std::ffi::{CStr, c_char};
+use std::os::raw::c_void;
 use std::slice;
 use tracing::info;
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct WrapVec3 {
     x: f32,
     y: f32,
@@ -16,6 +19,7 @@ pub struct WrapVec3 {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct WrapVec4 {
     x: f32,
     y: f32,
@@ -24,11 +28,44 @@ pub struct WrapVec4 {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct WrapQuat {
     x: f32,
     y: f32,
     z: f32,
     w: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub enum WrapBaseValueType {
+    Vec3 = 0,
+    Quat = 1,
+    Vec4 = 2,
+    Float = 3,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union WrapBaseValueUnion {
+    vec3: WrapVec3,
+    quat: WrapQuat,
+    vec4: WrapVec4,
+    float: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct WrapBaseValue {
+    ty: WrapBaseValueType,
+    value: WrapBaseValueUnion,
+}
+
+#[derive(Copy, Clone)]
+#[repr(C)]
+pub struct WrappedValues {
+    pub values: *const f32,
+    pub length: usize,
 }
 
 #[repr(C)]
@@ -183,6 +220,28 @@ pub unsafe extern "C" fn tracks_free_json_value(json_value: *mut FFIJsonValue) {
     }
 }
 
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn tracks_make_base_ffi_provider(
+    func: *const BaseFFIProvider,
+    user_value: *mut c_void,
+) -> *mut BaseFFIProviderValues {
+    assert!(!func.is_null());
+
+    let context = Box::new(BaseFFIProviderValues::new(func, user_value));
+    let context_ptr = Box::leak(context);
+    context_ptr
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn tracks_dipose_base_ffi_provider(func: *mut BaseFFIProviderValues) {
+    assert!(!func.is_null());
+
+    // destroy
+    unsafe {
+        let _ = Box::from_raw(func);
+    };
+}
+
 /// CONTEXT
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn tracks_make_base_provider_context() -> *mut BaseProviderContext {
@@ -204,7 +263,7 @@ pub unsafe extern "C" fn tracks_set_base_provider(
     context.set_values(base_str, unsafe {
         let v = slice::from_raw_parts(values, count);
         BaseValue::from_slice(v, quat)
-    }); 
+    });
 }
 
 ///FLOAT POINT DEFINITION
