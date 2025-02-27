@@ -1,8 +1,16 @@
 use std::borrow::Borrow;
 
 use glam::{Quat, Vec3, Vec4};
+use tracing::info;
 
-use super::value::{BaseValue, BaseValueRef};
+use crate::modifiers::quaternion_modifier::QuaternionValues;
+
+use super::{
+    AbstractValueProvider, ValueProvider,
+    base::BaseProviderValues,
+    quat::QuaternionProviderValues,
+    value::{BaseValue, BaseValueRef},
+};
 
 pub struct BaseProviderContext {
     //Score
@@ -252,5 +260,20 @@ impl BaseProviderContext {
             }
             _ => panic!("Base provider not found"),
         }
+    }
+
+    pub fn get_value_provider(&self, base: &str) -> ValueProvider {
+        let split_base = base.split(".").collect::<Vec<&str>>();
+        let base_name = split_base[0];
+
+        let base_value =
+        let base_value: ValueProvider = match self.get_values(base_name) {
+            BaseValueRef::Quaternion(_) => {
+                info!("Quaternion provider");
+                ValueProvider::QuaternionProvider(QuaternionProviderValues::new(base_value))
+            }
+            _ => base_value,
+        };
+        base_value
     }
 }

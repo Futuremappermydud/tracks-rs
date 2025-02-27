@@ -1,4 +1,5 @@
 use glam::Vec3;
+use tracing::error;
 
 use crate::{
     easings::functions::Functions,
@@ -84,7 +85,7 @@ impl PointDefinition for Vector3PointDefinition {
             _ => {
                 let count: usize = values.iter().map(|v| v.values(context).len()).sum();
                 if count != 3 {
-                    eprintln!("Vector3 modifier point must have 3 numbers");
+                    error!("Vector3 modifier point must have 3 numbers");
                 }
                 Vector3Values::Dynamic(values)
             }

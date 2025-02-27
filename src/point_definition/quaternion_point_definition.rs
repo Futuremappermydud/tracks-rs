@@ -79,7 +79,6 @@ impl PointDefinition for QuaternionPointDefinition {
                     values[1].to_radians(),
                     values[2].to_radians(),
                 );
-
                 (QuaternionValues::Static(raw_vector_point, quat), values[3])
             }
             _ => {

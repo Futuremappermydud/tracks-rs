@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use glam::Vec3;
+use glam::{Mat4, Vec3};
 use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
@@ -25,8 +25,7 @@ pub struct QuatContext {
 impl QuatContext {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
-        let definition =
-            QuaternionPointDefinition::new(json!([[0, 90, 0, 0], [0, 0, 90, 1]]), &context);
+        let definition = QuaternionPointDefinition::new(json!([0, "baseCombo", 0]), &context);
         Self {
             definition,
             context: RefCell::new(context),
@@ -98,19 +97,13 @@ pub fn draw_quat(
                     .interpolate(x as f32, &context.context.borrow())
                     .0
                     .normalize();
-                let to: Vec3 = point.inverse().mul_vec3(Vec3 {
-                    x: x as f32,
-                    y: 0.0,
-                    z: 0.0,
-                });
-                let angles: [f64; 3] = to.normalize().to_array().map(|x| (x as f64));
+                let to: Vec3 = Mat4::from_quat(point)
+                    .transform_vector3(Vec3::Z)
+                    .normalize();
 
                 chart
                     .draw_series(LineSeries::new(
-                        [
-                            (x as f64, 0.0, 0.0),
-                            (x as f64 + angles[0], angles[1], angles[2]),
-                        ],
+                        [(0.0, 0.0, x), (to.x as f64, to.y as f64, x + to.z as f64)],
                         RGBAColor {
                             0: (255.0 * x) as u8,
                             1: (255.0 * (1.0 - x)) as u8,

@@ -98,7 +98,7 @@ impl JsonPointValues {
 #[cfg(feature = "json")]
 pub fn deserialize_values(
     value: &[&JsonValue],
-    _context: &BaseProviderContext,
+    context: &BaseProviderContext,
 ) -> Vec<ValueProvider> {
     let mut result = Vec::new();
     let mut start = 0;
@@ -108,8 +108,8 @@ pub fn deserialize_values(
             close(&mut result, value.to_vec(), start, i);
             start = i + 1;
 
-            let base = BaseProviderValues::new(s.clone());
-            result.push(ValueProvider::BaseProvider(base));
+            let base = context.get_value_provider(s);
+            result.push(base);
         }
     }
 

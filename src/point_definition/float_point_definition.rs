@@ -8,10 +8,7 @@ use crate::{
         operation::Operation,
     },
     point_data::{PointData, float_point_data::FloatPointData},
-    values::{
-        AbstractValueProvider, ValueProvider,
-        base_provider_context::BaseProviderContext,
-    },
+    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;

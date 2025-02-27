@@ -101,7 +101,11 @@ pub trait PointDefinition {
     fn parse(&mut self, value: JsonValue, context: &BaseProviderContext) {
         let root: JsonValue = match value.as_array().unwrap()[0] {
             JsonValue::Array(_) => value,
-            _ => json!([value]),
+            _ => {
+                let mut cloned = value.as_array().unwrap().clone();
+                cloned.push(json!(0));
+                json!([cloned])
+            }
         };
 
         let Some(array) = root.as_array() else { return };

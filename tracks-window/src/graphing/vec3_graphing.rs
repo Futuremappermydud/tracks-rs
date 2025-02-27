@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 
+use glam::Vec3;
 use minifb::Window;
 use plotters::{
     backend::BGRXPixel,
@@ -26,14 +27,7 @@ pub struct Vec3Context {
 impl Vec3Context {
     pub fn new() -> Self {
         let context = BaseProviderContext::new();
-        let definition = Vector3PointDefinition::new(
-            json!([
-                [3.0, 0.0, "baseCombo", 0.0],
-                [1.0, 0.0, 0.0, 0.5, "splineCatmullRom", "easeInSine"],
-                [1.0, 2.0, 3.0, 1.0, "splineCatmullRom", "easeOutSine"]
-            ]),
-            &context,
-        );
+        let definition = Vector3PointDefinition::new(json!(["baseLeftHandPosition"]), &context);
         Self {
             definition,
             context: RefCell::new(context),
@@ -76,10 +70,10 @@ pub fn draw_vec3(
     _window: &Window,
 ) {
     {
-        context
-            .context
-            .borrow_mut()
-            .set_values("baseCombo", ((epoch.sin() as f32 + 1.0) * 0.5).into());
+        context.context.borrow_mut().set_values(
+            "baseLeftHandPosition",
+            Vec3::new(epoch.sin() as f32 + 1.0, 2.0, 3.0).into(),
+        );
         let mut chart: plotters::prelude::ChartContext<
             '_,
             BitMapBackend<'_, BGRXPixel>,

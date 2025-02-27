@@ -2,10 +2,7 @@ use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use serde_json::json;
 use std::hint::black_box;
 use tracks_rs::{
-    point_definition::{
-        PointDefinition,
-        quaternion_point_definition::QuaternionPointDefinition,
-    },
+    point_definition::{PointDefinition, quaternion_point_definition::QuaternionPointDefinition},
     values::base_provider_context::BaseProviderContext,
 };
 

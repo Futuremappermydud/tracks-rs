@@ -54,6 +54,10 @@ impl ModifierBase for Vector3PointData {
     fn get_operation(&self) -> Operation {
         self.base_modifier.get_operation()
     }
+
+    fn has_base_provider(&self) -> bool {
+        self.base_modifier.has_base_provider()
+    }
 }
 
 impl BasePointData<Vec3> for Vector3PointData {
@@ -66,7 +70,7 @@ impl BasePointData<Vec3> for Vector3PointData {
     }
 
     fn has_base_provider(&self) -> bool {
-        false
+        self.base_modifier.has_base_provider()
     }
 
     fn get_point(&self, context: &BaseProviderContext) -> Vec3 {

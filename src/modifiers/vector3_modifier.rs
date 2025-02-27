@@ -1,5 +1,5 @@
-use super::ModifierValues;
 use super::{Modifier, ModifierBase, operation::Operation};
+use super::{ModifierValues, shared_has_base_provider};
 use crate::values::base_provider_context::BaseProviderContext;
 use glam::Vec3;
 
@@ -7,14 +7,18 @@ pub type Vector3Values = ModifierValues<Vec3>;
 
 pub struct Vector3Modifier {
     values: Vector3Values,
+    has_base_provider: bool,
     modifiers: Vec<Modifier>,
     operation: Operation,
 }
 
 impl Vector3Modifier {
     pub fn new(point: Vector3Values, modifiers: Vec<Modifier>, operation: Operation) -> Self {
+        let has_base_provider =
+            shared_has_base_provider(matches!(point, Vector3Values::Dynamic(_)), &modifiers);
         Self {
             values: point,
+            has_base_provider,
             modifiers,
             operation,
         }
@@ -51,5 +55,9 @@ impl ModifierBase for Vector3Modifier {
 
     fn get_operation(&self) -> Operation {
         self.operation
+    }
+
+    fn has_base_provider(&self) -> bool {
+        self.has_base_provider
     }
 }

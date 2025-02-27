@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use tracing::info;
+
 use crate::values::base_provider_context::BaseProviderContext;
 
 use super::AbstractValueProvider;
@@ -17,8 +19,7 @@ impl BaseProviderValues {
 
 impl AbstractValueProvider for BaseProviderValues {
     fn values<'a>(&'a self, context: &BaseProviderContext) -> Cow<'a, [f32]> {
-        let base = self.base.split(".").collect::<Vec<&str>>();
-        let value = context.get_values(base[0]);
+        let value = context.get_values(&self.base);
         value.as_slice().to_vec().into()
     }
 }

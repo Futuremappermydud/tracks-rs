@@ -262,6 +262,7 @@ pub unsafe extern "C" fn tracks_set_base_provider(
     let context = unsafe { &mut *context };
     context.set_values(base_str, unsafe {
         let v = slice::from_raw_parts(values, count);
+        info!("v: {} {:?}", base_str, v);
         BaseValue::from_slice(v, quat)
     });
 }
@@ -272,7 +273,6 @@ pub unsafe extern "C" fn tracks_make_float_point_definition(
     json: *const FFIJsonValue,
     context: *mut BaseProviderContext,
 ) -> *const FloatPointDefinition {
-    println!("json: {:?}", json);
     let value = unsafe { convert_json_value_to_serde(json) };
     let point_definition = Box::new(FloatPointDefinition::new(value, unsafe { &*context }));
     let point_definition_ptr = Box::leak(point_definition);

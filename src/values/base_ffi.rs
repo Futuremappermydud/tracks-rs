@@ -11,7 +11,6 @@ use crate::{
 
 use super::AbstractValueProvider;
 
-
 pub type BaseFFIProvider = unsafe extern "C" fn(&BaseProviderContext, *mut c_void) -> WrappedValues;
 
 pub struct BaseFFIProviderValues {

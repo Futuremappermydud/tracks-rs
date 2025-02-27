@@ -1,5 +1,4 @@
-
-use super::{Modifier, ModifierBase, operation::Operation};
+use super::{Modifier, ModifierBase, operation::Operation, shared_has_base_provider};
 use crate::values::{
     AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext,
 };
@@ -17,14 +16,18 @@ pub enum QuaternionValues {
 
 pub struct QuaternionModifier {
     values: QuaternionValues,
+    has_base_provider: bool,
     modifiers: Vec<Modifier>,
     operation: Operation,
 }
 
 impl QuaternionModifier {
     pub fn new(point: QuaternionValues, modifiers: Vec<Modifier>, operation: Operation) -> Self {
+        let has_base_provider =
+            shared_has_base_provider(matches!(point, QuaternionValues::Dynamic(_)), &modifiers);
         Self {
             values: point,
+            has_base_provider,
             modifiers,
             operation,
         }
@@ -70,17 +73,18 @@ impl ModifierBase for QuaternionModifier {
     const VALUE_COUNT: usize = 3;
 
     fn get_point(&self, context: &BaseProviderContext) -> Quat {
-        if self.modifiers.is_empty() {
+        if self.modifiers.is_empty() && matches!(self.values, QuaternionValues::Static(_, _)) {
             return self.get_raw_point();
         }
         // modifiers applied to the point
         let vector_point = self.get_vector_point(context);
-        Quat::from_euler(
+        let res = Quat::from_euler(
             TRACKS_EULER_ROT,
             vector_point.x.to_radians(),
             vector_point.y.to_radians(),
             vector_point.z.to_radians(),
-        )
+        );
+        res
     }
 
     fn get_raw_point(&self) -> Quat {
@@ -101,5 +105,9 @@ impl ModifierBase for QuaternionModifier {
 
     fn get_operation(&self) -> Operation {
         self.operation
+    }
+
+    fn has_base_provider(&self) -> bool {
+        self.has_base_provider
     }
 }

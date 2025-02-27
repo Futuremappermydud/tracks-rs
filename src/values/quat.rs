@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use super::UpdateableValues;
+use super::{ValueProvider, value::BaseValue};
 
 use crate::{
     modifiers::quaternion_modifier::TRACKS_EULER_ROT,
@@ -13,41 +13,28 @@ use glam::Quat;
 
 #[derive(Clone, Debug)]
 pub struct QuaternionProviderValues {
-    pub(crate) source: Vec<f32>,
-    pub(crate) values: [f32; 3],
-    pub(crate) rotation: Quat,
+    pub(crate) source: Box<ValueProvider>,
 }
 
 impl QuaternionProviderValues {
-    pub fn new(source: Vec<f32>) -> Self {
+    pub fn new(source: ValueProvider) -> Self {
         Self {
-            source,
-            values: Default::default(),
-            rotation: Quat::IDENTITY,
+            source: Box::new(source),
         }
     }
 }
 
 impl AbstractValueProvider for QuaternionProviderValues {
     fn values<'a>(&'a self, _context: &BaseProviderContext) -> Cow<'a, [f32]> {
-        Cow::Borrowed(self.values.as_ref())
-    }
-}
+        let source = self.source.values(_context);
+        let rotation = Quat::from_xyzw(source[0], source[1], source[2], source[3]);
+        let euler = rotation.to_euler(TRACKS_EULER_ROT);
 
-impl UpdateableValues for QuaternionProviderValues {
-    fn update(&mut self, _delta: f32) {
-        self.rotation = Quat::from_xyzw(
-            self.source[0],
-            self.source[1],
-            self.source[2],
-            self.source[3],
-        );
-        let euler = self.rotation.to_euler(TRACKS_EULER_ROT);
-
-        self.values = [
+        let values = [
             euler.0.to_degrees(),
             euler.1.to_degrees(),
             euler.2.to_degrees(),
         ];
+        values.to_vec().into()
     }
 }

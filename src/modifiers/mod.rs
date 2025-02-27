@@ -68,6 +68,15 @@ impl Modifier {
             Modifier::Quaternion(modifier) => modifier.get_operation(),
         }
     }
+
+    pub fn has_base_provider(&self) -> bool {
+        match self {
+            Modifier::Float(modifier) => modifier.has_base_provider(),
+            Modifier::Vector3(modifier) => modifier.has_base_provider(),
+            Modifier::Vector4(modifier) => modifier.has_base_provider(),
+            Modifier::Quaternion(modifier) => modifier.has_base_provider(),
+        }
+    }
 }
 
 impl<T> ModifierValues<T> {
@@ -94,6 +103,7 @@ pub trait ModifierBase {
     fn get_raw_point(&self) -> Self::Value;
     fn translate(&self, values: &[f32]) -> Self::Value;
     fn get_operation(&self) -> Operation;
+    fn has_base_provider(&self) -> bool;
 
     fn fill_values(&self, ivals: &[ValueProvider], context: &BaseProviderContext) -> Vec<f32> {
         let mut values = Vec::with_capacity(Self::VALUE_COUNT);
@@ -112,5 +122,12 @@ pub trait ModifierBase {
     fn convert(&self, ivals: &[ValueProvider], context: &BaseProviderContext) -> Self::Value {
         let values = self.fill_values(ivals, context);
         self.translate(&values)
+    }
+}
+
+pub fn shared_has_base_provider(is_dynamic: bool, modifiers: &Vec<Modifier>) -> bool {
+    match is_dynamic {
+        true => true,
+        false => modifiers.iter().any(|m| m.has_base_provider()),
     }
 }
