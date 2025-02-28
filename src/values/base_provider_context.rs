@@ -12,6 +12,7 @@ use super::{
     value::{BaseValue, BaseValueRef},
 };
 
+#[derive(Default)]
 pub struct BaseProviderContext {
     //Score
     base_combo: f32,
@@ -58,44 +59,7 @@ pub struct BaseProviderContext {
 
 impl BaseProviderContext {
     pub fn new() -> Self {
-        Self {
-            base_combo: (0.0),
-            multiplied_score: (0.0),
-            immediate_max_possible_multiplied_score: (0.0),
-            modified_score: (0.0),
-            immediate_max_possible_modified_score: (0.0),
-            relative_score: (0.0),
-            multiplier: (0.0),
-            energy: (0.0),
-            song_time: (0.0),
-            song_length: (0.0),
-            environment_color_0: (Vec4::ZERO),
-            environment_color_0_boost: (Vec4::ZERO),
-            environment_color_1: (Vec4::ZERO),
-            environment_color_1_boost: (Vec4::ZERO),
-            environment_color_w: (Vec4::ZERO),
-            environment_color_w_boost: (Vec4::ZERO),
-            note_color_0: (Vec4::ZERO),
-            note_color_1: (Vec4::ZERO),
-            obstacles_color: (Vec4::ZERO),
-            saber_color_a: (Vec4::ZERO),
-            saber_color_b: (Vec4::ZERO),
-            head_local_position: (Vec3::ZERO),
-            head_local_rotation: (Quat::IDENTITY),
-            head_local_scale: (Vec3::ONE),
-            head_position: (Vec3::ZERO),
-            head_rotation: (Quat::IDENTITY),
-            left_hand_local_position: (Vec3::ZERO),
-            left_hand_local_rotation: (Quat::IDENTITY),
-            left_hand_local_scale: (Vec3::ONE),
-            left_hand_position: (Vec3::ZERO),
-            left_hand_rotation: (Quat::IDENTITY),
-            right_hand_local_position: (Vec3::ZERO),
-            right_hand_local_rotation: (Quat::IDENTITY),
-            right_hand_local_scale: (Vec3::ONE),
-            right_hand_position: (Vec3::ZERO),
-            right_hand_rotation: (Quat::IDENTITY),
-        }
+        Default::default()
     }
 
     pub fn get_values<'a>(&'a self, base: &str) -> BaseValueRef<'a> {
@@ -266,7 +230,7 @@ impl BaseProviderContext {
         let split_base = base.split(".").collect::<Vec<&str>>();
         let base_name = split_base[0];
 
-        let base_value =
+        let base_value = ValueProvider::BaseProvider(BaseProviderValues::new(base_name.to_owned()));
         let base_value: ValueProvider = match self.get_values(base_name) {
             BaseValueRef::Quaternion(_) => {
                 info!("Quaternion provider");
