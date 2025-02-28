@@ -7,6 +7,7 @@
 
 #ifdef __cplusplus
 namespace Tracks {
+namespace ffi {
 #endif  // __cplusplus
 
 /**
@@ -185,5 +186,6 @@ bool tracks_quat_has_base_provider(const struct QuaternionPointDefinition *point
 #endif  // __cplusplus
 
 #ifdef __cplusplus
+}  // namespace ffi
 }  // namespace Tracks
 #endif  // __cplusplus

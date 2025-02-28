@@ -12,7 +12,7 @@ fn main() {
         cbindgen::Builder::new()
             .with_crate(crate_dir)
             .with_language(cbindgen::Language::C)
-            .with_namespaces(&["Tracks"])
+            .with_namespaces(&["Tracks", "ffi"])
             .with_cpp_compat(true)
             .with_pragma_once(true)
             .generate()

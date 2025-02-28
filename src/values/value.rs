@@ -1,3 +1,5 @@
+use glam::FloatExt;
+
 use std::ops::Div;
 use std::ops::Index;
 use std::ops::IndexMut;
@@ -21,6 +23,12 @@ pub enum BaseValue {
     Vector3(Vec3),
     Vector4(Vec4),
     Quaternion(Quat),
+}
+
+impl Default for BaseValue {
+    fn default() -> Self {
+        BaseValue::Float(0.0)
+    }
 }
 
 #[derive(Clone, Debug, Copy)]
@@ -89,6 +97,22 @@ impl BaseValue {
             BaseValue::Vector3(v) => v.as_ref(),
             BaseValue::Vector4(v) => v.as_ref(),
             BaseValue::Quaternion(v) => v.as_ref(),
+        }
+    }
+
+    pub fn lerp(a: BaseValue, b: BaseValue, t: f32) -> BaseValue {
+        match (a, b) {
+            (BaseValue::Float(v1), BaseValue::Float(v2)) => f32::lerp(v1, v2, t).into(),
+            (BaseValue::Vector3(v1), BaseValue::Vector3(v2)) => Vec3::lerp(v1, v2, t).into(),
+            (BaseValue::Vector4(v1), BaseValue::Vector4(v2)) => {
+                Vec4::lerp(v1, v2, t).into()
+            }
+            (BaseValue::Quaternion(v1), BaseValue::Quaternion(v2)) => {
+                // lerp or slerp?
+                
+                Quat::slerp(v1, v2, t).into()
+            }
+            _ => panic!("Invalid interpolation"),
         }
     }
 }
