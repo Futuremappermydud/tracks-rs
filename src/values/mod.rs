@@ -1,17 +1,20 @@
-use crate::values::base_provider_context::BaseProviderContext;
+use crate::values::base_provider_context::{BaseProviderContext, UpdatableProviderContext};
 use base::BaseProviderValues;
 use serde_json::Value as JsonValue;
-use std::borrow::Cow;
+use std::{
+    borrow::Cow,
+    cell::{RefCell, RefMut},
+};
 
 pub mod base;
 #[cfg(feature = "ffi")]
 pub mod base_ffi;
 pub mod base_provider_context;
+pub mod partial;
 pub mod quat;
 pub mod smooth;
 pub mod smooth_rot;
 pub mod r#static;
-pub mod updatable;
 pub mod value;
 
 /// Abstract value provider
@@ -29,7 +32,7 @@ pub trait AbstractValueProvider {
 pub trait UpdateableValues: AbstractValueProvider {
     /// Update the values from the source
     /// delta is the amount to progress from the source to target
-    fn update(&mut self, delta: f32);
+    fn update(&mut self, delta: f32, context: &BaseProviderContext);
 }
 
 /// Value provider
@@ -39,22 +42,42 @@ pub enum ValueProvider {
     Static(r#static::StaticValues),
     BaseProvider(base::BaseProviderValues),
     QuaternionProvider(quat::QuaternionProviderValues),
-    PartialProvider(updatable::PartialProviderValues),
-    SmoothProviders(smooth::SmoothProvidersValues),
-    SmoothRotationProviders(smooth_rot::SmoothRotationProvidersValues),
+    PartialProvider(partial::PartialProviderValues),
+    SmoothProviders(RefCell<smooth::SmoothProvidersValues>),
+    SmoothRotationProviders(RefCell<smooth_rot::SmoothRotationProvidersValues>),
+}
+
+#[derive(Clone, Debug)]
+pub enum UpdatableValueProvider {
+    SmoothProviders(RefCell<smooth::SmoothProvidersValues>),
+    SmoothRotationProviders(RefCell<smooth_rot::SmoothRotationProvidersValues>),
+}
+
+impl ValueProvider {
+    fn update(&mut self, delta: f32, context: &BaseProviderContext) {
+        match self {
+          ValueProvider::SmoothProviders(v) => v.borrow_mut().update(delta, context),
+            _ => {}
+        }
+    }
 }
 
 impl AbstractValueProvider for ValueProvider {
     fn values<'a>(&'a self, context: &BaseProviderContext) -> Cow<'a, [f32]> {
-        let items = match self {
+        match self {
             ValueProvider::Static(v) => v.values(context),
             ValueProvider::BaseProvider(v) => v.values(context),
             ValueProvider::QuaternionProvider(v) => v.values(context),
             ValueProvider::PartialProvider(v) => v.values(context),
-            ValueProvider::SmoothProviders(v) => v.values(context),
-            ValueProvider::SmoothRotationProviders(v) => v.values(context),
-        };
-        items
+            ValueProvider::SmoothProviders(v) => {
+                let borrowed = v.borrow();
+                Cow::Owned(borrowed.values(context).to_vec())
+            }
+            ValueProvider::SmoothRotationProviders(v) => {
+                let borrowed = v.borrow();
+                Cow::Owned(borrowed.values(context).to_vec())
+            }
+        }
     }
 }
 
@@ -98,7 +121,8 @@ impl JsonPointValues {
 #[cfg(feature = "json")]
 pub fn deserialize_values(
     value: &[&JsonValue],
-    context: &BaseProviderContext,
+    context: &mut BaseProviderContext,
+    updatable_providers: &mut UpdatableProviderContext,
 ) -> Vec<ValueProvider> {
     let mut result = Vec::new();
     let mut start = 0;
@@ -108,7 +132,7 @@ pub fn deserialize_values(
             close(&mut result, value.to_vec(), start, i);
             start = i + 1;
 
-            let base = context.get_value_provider(s);
+            let base = context.get_value_provider(s, updatable_providers);
             result.push(base);
         }
     }

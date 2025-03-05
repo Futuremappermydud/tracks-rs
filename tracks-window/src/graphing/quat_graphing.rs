@@ -14,7 +14,7 @@ use serde_json::json;
 
 use tracks_rs::{
     point_definition::{PointDefinition, quaternion_point_definition::QuaternionPointDefinition},
-    values::base_provider_context::BaseProviderContext,
+    values::base_provider_context::{BaseProviderContext, UpdatableProviderContext},
 };
 
 pub struct QuatContext {
@@ -24,8 +24,13 @@ pub struct QuatContext {
 
 impl QuatContext {
     pub fn new() -> Self {
-        let context = BaseProviderContext::new();
-        let definition = QuaternionPointDefinition::new(json!([0, "baseCombo", 0]), &context);
+        let mut context = BaseProviderContext::new();
+        let mut updatable_provider = UpdatableProviderContext::new();
+        let definition = QuaternionPointDefinition::new(
+            json!([0, "baseCombo", 0]),
+            &mut context,
+            &mut updatable_provider,
+        );
         Self {
             definition,
             context: RefCell::new(context),

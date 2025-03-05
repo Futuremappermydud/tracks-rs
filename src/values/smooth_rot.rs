@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, cell::RefCell};
 
 use super::UpdateableValues;
 
@@ -37,7 +37,7 @@ impl AbstractValueProvider for SmoothRotationProvidersValues {
 }
 
 impl UpdateableValues for SmoothRotationProvidersValues {
-    fn update(&mut self, delta: f32) {
+    fn update(&mut self, delta: f32, _context: &BaseProviderContext) {
         self.last_quaternion = self
             .last_quaternion
             .slerp(self.rotation_values, delta * self.mult);

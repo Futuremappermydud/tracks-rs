@@ -8,7 +8,10 @@ use crate::{
         operation::Operation,
     },
     point_data::{PointData, float_point_data::FloatPointData},
-    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
+    values::{
+        AbstractValueProvider, ValueProvider,
+        base_provider_context::{BaseProviderContext, UpdatableProviderContext},
+    },
 };
 
 use super::PointDefinition;
@@ -118,9 +121,13 @@ impl PointDefinition for FloatPointDefinition {
 impl FloatPointDefinition {
     /// Constructor equivalent – parses the provided JSON immediately.
     #[cfg(feature = "json")]
-    pub fn new(value: serde_json::Value, context: &BaseProviderContext) -> Self {
+    pub fn new(
+        value: serde_json::Value,
+        context: &mut BaseProviderContext,
+        updatable_providers: &mut UpdatableProviderContext,
+    ) -> Self {
         let mut instance = Self { points: Vec::new() };
-        instance.parse(value, context);
+        instance.parse(value, context, updatable_providers);
         instance
     }
 }

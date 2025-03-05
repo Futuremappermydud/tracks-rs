@@ -1,4 +1,8 @@
-use std::borrow::Borrow;
+use std::{
+    borrow::Borrow,
+    cell::{Ref, RefCell},
+    ops::{Deref, DerefMut},
+};
 
 use glam::{Quat, Vec3, Vec4};
 use tracing::info;
@@ -6,9 +10,10 @@ use tracing::info;
 use crate::modifiers::quaternion_modifier::QuaternionValues;
 
 use super::{
-    AbstractValueProvider, ValueProvider,
+    AbstractValueProvider, UpdatableValueProvider, UpdateableValues, ValueProvider,
     base::BaseProviderValues,
     quat::QuaternionProviderValues,
+    smooth::SmoothProvidersValues,
     value::{BaseValue, BaseValueRef},
 };
 
@@ -54,6 +59,10 @@ pub struct BaseProviderContext {
     right_hand_local_scale: Vec3,
     right_hand_position: Vec3,
     right_hand_rotation: Quat,
+}
+
+pub struct UpdatableProviderContext {
+    providers: Vec<RefCell<ValueProvider>>,
 }
 
 impl BaseProviderContext {
@@ -262,11 +271,44 @@ impl BaseProviderContext {
         }
     }
 
-    pub fn get_value_provider(&self, base: &str) -> ValueProvider {
+    fn get_modified_provider(
+        &mut self,
+        provider: RefCell<ValueProvider>,
+        split: &str,
+        updatable_providers: &mut UpdatableProviderContext,
+    ) -> RefCell<ValueProvider> {
+        match split.chars().nth(0) {
+            Some('s') => {
+                let smooth_mult_str = split[1..split.len()].replace("_", ".");
+                println!("smooth_mult_str: {}", smooth_mult_str);
+                let smooth_mult = smooth_mult_str.parse::<f32>().unwrap();
+                println!("smooth_mult: {}", smooth_mult);
+                let smooth = SmoothProvidersValues::new(Box::new(provider.borrow().clone()), smooth_mult);
+                let smooth_ref = RefCell::new(smooth);
+                updatable_providers.add_provider(RefCell::new(ValueProvider::SmoothProviders(smooth_ref)))
+            }
+            Some(_) => {
+                //let partial = PartialProviderValues::new(provider, split);
+                //ValueProvider::PartialProvider(partial)
+                provider
+            }
+            None => {
+                eprintln!("Invalid split: {}", split);
+                provider
+            }
+        }
+    }
+
+    pub fn get_value_provider(
+        &mut self,
+        base: &str,
+        updatable_providers: &mut UpdatableProviderContext,
+    ) -> RefCell<ValueProvider> {
         let split_base = base.split(".").collect::<Vec<&str>>();
         let base_name = split_base[0];
 
         let base_value =
+            ValueProvider::BaseProvider(BaseProviderValues::new(base_name.to_string()));
         let base_value: ValueProvider = match self.get_values(base_name) {
             BaseValueRef::Quaternion(_) => {
                 info!("Quaternion provider");
@@ -274,6 +316,34 @@ impl BaseProviderContext {
             }
             _ => base_value,
         };
-        base_value
+
+        let mut result = RefCell::new(base_value);
+
+        if split_base.len() > 1 {
+            for i in 1..split_base.len() {
+                result = self.get_modified_provider(result, split_base[i], updatable_providers);
+            }
+        }
+
+        result
+    }
+}
+
+impl UpdatableProviderContext {
+    pub fn new() -> Self {
+        Self {
+            providers: Vec::new(),
+        }
+    }
+
+    pub fn add_provider(&mut self, provider: RefCell<ValueProvider>) -> RefCell<ValueProvider> {
+        self.providers.push(provider);
+        self.providers.last().unwrap().clone()
+    }
+
+    pub fn update(&mut self, delta: f32, context: &mut BaseProviderContext) {
+        for provider in self.providers.iter_mut() {
+            provider.borrow_mut().update(delta, context);
+        }
     }
 }

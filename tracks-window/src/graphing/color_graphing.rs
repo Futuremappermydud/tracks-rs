@@ -12,7 +12,7 @@ use plotters::{
 use serde_json::json;
 use tracks_rs::{
     point_definition::{PointDefinition, vector4_point_definition::Vector4PointDefinition},
-    values::base_provider_context::BaseProviderContext,
+    values::base_provider_context::{BaseProviderContext, UpdatableProviderContext},
 };
 
 pub struct ColorContext {
@@ -23,11 +23,13 @@ pub struct ColorContext {
 impl ColorContext {
     pub fn new() -> Self {
         let mut context = BaseProviderContext::new();
+        let mut updatable_provider = UpdatableProviderContext::new();
 
         context.set_values("baseNote0Color", vec4(1.0, 0.0, 0.0, 1.0).into());
         let definition = Vector4PointDefinition::new(
             json!(["baseNote0Color", [0.4, 0.4, 0.4, 1, "opMul"]]),
-            &context,
+            &mut context,
+            &mut updatable_provider,
         );
         Self {
             definition,

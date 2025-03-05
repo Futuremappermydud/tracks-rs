@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, cell::RefCell};
 
 use super::UpdateableValues;
 
@@ -30,7 +30,7 @@ impl AbstractValueProvider for PartialProviderValues {
 }
 
 impl UpdateableValues for PartialProviderValues {
-    fn update(&mut self, t: f32) {
+    fn update(&mut self, _delta: f32, _context: &BaseProviderContext) {
         for (i, &part) in self.parts.iter().enumerate() {
             self.values[i] = self.source[part];
         }

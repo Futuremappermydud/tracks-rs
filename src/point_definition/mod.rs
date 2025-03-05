@@ -12,7 +12,11 @@ use crate::point_data::PointData;
 use crate::{
     easings::functions::Functions,
     modifiers::{Modifier, operation::Operation},
-    values::{ValueProvider, base_provider_context::BaseProviderContext, deserialize_values},
+    values::{
+        ValueProvider,
+        base_provider_context::{BaseProviderContext, UpdatableProviderContext},
+        deserialize_values,
+    },
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
@@ -57,7 +61,12 @@ pub trait PointDefinition {
     fn get_point(&self, point: &PointData, context: &BaseProviderContext) -> Self::Value;
 
     #[cfg(feature = "json")]
-    fn deserialize_modifier(&self, list: &JsonValue, context: &BaseProviderContext) -> Modifier {
+    fn deserialize_modifier(
+        &self,
+        list: &JsonValue,
+        context: &mut BaseProviderContext,
+        updatable_providers: &mut UpdatableProviderContext,
+    ) -> Modifier {
         let mut modifiers: Option<Vec<Modifier>> = None;
         let mut operation: Option<Operation> = None;
         let mut values: Option<Vec<ValueProvider>> = None;
@@ -66,14 +75,14 @@ pub trait PointDefinition {
         for group in Self::group_values(list) {
             match group.0 {
                 GroupType::Value => {
-                    values = Some(deserialize_values(&group.1, context));
+                    values = Some(deserialize_values(&group.1, context, updatable_providers));
                 }
                 GroupType::Modifier => {
                     modifiers = Some(
                         group
                             .1
                             .iter()
-                            .map(|m| self.deserialize_modifier(m, context))
+                            .map(|m| self.deserialize_modifier(m, context, updatable_providers))
                             .collect(),
                     );
                 }
@@ -98,7 +107,12 @@ pub trait PointDefinition {
 
     // Shared parse implementation
     #[cfg(feature = "json")]
-    fn parse(&mut self, value: JsonValue, context: &BaseProviderContext) {
+    fn parse(
+        &mut self,
+        value: JsonValue,
+        context: &mut BaseProviderContext,
+        updatable_providers: &mut UpdatableProviderContext,
+    ) {
         let root: JsonValue = match value.as_array().unwrap()[0] {
             JsonValue::Array(_) => value,
             _ => {
@@ -124,14 +138,14 @@ pub trait PointDefinition {
             for group in Self::group_values(raw_point) {
                 match group.0 {
                     GroupType::Value => {
-                        vals = Some(deserialize_values(&group.1, context));
+                        vals = Some(deserialize_values(&group.1, context, updatable_providers));
                     }
                     GroupType::Modifier => {
                         modifiers = Some(
                             group
                                 .1
                                 .iter()
-                                .map(|m| self.deserialize_modifier(m, context))
+                                .map(|m| self.deserialize_modifier(m, context, updatable_providers))
                                 .collect(),
                         );
                     }
