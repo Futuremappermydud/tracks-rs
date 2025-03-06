@@ -14,7 +14,7 @@ use crate::{
     modifiers::{Modifier, operation::Operation},
     values::{
         ValueProvider,
-        base_provider_context::{BaseProviderContext, UpdatableProviderContext},
+        base_provider_context::{BaseProviderContext},
         deserialize_values,
     },
 };
@@ -65,7 +65,6 @@ pub trait PointDefinition {
         &self,
         list: &JsonValue,
         context: &mut BaseProviderContext,
-        updatable_providers: &mut UpdatableProviderContext,
     ) -> Modifier {
         let mut modifiers: Option<Vec<Modifier>> = None;
         let mut operation: Option<Operation> = None;
@@ -75,14 +74,14 @@ pub trait PointDefinition {
         for group in Self::group_values(list) {
             match group.0 {
                 GroupType::Value => {
-                    values = Some(deserialize_values(&group.1, context, updatable_providers));
+                    values = Some(deserialize_values(&group.1, context));
                 }
                 GroupType::Modifier => {
                     modifiers = Some(
                         group
                             .1
                             .iter()
-                            .map(|m| self.deserialize_modifier(m, context, updatable_providers))
+                            .map(|m| self.deserialize_modifier(m, context))
                             .collect(),
                     );
                 }
@@ -111,7 +110,6 @@ pub trait PointDefinition {
         &mut self,
         value: JsonValue,
         context: &mut BaseProviderContext,
-        updatable_providers: &mut UpdatableProviderContext,
     ) {
         let root: JsonValue = match value.as_array().unwrap()[0] {
             JsonValue::Array(_) => value,
@@ -138,14 +136,14 @@ pub trait PointDefinition {
             for group in Self::group_values(raw_point) {
                 match group.0 {
                     GroupType::Value => {
-                        vals = Some(deserialize_values(&group.1, context, updatable_providers));
+                        vals = Some(deserialize_values(&group.1, context));
                     }
                     GroupType::Modifier => {
                         modifiers = Some(
                             group
                                 .1
                                 .iter()
-                                .map(|m| self.deserialize_modifier(m, context, updatable_providers))
+                                .map(|m| self.deserialize_modifier(m, context))
                                 .collect(),
                         );
                     }

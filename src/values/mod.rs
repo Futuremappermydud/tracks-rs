@@ -1,4 +1,4 @@
-use crate::values::base_provider_context::{BaseProviderContext, UpdatableProviderContext};
+use crate::values::base_provider_context::BaseProviderContext;
 use base::BaseProviderValues;
 use serde_json::Value as JsonValue;
 use std::{
@@ -56,7 +56,7 @@ pub enum UpdatableValueProvider {
 impl ValueProvider {
     fn update(&mut self, delta: f32, context: &BaseProviderContext) {
         match self {
-          ValueProvider::SmoothProviders(v) => v.borrow_mut().update(delta, context),
+            ValueProvider::SmoothProviders(v) => v.borrow_mut().update(delta, context),
             _ => {}
         }
     }
@@ -122,7 +122,6 @@ impl JsonPointValues {
 pub fn deserialize_values(
     value: &[&JsonValue],
     context: &mut BaseProviderContext,
-    updatable_providers: &mut UpdatableProviderContext,
 ) -> Vec<ValueProvider> {
     let mut result = Vec::new();
     let mut start = 0;
@@ -132,7 +131,7 @@ pub fn deserialize_values(
             close(&mut result, value.to_vec(), start, i);
             start = i + 1;
 
-            let base = context.get_value_provider(s, updatable_providers);
+            let base = context.get_value_provider(s);
             result.push(base);
         }
     }

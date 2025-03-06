@@ -3,7 +3,7 @@ use crate::point_definition::quaternion_point_definition::QuaternionPointDefinit
 use crate::point_definition::vector4_point_definition::Vector4PointDefinition;
 use crate::point_definition::{PointDefinition, vector3_point_definition::Vector3PointDefinition};
 use crate::values::base_ffi::{BaseFFIProvider, BaseFFIProviderValues};
-use crate::values::base_provider_context::{BaseProviderContext, UpdatableProviderContext};
+use crate::values::base_provider_context::{BaseProviderContext};
 use crate::values::value::BaseValue;
 use std::ffi::{CStr, c_char};
 use std::os::raw::c_void;
@@ -272,13 +272,11 @@ pub unsafe extern "C" fn tracks_set_base_provider(
 pub unsafe extern "C" fn tracks_make_float_point_definition(
     json: *const FFIJsonValue,
     context: *mut BaseProviderContext,
-    updatable_providers: *mut UpdatableProviderContext,
 ) -> *const FloatPointDefinition {
     let value = unsafe { convert_json_value_to_serde(json) };
     let point_definition = Box::new(FloatPointDefinition::new(
         value,
         unsafe { &mut *context },
-        unsafe { &mut *updatable_providers },
     ));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
@@ -316,13 +314,11 @@ pub unsafe extern "C" fn tracks_float_has_base_provider(
 pub unsafe extern "C" fn tracks_make_vector3_point_definition(
     json: *const FFIJsonValue,
     context: *mut BaseProviderContext,
-    updatable_providers: *mut UpdatableProviderContext,
 ) -> *const Vector3PointDefinition {
     let value = unsafe { convert_json_value_to_serde(json) };
     let point_definition = Box::new(Vector3PointDefinition::new(
         value,
         unsafe { &mut *context },
-        unsafe { &mut *updatable_providers },
     ));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
@@ -367,13 +363,11 @@ pub unsafe extern "C" fn tracks_vector3_has_base_provider(
 pub unsafe extern "C" fn tracks_make_vector4_point_definition(
     json: *const FFIJsonValue,
     context: *mut BaseProviderContext,
-    updatable_providers: *mut UpdatableProviderContext,
 ) -> *const Vector4PointDefinition {
     let value = unsafe { convert_json_value_to_serde(json) };
     let point_definition = Box::new(Vector4PointDefinition::new(
         value,
         unsafe { &mut *context },
-        unsafe { &mut *updatable_providers },
     ));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr
@@ -419,13 +413,11 @@ pub unsafe extern "C" fn tracks_vector4_has_base_provider(
 pub unsafe extern "C" fn tracks_make_quat_point_definition(
     json: *const FFIJsonValue,
     context: *mut BaseProviderContext,
-    updatable_providers: *mut UpdatableProviderContext,
 ) -> *const QuaternionPointDefinition {
     let value = unsafe { convert_json_value_to_serde(json) };
     let point_definition = Box::new(QuaternionPointDefinition::new(
         value,
         unsafe { &mut *context },
-        unsafe { &mut *updatable_providers },
     ));
     let point_definition_ptr = Box::leak(point_definition);
     point_definition_ptr

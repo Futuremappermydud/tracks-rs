@@ -9,10 +9,7 @@ use crate::{
         vector4_modifier::{Vector4Modifier, Vector4Values},
     },
     point_data::{PointData, vector4_point_data::Vector4PointData},
-    values::{
-        AbstractValueProvider, ValueProvider,
-        base_provider_context::{BaseProviderContext, UpdatableProviderContext},
-    },
+    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;
@@ -158,13 +155,9 @@ impl PointDefinition for Vector4PointDefinition {
 
 impl Vector4PointDefinition {
     #[cfg(feature = "json")]
-    pub fn new(
-        value: serde_json::Value,
-        context: &mut BaseProviderContext,
-        updatable_providers: &mut UpdatableProviderContext,
-    ) -> Self {
+    pub fn new(value: serde_json::Value, context: &mut BaseProviderContext) -> Self {
         let mut instance = Self { points: Vec::new() };
-        instance.parse(value, context, updatable_providers);
+        instance.parse(value, context);
         instance
     }
 }

@@ -10,7 +10,7 @@ use crate::{
     point_data::{PointData, float_point_data::FloatPointData},
     values::{
         AbstractValueProvider, ValueProvider,
-        base_provider_context::{BaseProviderContext, UpdatableProviderContext},
+        base_provider_context::{BaseProviderContext},
     },
 };
 
@@ -124,10 +124,9 @@ impl FloatPointDefinition {
     pub fn new(
         value: serde_json::Value,
         context: &mut BaseProviderContext,
-        updatable_providers: &mut UpdatableProviderContext,
     ) -> Self {
         let mut instance = Self { points: Vec::new() };
-        instance.parse(value, context, updatable_providers);
+        instance.parse(value, context);
         instance
     }
 }

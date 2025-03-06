@@ -11,7 +11,7 @@ use crate::{
     point_data::{PointData, vector3_point_data::Vector3PointData},
     values::{
         AbstractValueProvider, ValueProvider,
-        base_provider_context::{BaseProviderContext, UpdatableProviderContext},
+        base_provider_context::{BaseProviderContext},
     },
 };
 
@@ -168,10 +168,9 @@ impl Vector3PointDefinition {
     pub fn new(
         value: serde_json::Value,
         context: &mut BaseProviderContext,
-        updatable_providers: &mut UpdatableProviderContext,
     ) -> Self {
         let mut instance = Self { points: Vec::new() };
-        instance.parse(value, context, updatable_providers);
+        instance.parse(value, context);
         instance
     }
 }

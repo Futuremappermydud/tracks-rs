@@ -8,10 +8,7 @@ use crate::{
         quaternion_modifier::{QuaternionModifier, QuaternionValues, TRACKS_EULER_ROT},
     },
     point_data::{PointData, quaternion_point_data::QuaternionPointData},
-    values::{
-        AbstractValueProvider, ValueProvider,
-        base_provider_context::{BaseProviderContext, UpdatableProviderContext},
-    },
+    values::{AbstractValueProvider, ValueProvider, base_provider_context::BaseProviderContext},
 };
 
 use super::PointDefinition;
@@ -133,10 +130,9 @@ impl QuaternionPointDefinition {
     pub fn new(
         value: serde_json::Value,
         context: &mut BaseProviderContext,
-        updatable_providers: &mut UpdatableProviderContext,
     ) -> Self {
         let mut instance = Self { points: Vec::new() };
-        instance.parse(value, context, updatable_providers);
+        instance.parse(value, context);
         instance
     }
 }
