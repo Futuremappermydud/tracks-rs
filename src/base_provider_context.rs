@@ -20,8 +20,14 @@ use crate::{
 /// to get the current base values
 #[derive(Default, Clone)]
 pub struct BaseProviderContext {
+    //Movement Data
+    note_jump_movement_speed: f32,
+    note_jump_start_beat_offset: f32,
+    jump_distance: f32,
+    player_height: f32,
+
     //Score
-    base_combo: f32,
+    combo: f32,
     multiplied_score: f32,
     immediate_max_possible_multiplied_score: f32,
     modified_score: f32,
@@ -73,13 +79,16 @@ impl BaseProviderContext {
 
     pub fn get_values(&self, base: &str) -> BaseValue {
         match base {
-            "baseCombo" => self.base_combo.into(),
+            "baseNoteJumpMovementSpeed" => self.note_jump_movement_speed.into(),
+            "baseNoteJumpStartBeatOffset" => self.note_jump_start_beat_offset.into(),
+            "baseJumpDistance" => self.jump_distance.into(),
+            "basePlayerHeight" => self.player_height.into(),
 
+            "baseCombo" => self.combo.into(),
             "baseMultipliedScore" => self.multiplied_score.into(),
             "baseImmediateMaxPossibleMultipliedScore" => {
                 self.immediate_max_possible_multiplied_score.into()
             }
-
             "baseModifiedScore" => self.modified_score.into(),
             "baseImmediateMaxPossibleModifiedScore" => {
                 self.immediate_max_possible_modified_score.into()
@@ -124,8 +133,20 @@ impl BaseProviderContext {
     pub fn set_values(&mut self, base: &str, base_value: BaseValue) {
         let values = base_value.as_slice_raw();
         match base {
+            "baseNoteJumpMovementSpeed" => {
+                self.note_jump_movement_speed = values[0];
+            }
+            "baseNoteJumpStartBeatOffset" => {
+                self.note_jump_start_beat_offset = values[0];
+            }
+            "baseJumpDistance" => {
+                self.jump_distance = values[0];
+            }
+            "basePlayerHeight" => {
+                self.player_height = values[0];
+            }
             "baseCombo" => {
-                self.base_combo = values[0];
+                self.combo = values[0];
             }
             "baseMultipliedScore" => {
                 self.multiplied_score = values[0];
